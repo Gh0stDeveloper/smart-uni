@@ -1,6 +1,11 @@
 name: Compilar SMART UNI Windows
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/compilar-windows.yml'
+      - 'apps/desktop/**'
   workflow_dispatch:
 
 permissions:
