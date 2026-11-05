@@ -1,0 +1,45 @@
+name: Importar código verificado de SMART UNI Desktop
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-desktop.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Comprobar integridad y extraer la versión de escritorio
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .bootstrap/source_{01,02,03,04,05}.b64 | tr -d '\n\r' | base64 --decode > /tmp/smartuni-desktop.tar.xz
+          echo 'f4989fa4baecfa89c91bc043c846705357bb0b35fa8e649b0356f42bdecaf286  /tmp/smartuni-desktop.tar.xz' | sha256sum --check
+          tar -tJf /tmp/smartuni-desktop.tar.xz
+          tar -xJf /tmp/smartuni-desktop.tar.xz
+          test -f apps/desktop/main.py
+          test -f apps/desktop/smart_uni/ui.py
+          test -f apps/desktop/tests/test_core.py
+      - name: Preparar las pruebas gráficas
+        run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb
+      - name: Ejecutar las 17 pruebas del prototipo
+        working-directory: apps/desktop
+        run: xvfb-run -a python3 -m unittest discover -s tests -v
+      - name: Publicar los archivos fuente en main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps/desktop
+          git rm -r .bootstrap
+          git commit -m 'feat(desktop): importar código original SMART UNI y tests verificados'
+          git push origin HEAD:main
