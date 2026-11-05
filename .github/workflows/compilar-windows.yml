@@ -1,0 +1,33 @@
+name: Compilar SMART UNI Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pruebas
+        working-directory: apps/desktop
+        run: python -m unittest discover -s tests -v
+      - name: Instalar empaquetador e icono
+        run: python -m pip install "pyinstaller>=6,<7" "pillow>=10,<13"
+      - name: Generar icono original para EXE
+        working-directory: apps/desktop
+        run: python design/build_icon.py
+      - name: Compilar EXE independiente
+        working-directory: apps/desktop
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name Smart_Uni --icon design/smart_uni.ico --add-data "design/previews/00_isotipo_smart_uni.png;design/previews" main.py
+      - name: Publicar EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: SMART_UNI_EXE_Windows_Independiente
+          path: apps/desktop/dist/Smart_Uni.exe
+          if-no-files-found: error

@@ -1,0 +1,39 @@
+name: Pruebas SMART UNI Desktop
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/desktop/**'
+      - '.github/workflows/desktop-tests.yml'
+  pull_request:
+    paths:
+      - 'apps/desktop/**'
+      - '.github/workflows/desktop-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar GUI de Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk xvfb
+      - name: Pruebas en Linux con pantalla virtual
+        if: runner.os == 'Linux'
+        working-directory: apps/desktop
+        run: xvfb-run -a python3 -m unittest discover -s tests -v
+      - name: Pruebas en Windows
+        if: runner.os == 'Windows'
+        working-directory: apps/desktop
+        run: python -m unittest discover -s tests -v
