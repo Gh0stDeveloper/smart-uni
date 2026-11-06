@@ -373,6 +373,21 @@ def make_sync_router(authenticated, get_session):
             db.rollback()
             raise
 
+    @router.get("/blobs/{blob_id}/manifest")
+    def get_blob_manifest(blob_id: UUID, owner=Depends(authenticated), db=Depends(get_session)):
+        blob = db.get(SyncBlob, blob_id)
+        if blob is None or blob.owner_id != owner.id or not blob.complete:
+            rejected("Adjunto no encontrado", 404)
+        return {
+            "blob_id": str(blob.id),
+            "resource_id": str(blob.resource_id),
+            "base_revision": blob.base_revision,
+            "epoch": blob.epoch,
+            "total_size": blob.total_size,
+            "sha256": blob.sha256,
+            "chunk_size": CHUNK_SIZE,
+        }
+
     @router.get("/blobs/{blob_id}/parts/{index}")
     def get_part(blob_id: UUID, index: int, owner=Depends(authenticated), db=Depends(get_session)):
         blob = db.get(SyncBlob, blob_id)
