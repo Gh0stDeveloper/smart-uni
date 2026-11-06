@@ -10,9 +10,10 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 
+@runtime_checkable
 class RecordRepository(Protocol):
     """Interfaz usada por servicios; futuras implementaciones requieren pruebas de compatibilidad."""
 
