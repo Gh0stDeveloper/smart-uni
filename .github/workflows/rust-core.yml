@@ -16,6 +16,7 @@ on:
       - 'packages/contracts/v1/**'
       - 'apps/desktop/smart_uni/native_bridge.py'
       - 'apps/desktop/tests/test_phase3_native.py'
+      - 'scripts/check_crypto_vectors.py'
       - '.github/workflows/rust-core.yml'
   workflow_dispatch:
 permissions:
@@ -65,3 +66,46 @@ jobs:
         run: |
           c++ -std=c++17 -Wall -Wextra -Werror -Icore/rust/include core/rust/examples/cpp/smoke.cpp -Lcore/rust/target/release -lsmartuni_core -Wl,-rpath,"$PWD/core/rust/target/release" -o /tmp/smartuni_cpp_smoke
           /tmp/smartuni_cpp_smoke
+
+  android_aarch64:
+    name: Android arm64 NDK - compilar y enlazar (sin emulador)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Rust para Android
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+      - name: Configurar Android NDK disponible
+        shell: bash
+        run: |
+          set -eo pipefail
+          if [ -n "$ANDROID_NDK_HOME" ] && [ -d "$ANDROID_NDK_HOME" ]; then
+            NDK="$ANDROID_NDK_HOME"
+          else
+            SDK="$ANDROID_HOME"
+            if [ -z "$SDK" ]; then SDK=/usr/local/lib/android/sdk; fi
+            NDK="$(find "$SDK/ndk" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n 1)"
+          fi
+          TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          test -x "$TOOLCHAIN/aarch64-linux-android21-clang"
+          test -x "$TOOLCHAIN/aarch64-linux-android21-clang++"
+          echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$TOOLCHAIN/aarch64-linux-android21-clang" >> "$GITHUB_ENV"
+          echo "ANDROID_CPP_COMPILER=$TOOLCHAIN/aarch64-linux-android21-clang++" >> "$GITHUB_ENV"
+      - name: Compilar biblioteca Rust Android arm64
+        run: |
+          cargo build --manifest-path core/rust/Cargo.toml --release --target aarch64-linux-android
+          test -s core/rust/target/aarch64-linux-android/release/libsmartuni_core.so
+      - name: Compilar cabecera C++ contra NDK
+        run: |
+          "$ANDROID_CPP_COMPILER" -std=c++17 -Wall -Wextra -Werror -Icore/rust/include -c core/rust/examples/cpp/smoke.cpp -o /tmp/smartuni_android_smoke.o
+          test -s /tmp/smartuni_android_smoke.o
+      - name: Publicar biblioteca Android de validación
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartuni-rust-android-arm64
+          path: |
+            core/rust/target/aarch64-linux-android/release/libsmartuni_core.so
+            core/rust/include/smartuni_core.h
+          if-no-files-found: error
+          retention-days: 30
