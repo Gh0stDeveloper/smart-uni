@@ -30,25 +30,33 @@ pub fn seal_random(
     let cipher = Aes256Gcm::new_from_slice(key).map_err(|_| CryptoError::EncryptFailed)?;
     let random_nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     let ciphertext_and_tag = cipher
-        .encrypt(&random_nonce, Payload { msg: plaintext, aad })
+        .encrypt(
+            &random_nonce,
+            Payload {
+                msg: plaintext,
+                aad,
+            },
+        )
         .map_err(|_| CryptoError::EncryptFailed)?;
     let mut nonce = [0u8; NONCE_LEN];
     nonce.copy_from_slice(&random_nonce);
-    Ok(Sealed { nonce, ciphertext_and_tag })
+    Ok(Sealed {
+        nonce,
+        ciphertext_and_tag,
+    })
 }
 
 /// Fallar cerrado ante ciphertext, etiqueta, AAD, clave o nonce adulterados.
-pub fn open(
-    key: &[u8; KEY_LEN],
-    sealed: &Sealed,
-    aad: &[u8],
-) -> Result<Vec<u8>, CryptoError> {
+pub fn open(key: &[u8; KEY_LEN], sealed: &Sealed, aad: &[u8]) -> Result<Vec<u8>, CryptoError> {
     let cipher = Aes256Gcm::new_from_slice(key).map_err(|_| CryptoError::AuthenticationFailed)?;
     cipher
-        .decrypt(Nonce::from_slice(&sealed.nonce), Payload {
-            msg: &sealed.ciphertext_and_tag,
-            aad,
-        })
+        .decrypt(
+            Nonce::from_slice(&sealed.nonce),
+            Payload {
+                msg: &sealed.ciphertext_and_tag,
+                aad,
+            },
+        )
         .map_err(|_| CryptoError::AuthenticationFailed)
 }
 
@@ -96,7 +104,10 @@ mod tests {
         assert_ne!(first.nonce, second.nonce);
         assert_ne!(first.ciphertext_and_tag, b"apunte inventado");
         assert_eq!(open(&key, &first, b"id:test").unwrap(), b"apunte inventado");
-        assert_eq!(open(&key, &second, b"id:test").unwrap(), b"apunte inventado");
+        assert_eq!(
+            open(&key, &second, b"id:test").unwrap(),
+            b"apunte inventado"
+        );
     }
 
     #[test]
