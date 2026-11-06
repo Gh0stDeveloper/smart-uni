@@ -37,3 +37,20 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: apps/desktop
         run: python -m unittest discover -s tests -v
+      - name: Instalar Pillow solo para capturas de línea base
+        run: python -m pip install "pillow>=10,<13"
+      - name: Evidencia Tkinter en Linux (Xvfb)
+        if: runner.os == 'Linux'
+        working-directory: apps/desktop
+        run: xvfb-run -a -s "-screen 0 1600x1000x24" python3 tests/capture_phase1_baseline.py --output phase1-evidence
+      - name: Evidencia Tkinter en Windows
+        if: runner.os == 'Windows'
+        working-directory: apps/desktop
+        run: python tests/capture_phase1_baseline.py --output phase1-evidence
+      - name: Adjuntar capturas y respaldo sintético
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-uni-phase1-${{ runner.os }}
+          path: apps/desktop/phase1-evidence/
+          if-no-files-found: error
+          retention-days: 30
