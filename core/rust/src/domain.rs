@@ -22,9 +22,13 @@ pub fn normalize_email(input: &str) -> Result<String, DomainError> {
     }
     let (local, domain) = value.split_once('@').ok_or(DomainError::InvalidEmail)?;
     if local.is_empty()
-        || !local.bytes().all(|b| b.is_ascii_alphanumeric() || b"._%+-".contains(&b))
+        || !local
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"._%+-".contains(&b))
         || domain.contains('@')
-        || !domain.bytes().all(|b| b.is_ascii_alphanumeric() || b".-".contains(&b))
+        || !domain
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b".-".contains(&b))
     {
         return Err(DomainError::InvalidEmail);
     }
@@ -59,7 +63,11 @@ pub fn validate_student(
     if password.chars().count() < 8 {
         return Err(DomainError::InvalidPassword);
     }
-    Ok(StudentInput { name: name.into(), email, career: career.into() })
+    Ok(StudentInput {
+        name: name.into(),
+        email,
+        career: career.into(),
+    })
 }
 
 #[cfg(test)]
@@ -67,7 +75,10 @@ mod tests {
     use super::*;
     #[test]
     fn normalize() {
-        assert_eq!(normalize_email("  MARIA+1@UNI.EDU  ").unwrap(), "maria+1@uni.edu");
+        assert_eq!(
+            normalize_email("  MARIA+1@UNI.EDU  ").unwrap(),
+            "maria+1@uni.edu"
+        );
     }
     #[test]
     fn invalid_email() {
@@ -77,8 +88,17 @@ mod tests {
     }
     #[test]
     fn student() {
-        let user = validate_student(" María Pérez ", "MARIA@UNI.EDU", "Ingeniería", "ClaveSegura123").unwrap();
-        assert_eq!((user.name.as_str(), user.email.as_str()), ("María Pérez", "maria@uni.edu"));
+        let user = validate_student(
+            " María Pérez ",
+            "MARIA@UNI.EDU",
+            "Ingeniería",
+            "ClaveSegura123",
+        )
+        .unwrap();
+        assert_eq!(
+            (user.name.as_str(), user.email.as_str()),
+            ("María Pérez", "maria@uni.edu")
+        );
         assert_eq!(user.career, "Ingeniería");
         assert_eq!(
             validate_student("A", "a@uni.edu", "Ingeniería", "ClaveSegura123").unwrap_err(),

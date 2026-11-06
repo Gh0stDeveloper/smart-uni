@@ -7,12 +7,25 @@ use std::{error::Error, fmt};
 
 pub const MAX_OPERATION_BYTES: usize = 1024 * 1024;
 pub const OPERATIONS: &[&str] = &[
-    "notes.create", "notes.update", "notes.delete", "tasks.create", "tasks.toggle",
-    "events.create", "friends.add", "materials.import", "materials.delete", "profile.update",
+    "notes.create",
+    "notes.update",
+    "notes.delete",
+    "tasks.create",
+    "tasks.toggle",
+    "events.create",
+    "friends.add",
+    "materials.import",
+    "materials.delete",
+    "profile.update",
 ];
 pub const ERROR_CODES: &[&str] = &[
-    "VALIDATION_ERROR", "UNAUTHENTICATED", "FORBIDDEN", "NOT_FOUND",
-    "CONFLICT", "UNSUPPORTED_VERSION", "DATA_CORRUPT",
+    "VALIDATION_ERROR",
+    "UNAUTHENTICATED",
+    "FORBIDDEN",
+    "NOT_FOUND",
+    "CONFLICT",
+    "UNSUPPORTED_VERSION",
+    "DATA_CORRUPT",
 ];
 
 #[derive(Debug, PartialEq, Eq)]
@@ -57,7 +70,9 @@ pub struct OperationEnvelope {
     pub payload: Value,
 }
 pub fn is_lowercase_hex_128(s: &str) -> bool {
-    s.len() == 32 && s.bytes().all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    s.len() == 32
+        && s.bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 pub fn parse_operation(bytes: &[u8]) -> Result<OperationEnvelope, ContractError> {
     if bytes.len() > MAX_OPERATION_BYTES {
@@ -69,7 +84,8 @@ pub fn parse_operation(bytes: &[u8]) -> Result<OperationEnvelope, ContractError>
     {
         return Err(ContractError::InvalidJson);
     }
-    let e: OperationEnvelope = serde_json::from_value(raw).map_err(|_| ContractError::InvalidJson)?;
+    let e: OperationEnvelope =
+        serde_json::from_value(raw).map_err(|_| ContractError::InvalidJson)?;
     if e.schema_version != CONTRACT_VERSION {
         return Err(ContractError::UnsupportedVersion);
     }
@@ -77,11 +93,14 @@ pub fn parse_operation(bytes: &[u8]) -> Result<OperationEnvelope, ContractError>
         return Err(ContractError::InvalidOperation);
     }
     if !is_lowercase_hex_128(&e.operation_id)
-        || e.entity_id.as_ref().is_some_and(|id| !is_lowercase_hex_128(id))
+        || e.entity_id
+            .as_ref()
+            .is_some_and(|id| !is_lowercase_hex_128(id))
     {
         return Err(ContractError::InvalidIdentifier);
     }
-    let normalized = normalize_email(&e.actor_ref).map_err(|_| ContractError::InvalidActorReference)?;
+    let normalized =
+        normalize_email(&e.actor_ref).map_err(|_| ContractError::InvalidActorReference)?;
     if normalized != e.actor_ref {
         return Err(ContractError::InvalidActorReference);
     }
@@ -105,28 +124,86 @@ mod tests {
     }
     #[test]
     fn reject_version() {
-        assert_eq!(parse_operation(VALID.replace("1.0.0", "9.0.0").as_bytes()).unwrap_err(), ContractError::UnsupportedVersion);
+        assert_eq!(
+            parse_operation(VALID.replace("1.0.0", "9.0.0").as_bytes()).unwrap_err(),
+            ContractError::UnsupportedVersion
+        );
     }
     #[test]
     fn reject_actor() {
-        assert_eq!(parse_operation(VALID.replace("student@example.edu", "STUDENT@EXAMPLE.EDU").as_bytes()).unwrap_err(), ContractError::InvalidActorReference);
+        assert_eq!(
+            parse_operation(
+                VALID
+                    .replace("student@example.edu", "STUDENT@EXAMPLE.EDU")
+                    .as_bytes()
+            )
+            .unwrap_err(),
+            ContractError::InvalidActorReference
+        );
     }
     #[test]
     fn reject_fields() {
-        assert_eq!(parse_operation(VALID.replace("notes.create", "user.delete").as_bytes()).unwrap_err(), ContractError::InvalidOperation);
-        assert_eq!(parse_operation(VALID.replace(r#""payload":{"title":"demo"}"#, r#""payload":{},"extra":0"#).as_bytes()).unwrap_err(), ContractError::InvalidJson);
-        assert_eq!(parse_operation(VALID.replace(r#""payload":{"title":"demo"}"#, r#""payload":{},"entity_id":null"#).as_bytes()).unwrap_err(), ContractError::InvalidJson);
+        assert_eq!(
+            parse_operation(VALID.replace("notes.create", "user.delete").as_bytes()).unwrap_err(),
+            ContractError::InvalidOperation
+        );
+        assert_eq!(
+            parse_operation(
+                VALID
+                    .replace(r#""payload":{"title":"demo"}"#, r#""payload":{},"extra":0"#)
+                    .as_bytes()
+            )
+            .unwrap_err(),
+            ContractError::InvalidJson
+        );
+        assert_eq!(
+            parse_operation(
+                VALID
+                    .replace(
+                        r#""payload":{"title":"demo"}"#,
+                        r#""payload":{},"entity_id":null"#
+                    )
+                    .as_bytes()
+            )
+            .unwrap_err(),
+            ContractError::InvalidJson
+        );
     }
     #[test]
     fn reject_ids_date_and_payload() {
-        assert_eq!(parse_operation(VALID.replace("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "invalid").as_bytes()).unwrap_err(), ContractError::InvalidIdentifier);
-        assert_eq!(parse_operation(VALID.replace("2026-11-06T04:00:00Z", "bad").as_bytes()).unwrap_err(), ContractError::InvalidTimestamp);
-        assert_eq!(parse_operation(VALID.replace(r#""payload":{"title":"demo"}"#, r#""payload":"x""#).as_bytes()).unwrap_err(), ContractError::InvalidPayload);
+        assert_eq!(
+            parse_operation(
+                VALID
+                    .replace("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "invalid")
+                    .as_bytes()
+            )
+            .unwrap_err(),
+            ContractError::InvalidIdentifier
+        );
+        assert_eq!(
+            parse_operation(VALID.replace("2026-11-06T04:00:00Z", "bad").as_bytes()).unwrap_err(),
+            ContractError::InvalidTimestamp
+        );
+        assert_eq!(
+            parse_operation(
+                VALID
+                    .replace(r#""payload":{"title":"demo"}"#, r#""payload":"x""#)
+                    .as_bytes()
+            )
+            .unwrap_err(),
+            ContractError::InvalidPayload
+        );
     }
     #[test]
     fn guard_size_and_codes() {
-        assert_eq!(parse_operation(&vec![0u8; MAX_OPERATION_BYTES + 1]).unwrap_err(), ContractError::TooLarge);
-        assert_eq!(ContractError::UnsupportedVersion.code(), "UNSUPPORTED_VERSION");
+        assert_eq!(
+            parse_operation(&vec![0u8; MAX_OPERATION_BYTES + 1]).unwrap_err(),
+            ContractError::TooLarge
+        );
+        assert_eq!(
+            ContractError::UnsupportedVersion.code(),
+            "UNSUPPORTED_VERSION"
+        );
         assert_eq!(OPERATIONS.len(), 10);
         assert_eq!(ERROR_CODES.len(), 7);
     }
