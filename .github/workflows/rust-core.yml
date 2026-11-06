@@ -38,3 +38,25 @@ jobs:
         run: cargo test --manifest-path core/rust/Cargo.toml --all-targets --verbose
       - name: Clippy sin avisos
         run: cargo clippy --manifest-path core/rust/Cargo.toml --all-targets -- -D warnings
+      - name: Construir biblioteca C ABI
+        run: cargo build --manifest-path core/rust/Cargo.toml --release
+      - name: Configurar la ruta FFI para las pruebas Python
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "SMARTUNI_NATIVE_LIB=$GITHUB_WORKSPACE/core/rust/target/release/smartuni_core.dll" >> "$GITHUB_ENV"
+          else
+            echo "SMARTUNI_NATIVE_LIB=$GITHUB_WORKSPACE/core/rust/target/release/libsmartuni_core.so" >> "$GITHUB_ENV"
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prueba de enlace Python-ctypes a Rust
+        working-directory: apps/desktop
+        run: python -m unittest discover -s tests -p test_phase3_native.py -v
+      - name: Probar C++ enlazado al núcleo en Linux
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          c++ -std=c++17 -Wall -Wextra -Werror -Icore/rust/include core/rust/examples/cpp/smoke.cpp -Lcore/rust/target/release -lsmartuni_core -Wl,-rpath,"$PWD/core/rust/target/release" -o /tmp/smartuni_cpp_smoke
+          /tmp/smartuni_cpp_smoke
