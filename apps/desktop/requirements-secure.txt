@@ -1,0 +1,2 @@
+sqlcipher3==0.6.5
+keyring==25.7.0

@@ -1,0 +1,39 @@
+name: Validar almacenamiento offline SQLCipher
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/desktop/smart_uni/secure_storage.py'
+      - 'apps/desktop/smart_uni/migration.py'
+      - 'apps/desktop/smart_uni/offline_queue.py'
+      - 'apps/desktop/tests/test_phase4_*.py'
+      - 'apps/desktop/requirements-secure.txt'
+      - '.github/workflows/secure-storage.yml'
+  pull_request:
+    paths:
+      - 'apps/desktop/smart_uni/secure_storage.py'
+      - 'apps/desktop/smart_uni/migration.py'
+      - 'apps/desktop/smart_uni/offline_queue.py'
+      - 'apps/desktop/tests/test_phase4_*.py'
+      - 'apps/desktop/requirements-secure.txt'
+      - '.github/workflows/secure-storage.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sqlcipher:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependencias seguras fijadas
+        run: python -m pip install -r apps/desktop/requirements-secure.txt
+      - name: Ejecutar pruebas SQLite cifrado, restauración y outbox
+        working-directory: apps/desktop
+        run: python -m unittest discover -s tests -p 'test_phase4_*.py' -v
