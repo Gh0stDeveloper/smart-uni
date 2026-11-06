@@ -54,6 +54,7 @@ class SyncVersion(Base):
     epoch: Mapped[int] = mapped_column(BigInteger, nullable=False)
     deleted: Mapped[bool] = mapped_column(Boolean, nullable=False)
     ciphertext: Mapped[bytes | None] = mapped_column(LargeBinary, nullable=True)
+    blob_id: Mapped[UUID | None] = mapped_column(PgUUID(as_uuid=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

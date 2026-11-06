@@ -39,6 +39,7 @@ def upgrade():
         sa.Column("epoch", sa.BigInteger(), nullable=False),
         sa.Column("deleted", sa.Boolean(), nullable=False),
         sa.Column("ciphertext", sa.LargeBinary(), nullable=True),
+        sa.Column("blob_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=sa.func.now()),
         sa.UniqueConstraint("owner_id", "cursor", name="uq_sync_version_owner_cursor"),
         sa.UniqueConstraint("owner_id", "operation_id", name="uq_sync_version_owner_operation"),

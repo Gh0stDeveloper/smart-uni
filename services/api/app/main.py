@@ -181,6 +181,9 @@ def create_app(settings: Settings | None = None, *, verifier: OidcVerifier | Non
         ).on_conflict_do_nothing())
         db.commit()
 
+    from .sync_api import make_sync_router
+    app.include_router(make_sync_router(authenticated, get_session))
+
     return app
 
 
