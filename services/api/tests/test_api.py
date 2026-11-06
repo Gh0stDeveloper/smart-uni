@@ -5,7 +5,7 @@ Las identidades, firmas y contenidos son exclusivamente sintéticos.
 import os
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import jwt
 import pytest
@@ -40,6 +40,7 @@ def make_token(sub="alumno-A", *, role="student", issuer=ISSUER, audience=AUDIEN
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(seconds=seconds)).timestamp()),
         "role": role,  # Este campo es NO confiable.
+        "jti": uuid4().hex,
     }
     if secret_key is not None:
         return jwt.encode(payload, secret_key, algorithm="HS256", headers={"kid": "fixture1"})
@@ -157,3 +158,37 @@ def test_configuration_rejects_untrusted_protocol_and_db():
         Settings("sqlite:///local.db", ISSUER, AUDIENCE, ISSUER + "/certs")
     with pytest.raises(ValueError):
         Settings("postgresql+psycopg://x/y", "http://issuer.invalid", AUDIENCE, ISSUER + "/certs")
+
+
+def test_different_sessions_same_account_and_selective_revocation(setup):
+    client, _ = setup
+    first, second = make_token("same-user"), make_token("same-user")
+    first_id = client.get("/api/v1/me", headers=headers(first)).json()["id"]
+    second_id = client.get("/api/v1/me", headers=headers(second)).json()["id"]
+    assert first_id == second_id
+    assert client.post("/api/v1/sessions/revoke", headers=headers(first)).status_code == 204
+    assert client.get("/api/v1/me", headers=headers(first)).status_code == 401
+    assert client.get("/api/v1/me", headers=headers(second)).status_code == 200
+
+
+def test_missing_required_claim_and_unknown_key_fail_closed(setup):
+    client, _ = setup
+    now = int(datetime.now(timezone.utc).timestamp())
+    token_no_exp = jwt.encode({
+        "iss": ISSUER, "sub": "no-exp", "aud": AUDIENCE, "iat": now,
+    }, PRIVATE, algorithm="RS256", headers={"kid": "fixture1"})
+    token_wrong_kid = jwt.encode({
+        "iss": ISSUER, "sub": "wrong-kid", "aud": AUDIENCE, "iat": now, "exp": now + 600,
+    }, PRIVATE, algorithm="RS256", headers={"kid": "unexpected"})
+    assert client.get("/api/v1/me", headers=headers(token_no_exp)).status_code == 401
+    assert client.get("/api/v1/me", headers=headers(token_wrong_kid)).status_code == 401
+
+
+def test_confidential_responses_cannot_be_cached(setup):
+    client, _ = setup
+    token = make_token("no-cache")
+    response = client.get("/api/v1/me", headers=headers(token))
+    assert response.status_code == 200
+    assert "no-store" in response.headers["cache-control"]
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-frame-options"] == "DENY"

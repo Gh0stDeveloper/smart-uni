@@ -55,6 +55,16 @@ def create_app(settings: Settings | None = None, *, verifier: OidcVerifier | Non
     app.state.engine = engine
     app.state.verifier = verifier if verifier is not None else OidcVerifier(settings)
 
+    @app.middleware("http")
+    async def security_headers(request: Request, call_next):
+        response = await call_next(request)
+        # No cachear en intermediarios registros ni datos de sesiones.
+        response.headers["Cache-Control"] = "no-store, private"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        return response
+
     def get_session(request: Request):
         with Session(request.app.state.engine) as session:
             yield session
