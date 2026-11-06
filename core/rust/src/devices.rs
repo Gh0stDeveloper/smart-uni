@@ -7,6 +7,7 @@ use hpke::{
     Deserializable, Kem as _, OpModeR, OpModeS, Serializable,
 };
 use std::collections::BTreeMap;
+use hpke::rand_core::RngCore;
 use zeroize::Zeroizing;
 
 type Kem = X25519HkdfSha256;
@@ -135,14 +136,20 @@ impl DeviceRoster {
         self.devices.insert(id.to_string(), (public_key, true));
         Ok(())
     }
-    pub fn revoke(&mut self, id: &str) -> Result<u64, DeviceError> {
+    /// Revoca un destinatario y genera una clave NUEVA para el siguiente epoch.
+    /// El dueño debe re-cifrar/re-envolver los datos que el retirado conocía;
+    /// no existe borrado retroactivo de contenido que éste haya copiado.
+    pub fn revoke_and_rotate(&mut self, id: &str) -> Result<(u64, Zeroizing<[u8; 32]>), DeviceError> {
+        let next = self.epoch.checked_add(1).ok_or(DeviceError::Invalid)?;
         let device = self.devices.get_mut(id).ok_or(DeviceError::Invalid)?;
         if !device.1 {
             return Err(DeviceError::Revoked);
         }
+        let mut next_secret = Zeroizing::new([0u8; 32]);
+        hpke::rand_core::OsRng.fill_bytes(next_secret.as_mut());
         device.1 = false;
-        self.epoch = self.epoch.checked_add(1).ok_or(DeviceError::Invalid)?;
-        Ok(self.epoch)
+        self.epoch = next;
+        Ok((next, next_secret))
     }
     pub fn wrap_for(
         &self,
@@ -190,14 +197,16 @@ mod tests {
         let old = roster
             .wrap_for("device-alice", &[6u8; 32], b"owner")
             .unwrap();
-        assert_eq!(roster.revoke("device-alice").unwrap(), 2);
+        let (epoch, new_key) = roster.revoke_and_rotate("device-alice").unwrap();
+        assert_eq!(epoch, 2);
+        assert_ne!(&*new_key, &[6u8; 32]);
         assert_eq!(
             roster
                 .wrap_for("device-alice", &[7u8; 32], b"owner")
                 .unwrap_err(),
             DeviceError::Revoked
         );
-        let new_package = roster.wrap_for("device-bob", &[7u8; 32], b"owner").unwrap();
+        let new_package = roster.wrap_for("device-bob", &new_key, b"owner").unwrap();
         assert!(unwrap(1, &alice_sk, &new_package, b"owner").is_err());
         // Revocar no invalida información ya vista ni descifrada previamente.
         assert_eq!(&*unwrap(1, &alice_sk, &old, b"owner").unwrap(), &[6u8; 32]);
