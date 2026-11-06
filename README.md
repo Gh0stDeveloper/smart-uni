@@ -19,7 +19,7 @@ SMART UNI 2.0 evolucionará desde el prototipo de escritorio existente hacia un 
 </div>
 
 > [!IMPORTANT]
-> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, sincronización y E2EE siguen sin implementar. **La API FastAPI/PostgreSQL y el portal Next.js existen y pasan CI, pero todavía no están desplegados ni conectados a un proveedor OIDC real**. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. Existe ya un núcleo Rust 0.1.0 con contratos, ABI y pruebas criptográficas, pero **no está conectado al flujo de datos ni a la interfaz**. No se deben introducir datos privados reales en esta versión.
+> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, sincronización y E2EE **completo entre clientes y servidor** siguen sin implementar; la etapa 6 añadió cifrado local de materiales, recuperación de claves y HPKE de laboratorio. **La API FastAPI/PostgreSQL y el portal Next.js existen y pasan CI, pero todavía no están desplegados ni conectados a un proveedor OIDC real**. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. El núcleo Rust 0.1.0 ya cifra materiales del modo seguro mediante ABI y se probó contra OpenSSL, pero la aplicación tradicional y la API no usan todavía E2EE. No se deben introducir datos privados reales en esta versión.
 
 ---
 
@@ -68,7 +68,7 @@ Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativ
 | Icono | Tecnología | Responsabilidad | Estado |
 |---|---|---|---|
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="26" alt="Python" /> | **Python** | Escritorio Tkinter y backend FastAPI | Escritorio + API de laboratorio funcional |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg" width="26" alt="Rust" /> | **Rust** | Dominio, validación de contratos, ABI C y AES-256-GCM probado | Implementado parcialmente (etapa 3; sin integración en la app) |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg" width="26" alt="Rust" /> | **Rust** | Dominio, AES-256-GCM, HPKE, Argon2id recovery y ABI C | Implementado en biblioteca y archivos del modo SQLCipher, no E2EE productivo |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg" width="26" alt="C++" /> | **C++** | Red/JNI nativo para Android | Planificado |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" width="26" alt="Java" /> | **Java** | Interfaz Android | Planificado |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="26" alt="TypeScript" /> | **TypeScript** | Next.js, portal y administración | Portal implementado y probado, sin desplegar |
@@ -96,7 +96,7 @@ Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativ
 
 </div>
 
-**En uso:** Python/Tkinter, JSON legacy, SQLCipher opt-in, outbox offline, Rust 0.1.0, FastAPI/PostgreSQL con Alembic y Next.js/Auth.js probados, contratos versionados y tokens de diseño. **Pendientes:** despliegue API/portal, IdP externo real, cifrado de materiales, keyring real, integración de Rust con datos, Android, sincronización, E2EE y Figma.
+**En uso:** Tkinter/JSON legacy, SQLCipher opt-in con adjuntos cifrados por Rust y outbox, núcleo Rust con AEAD/Argon2id/HPKE, FastAPI/PostgreSQL y Next.js probados, contratos y tokens. **Pendientes:** empaquetado Rust/SQLCipher en EXE, IdP real, permisos de sesión desktop, keyring hardware real, Android/JNI, E2EE en API, sincronización, visor seguro de archivos y Figma.
 
 ## Arquitectura prevista
 
@@ -171,7 +171,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-La suite de escritorio detecta **68 casos**: 42 se ejecutan correctamente en el flujo normal (39 previos y 3 pruebas PBKDF2) y 26 se omiten sin dependencias opcionales (22 SQLCipher y 4 FFI). Los 22 casos SQLCipher se ejecutan **sin omisiones** en su workflow Windows/Linux, igual que los cuatro FFI en el workflow Rust. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
+La suite de escritorio detecta **79 casos**: 42 ejecutados correctamente y 37 omitidos en el modo legacy sin dependencias opcionales; las pruebas Rust/SQLCipher y recuperación se ejecutan en los workflows especializados Windows/Linux. Los 22 casos SQLCipher se ejecutan **sin omisiones** en su workflow Windows/Linux, igual que los cuatro FFI en el workflow Rust. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
 
 Para comprobar la nomenclatura documental, desde la raíz:
 
@@ -192,7 +192,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 | **3 Núcleo compartido en Rust** | Completada: [evidencias de cierre](docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md) |
 | **4 Persistencia local y funcionamiento offline** | Implementación técnica validada, **opt-in**, no apta para producción: [acta de cierre](docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) |
 | **5 Backend, identidad y autorización** | Base técnica implementada y validada, sin despliegue ni IdP externo: [acta 5](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) |
-| **6 Cifrado y gestión de claves** | Pendiente |
+| **6 Cifrado y gestión de claves** | Base criptográfica y archivos seguros opt-in validados: [acta de cierre](docs/phase-6/6_CIERRE_Y_EVIDENCIAS.md); NO E2EE productivo |
 | **7 Sincronización multiplataforma** | Pendiente |
 | **8 Aplicación Android** | Pendiente |
 | **9 Seguridad, integración continua y beta** | Pendiente |
@@ -219,7 +219,7 @@ Se planean Argon2id cuando corresponda, TLS, cifrado en reposo, gestión de clav
 - [Política de seguridad](SECURITY.md)
 - [Guía de contribución](CONTRIBUTING.md)
 - [Estado real de componentes](docs/architecture/00_ESTADO_Y_PRIORIDADES.md)
-- **[Registro maestro de pendientes y riesgos abiertos (P01–P36)](docs/PENDIENTES_SMART_UNI_2_0.md)**
+- **[Registro maestro de pendientes y riesgos abiertos (P01–P43)](docs/PENDIENTES_SMART_UNI_2_0.md)**
 
 **Desarrollo:** [Ghost Developer](https://github.com/Gh0stDeveloper)
 
@@ -233,4 +233,8 @@ Para probar desde código fuente, instalar `pip install -r apps/desktop/requirem
 
 ## Backend y portal de laboratorio — etapa 5
 
-La API [FastAPI + PostgreSQL](services/api/README.md) dispone de migraciones Alembic, consultas parametrizadas, JWT OIDC RS256, propietario por identidad DB, rol admin validado por PostgreSQL y revocación de tokens propia. El [portal Next.js](apps/web/README.md) utiliza Auth.js con PKCE, state y nonce, cookies de sesión protegidas y BFF que no expone tokens al navegador. **No hay todavía IdP externo conectado ni despliegue productivo.** Los apuntes de prueba del backend se almacenan sin E2EE. [Acta técnica](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) y [36 pendientes de seguridad y funcionalidad](docs/PENDIENTES_SMART_UNI_2_0.md).
+La API [FastAPI + PostgreSQL](services/api/README.md) dispone de migraciones Alembic, consultas parametrizadas, JWT OIDC RS256, propietario por identidad DB, rol admin validado por PostgreSQL y revocación de tokens propia. El [portal Next.js](apps/web/README.md) utiliza Auth.js con PKCE, state y nonce, cookies de sesión protegidas y BFF que no expone tokens al navegador. **No hay todavía IdP externo conectado ni despliegue productivo.** Los apuntes de prueba del backend se almacenan sin E2EE. [Acta técnica](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) y [43 pendientes de seguridad y funcionalidad](docs/PENDIENTES_SMART_UNI_2_0.md).
+
+## Cifrado y recuperación de la etapa 6
+
+El núcleo [Rust](core/rust/README.md) implementa contenedor autenticado `SUAEAD01` AES-256-GCM, paquetes de recuperación `SURECV01` mediante Argon2id, y distribución HPKE X25519 a dispositivos de laboratorio. En modo SQLCipher opt-in, [archivos cifrados](apps/desktop/README.md) se guardan en formato `.sun1` únicamente con biblioteca Rust real; las claves de base y materiales pueden exportarse/restaurarse con **paquetes separados** y frases de recuperación no almacenadas. La lectura de materiales es por bytes en memoria, no abre visores externos de forma automática. **No hay cifrado E2EE de la API, rotación real multi-dispositivo ni Android en ejecución**. [Acta 6](docs/phase-6/6_CIERRE_Y_EVIDENCIAS.md) · [Pendientes P01–P43](docs/PENDIENTES_SMART_UNI_2_0.md).

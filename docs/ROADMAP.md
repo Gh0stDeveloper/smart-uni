@@ -146,20 +146,20 @@
 
 ### 6.1 Modelo de cifrado
 
-- [ ] Definir TLS, E2EE, metadatos visibles y formatos autenticados.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Definir TLS, E2EE, metadatos visibles y formatos autenticados.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 6.2 Administración y recuperación
 
-- [ ] Altas y bajas de dispositivos, rotación y copias de recuperación.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Altas y bajas de dispositivos, rotación y copias de recuperación.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 6.3 Interoperabilidad y revisión
 
-- [ ] Pruebas de cifrado, errores, recuperación y control de claves en clientes.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Pruebas de cifrado, errores, recuperación y control de claves en clientes.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+**Criterio de cierre técnico:** Rust AEAD + HPKE/Argon2id, prototipos de gestión de dispositivos y recuperación probados con claves sintéticas; integración opt-in de materiales en SQLCipher. [6.1 Modelo de cifrado](phase-6/6.1_MODELO_DE_CIFRADO.md) · [6.2 Administración y recuperación](phase-6/6.2_ADMINISTRACION_Y_RECUPERACION.md) · [6.3 Interoperabilidad](phase-6/6.3_INTEROPERABILIDAD_Y_REVISION.md) · [Acta CI](phase-6/6_CIERRE_Y_EVIDENCIAS.md). **La protección E2EE real entre dispositivos, el servidor ciphertext-only, el alta autorizada de dispositivos y el hardware KeyStore siguen abiertos** en [P01–P43](PENDIENTES_SMART_UNI_2_0.md). Las casillas marcan únicamente el desarrollo/test de los componentes iniciales de esta etapa, no la integración productiva.
 
 ## 7 Sincronización multiplataforma
 
@@ -249,6 +249,6 @@
 
 ## Control del avance
 
-Las etapas **1–5 están implementadas y verificadas dentro de su alcance técnico**. La etapa 4 mantiene SQLCipher como opt-in experimental; la etapa 5 aporta FastAPI/PostgreSQL con 14 pruebas de identidad/autorización y portal Next.js con controles HTTP 401/403. **No se han desplegado API/portal ni conectado un IdP externo real**, y el backend todavía no cifra apuntes E2EE. Las etapas **6–10 siguen pendientes**. El [registro maestro de 36 asuntos](PENDIENTES_SMART_UNI_2_0.md) controla los pendientes abiertos o parcialmente mitigados, aunque exista código ya probado.
+Las etapas **1–6 están validadas dentro de su alcance técnico**. SQLCipher sigue siendo experimental opt-in y la etapa 6 añade AEAD Rust, recuperación Argon2id/HPKE y archivos locales cifrados (22 tests Rust + 11 tests nativos integrados por SO, además de 4 FFI existentes). **La API aún almacena apuntes en claro, falta enrolamiento autorizado de dispositivos, IdP externo real, Android en ejecución y E2EE de sincronización.** Etapas **7–10 pendientes**. El [registro maestro de 43 asuntos](PENDIENTES_SMART_UNI_2_0.md) conserva deuda abierta y condiciones de seguridad para uso real.
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.
