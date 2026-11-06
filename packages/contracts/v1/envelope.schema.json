@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:smart-uni:contracts:v1:envelope",
+  "title": "SMART UNI v1 - operation envelope (future)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "operation",
+    "operation_id",
+    "actor_ref",
+    "occurred_at",
+    "payload"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "notes.create",
+        "notes.update",
+        "notes.delete",
+        "tasks.create",
+        "tasks.toggle",
+        "events.create",
+        "friends.add",
+        "materials.import",
+        "materials.delete",
+        "profile.update"
+      ]
+    },
+    "operation_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "actor_ref": {
+      "type": "string",
+      "format": "email",
+      "maxLength": 254
+    },
+    "entity_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "base_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object"
+    }
+  }
+}

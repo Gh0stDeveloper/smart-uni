@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:smart-uni:contracts:v1:legacy-json",
+  "title": "SMART UNI local JSON format v1 - snapshot, not online API",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "version",
+    "students",
+    "courses",
+    "announcements"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "students": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "name",
+          "email",
+          "career",
+          "password_hash"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "career": {
+            "type": "string"
+          },
+          "password_hash": {
+            "type": "string",
+            "pattern": "^pbkdf2_sha256\\$"
+          }
+        }
+      }
+    },
+    "courses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "nombre",
+          "docente",
+          "progreso",
+          "dia",
+          "hora",
+          "aula"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "docente": {
+            "type": "string"
+          },
+          "progreso": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "dia": {
+            "type": "string"
+          },
+          "hora": {
+            "type": "string"
+          },
+          "aula": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "announcements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "fecha",
+          "titulo",
+          "detalle"
+        ],
+        "properties": {
+          "fecha": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "detalle": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "student_spaces": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "friends": {
+            "type": "array"
+          },
+          "events": {
+            "type": "array"
+          },
+          "tasks": {
+            "type": "array"
+          },
+          "notes": {
+            "type": "array"
+          },
+          "materials": {
+            "type": "array"
+          },
+          "_demo_initialized": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

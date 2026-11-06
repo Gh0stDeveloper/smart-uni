@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "operation": "notes.create",
+  "operation_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "actor_ref": "alumno@example.edu",
+  "entity_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "base_revision": 0,
+  "occurred_at": "2026-11-05T12:00:00Z",
+  "payload": {
+    "title": "Apunte sintético",
+    "subject": "Cálculo",
+    "content": "Texto inventado para pruebas"
+  }
+}

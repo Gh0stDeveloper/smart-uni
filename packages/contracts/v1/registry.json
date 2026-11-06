@@ -1,0 +1,32 @@
+{
+  "name": "smart-uni-contracts",
+  "contract_version": "1.0.0",
+  "legacy_storage_version": 1,
+  "identifier_formats": {
+    "local_student_ref": "correo normalizado en minúsculas; solo referencia local, NO prueba de autenticación",
+    "legacy_entity_id": "UUID de 128 bits, 32 dígitos hexadecimales en minúsculas",
+    "operation_id": "identificador de operación UUID de 128 bits, 32 dígitos hexadecimales; idempotencia futura no implementada"
+  },
+  "operations": [
+    "notes.create",
+    "notes.update",
+    "notes.delete",
+    "tasks.create",
+    "tasks.toggle",
+    "events.create",
+    "friends.add",
+    "materials.import",
+    "materials.delete",
+    "profile.update"
+  ],
+  "error_codes": [
+    "VALIDATION_ERROR",
+    "UNAUTHENTICATED",
+    "FORBIDDEN",
+    "NOT_FOUND",
+    "CONFLICT",
+    "UNSUPPORTED_VERSION",
+    "DATA_CORRUPT"
+  ],
+  "notes": "Contratos para clientes futuros; sin endpoint de red implementado."
+}
