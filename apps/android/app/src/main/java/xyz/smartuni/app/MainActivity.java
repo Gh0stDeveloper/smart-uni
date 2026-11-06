@@ -355,7 +355,7 @@ public final class MainActivity extends Activity {
                 String fileId = item.optString("text");
                 addSpacing(mainContent, 10);
                 mainContent.addView(text(filename, 16, TEXT, true));
-                mainContent.addView(text(item.optString("date") + " bytes cifrados", 13, MUTED, false));
+                mainContent.addView(text(item.optString("date") + " bytes de contenido almacenado cifrado", 13, MUTED, false));
                 mainContent.addView(button("Vista previa de texto", () -> previewMaterial(fileId, filename)));
                 mainContent.addView(button("Eliminar material", () ->
                         new AlertDialog.Builder(this).setTitle("Eliminar material")

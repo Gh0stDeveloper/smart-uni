@@ -67,7 +67,9 @@ final class LocalVault {
                 try {
                     if (legacy.length > 0) {
                         JSONObject item = new JSONObject();
-                        item.put("id", UUID.randomUUID().toString());
+                        item.put("id", UUID.nameUUIDFromBytes(
+                                "smartuni/android/legacy-note/v1".getBytes(StandardCharsets.UTF_8))
+                                .toString());
                         item.put("title", "Apunte anterior");
                         item.put("text", new String(legacy, StandardCharsets.UTF_8));
                         item.put("date", "");

@@ -114,4 +114,40 @@ public final class NativeCryptoInstrumentedTest {
         vault.clear();
         assertNull(vault.bearer());
     }
+
+    @Test public void legacyNoteMigrationHasStableIdAndCanBeEdited() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        java.io.File legacy = new java.io.File(context.getFilesDir(), "local_note.sun1");
+        java.io.File vaultFile = new java.io.File(context.getFilesDir(), "local_vault.sun1");
+        byte[] previousNote = legacy.isFile() ?
+                java.nio.file.Files.readAllBytes(legacy.toPath()) : null;
+        byte[] previousVault = vaultFile.isFile() ?
+                java.nio.file.Files.readAllBytes(vaultFile.toPath()) : null;
+        try {
+            if (vaultFile.exists()) assertTrue(vaultFile.delete());
+            new EncryptedNotesStore(context).save(
+                "Migración sintética de notas".getBytes(StandardCharsets.UTF_8));
+            LocalVault vault = new LocalVault(context);
+            String first = vault.list(LocalVault.NOTES).getJSONObject(0).getString("id");
+            String second = vault.list(LocalVault.NOTES).getJSONObject(0).getString("id");
+            assertEquals(first, second);
+            vault.updateNote(first, "Título modificado", "Contenido protegido");
+            assertEquals("Título modificado",
+                    new LocalVault(context).list(LocalVault.NOTES)
+                            .getJSONObject(0).getString("title"));
+        } finally {
+            if (previousVault == null) {
+                if (vaultFile.exists()) assertTrue(vaultFile.delete());
+            } else {
+                java.nio.file.Files.write(vaultFile.toPath(), previousVault);
+                Arrays.fill(previousVault, (byte) 0);
+            }
+            if (previousNote == null) {
+                if (legacy.exists()) assertTrue(legacy.delete());
+            } else {
+                java.nio.file.Files.write(legacy.toPath(), previousNote);
+                Arrays.fill(previousNote, (byte) 0);
+            }
+        }
+    }
 }
