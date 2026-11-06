@@ -1,81 +1,117 @@
 #!/usr/bin/env python3
-"""Comprueba el formato y la secuencia oficial de fases y subfases."""
+"""Comprueba que el ROADMAP use exclusivamente títulos numéricos consecutivos."""
+
+from __future__ import annotations
 
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ROADMAP = ROOT / "docs" / "ROADMAP.md"
-PHASE = re.compile(r"^## Fase ([1-9][0-9]*): (\S.*)$")
-SUB = re.compile(r"^### Subfase ([1-9][0-9]*)\.([1-9][0-9]*): (\S.*)$")
-HEADING = re.compile(r"^#{1,6}\s+(?:Fase|Subfase)\b")
-BAD_CODE = re.compile(r"\b(?:Fase|Subfase)\s+(?:0\b|[A-Z][0-9]*\b)")
-FENCE = re.compile(r"^\s*(```|~~~)")
+
+PHASE = re.compile(r"^## ([1-9]\d*) (\S.*)$")
+SUBPHASE = re.compile(r"^### ([1-9]\d*)\.([1-9]\d*) (\S.*)$")
+NUMERIC_HEADING = re.compile(r"^#{2,3}\s+\d")
+LEGACY_HEADING = re.compile(r"^#{2,3}\s+(?:Fase|Subfase)\s+", re.IGNORECASE)
+LEGACY_LABEL = re.compile(
+    r"\b(?:Fase\s+\d+\s*:|Subfase\s+\d+\.\d+\s*:)", re.IGNORECASE
+)
+CODE_FENCE = re.compile(r"^\s*(```|~~~)")
 
 
-def check_roadmap(source):
-    problems = []
+def validate_roadmap(content: str) -> list[str]:
+    """Verifica que el índice principal y sus subdivisiones no tengan saltos."""
+    errors: list[str] = []
     expected_phase = 1
-    parent = None
-    expected_sub = 1
-    subs_in_parent = 0
-    for line_no, line in enumerate(source.splitlines(), 1):
-        phase, sub = PHASE.fullmatch(line), SUB.fullmatch(line)
+    current_phase: int | None = None
+    expected_subphase = 1
+    number_of_subphases = 0
+
+    for line_number, line in enumerate(content.splitlines(), 1):
+        phase = PHASE.fullmatch(line)
+        subphase = SUBPHASE.fullmatch(line)
+
         if phase:
-            if parent is not None and subs_in_parent == 0:
-                problems.append(f"Fase {parent} sin subfases.")
-            current = int(phase.group(1))
-            if current != expected_phase:
-                problems.append(f"ROADMAP:{line_no}: esperado Fase {expected_phase}.")
-            parent, expected_phase = current, expected_phase + 1
-            expected_sub, subs_in_parent = 1, 0
-        if sub:
-            p, number = int(sub.group(1)), int(sub.group(2))
-            if p != parent or number != expected_sub:
-                problems.append(
-                    f"ROADMAP:{line_no}: subfase {p}.{number} no corresponde "
-                    f"a Fase {parent}, subfase esperada {expected_sub}."
+            if current_phase is not None and number_of_subphases == 0:
+                errors.append(f"El apartado {current_phase} no tiene subdivisiones.")
+
+            number = int(phase.group(1))
+            if number != expected_phase:
+                errors.append(
+                    f"ROADMAP:{line_number}: se esperaba {expected_phase}, "
+                    f"se encontró {number}."
                 )
-            expected_sub, subs_in_parent = expected_sub + 1, subs_in_parent + 1
-    if parent is None:
-        problems.append("ROADMAP sin fases oficiales.")
-    elif subs_in_parent == 0:
-        problems.append(f"Fase {parent} sin subfases.")
-    return problems
+
+            current_phase = number
+            expected_phase += 1
+            expected_subphase = 1
+            number_of_subphases = 0
+
+        elif subphase:
+            parent = int(subphase.group(1))
+            number = int(subphase.group(2))
+            if parent != current_phase or number != expected_subphase:
+                errors.append(
+                    f"ROADMAP:{line_number}: se esperaba "
+                    f"{current_phase}.{expected_subphase}, "
+                    f"se encontró {parent}.{number}."
+                )
+            expected_subphase += 1
+            number_of_subphases += 1
+
+        elif NUMERIC_HEADING.match(line) or LEGACY_HEADING.match(line):
+            errors.append(
+                f"ROADMAP:{line_number}: encabezado incorrecto: {line}"
+            )
+
+    if current_phase is None:
+        errors.append("ROADMAP: no hay apartados principales.")
+    elif number_of_subphases == 0:
+        errors.append(f"El apartado {current_phase} no tiene subdivisiones.")
+    return errors
 
 
-def check_files():
-    problems = []
+def validate_files() -> list[str]:
+    """Rechaza los identificadores antiguos en la documentación."""
+    errors: list[str] = []
+
     for path in ROOT.rglob("*.md"):
-        if any(part in {".git", "node_modules", ".venv"} for part in path.parts):
+        if any(part in {".git", ".venv", "node_modules"} for part in path.parts):
             continue
-        fence = None
-        for line_no, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            m = FENCE.match(line)
-            if m:
-                marker = m.group(1)[:3]
-                if fence is None:
-                    fence = marker
-                elif fence == marker:
-                    fence = None
-                continue
-            if fence:
-                continue
-            if HEADING.match(line) and not (PHASE.fullmatch(line) or SUB.fullmatch(line)):
-                problems.append(f"{path.relative_to(ROOT)}:{line_no}: encabezado inválido.")
-            if BAD_CODE.search(line):
-                problems.append(f"{path.relative_to(ROOT)}:{line_no}: numeración no permitida.")
 
-    if not ROADMAP.is_file():
-        problems.append("Falta docs/ROADMAP.md.")
+        inside_code = False
+        fence_type: str | None = None
+
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            match = CODE_FENCE.match(line)
+            if match:
+                marker = match.group(1)[:3]
+                if not inside_code:
+                    inside_code, fence_type = True, marker
+                elif marker == fence_type:
+                    inside_code, fence_type = False, None
+                continue
+
+            if inside_code:
+                continue
+
+            if LEGACY_HEADING.match(line) or LEGACY_LABEL.search(line):
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{number}: "
+                    "se encontró nomenclatura anterior."
+                )
+
+    if not ROADMAP.exists():
+        errors.append("No existe docs/ROADMAP.md.")
     else:
-        problems.extend(check_roadmap(ROADMAP.read_text(encoding="utf-8")))
-    return problems
+        errors.extend(validate_roadmap(ROADMAP.read_text(encoding="utf-8")))
+
+    return errors
 
 
 if __name__ == "__main__":
-    errors = check_files()
-    for error in errors:
-        print("ERROR:", error)
-    print("Validación de fases:", "CORRECTA" if not errors else "FALLIDA")
-    raise SystemExit(bool(errors))
+    problems = validate_files()
+    for problem in problems:
+        print("ERROR:", problem)
+    print("Numeración:", "CORRECTA" if not problems else "INCORRECTA")
+    raise SystemExit(bool(problems))

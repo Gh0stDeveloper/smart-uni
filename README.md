@@ -182,20 +182,20 @@ python scripts/check_phase_naming.py
 
 ## Hoja de ruta oficial
 
-Las fases siguen exclusivamente el formato **Fase 1: Nombre** y **Subfase 1.1: Nombre**. Sus identificadores son numéricos, consecutivos y comienzan en 1.
+Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin palabras o signos adicionales. Sus identificadores son numéricos, consecutivos y comienzan en 1.
 
 | Etapa | Estado |
 |---|---|
-| **Fase 1: Análisis y línea base** | En preparación |
-| **Fase 2: Contratos y sistema de diseño** | Pendiente |
-| **Fase 3: Núcleo compartido en Rust** | Pendiente |
-| **Fase 4: Persistencia local y funcionamiento offline** | Pendiente |
-| **Fase 5: Backend, identidad y autorización** | Pendiente |
-| **Fase 6: Cifrado y gestión de claves** | Pendiente |
-| **Fase 7: Sincronización multiplataforma** | Pendiente |
-| **Fase 8: Aplicación Android** | Pendiente |
-| **Fase 9: Seguridad, integración continua y beta** | Pendiente |
-| **Fase 10: Lanzamiento gradual** | Pendiente |
+| **1 Análisis y línea base** | En preparación |
+| **2 Contratos y sistema de diseño** | Pendiente |
+| **3 Núcleo compartido en Rust** | Pendiente |
+| **4 Persistencia local y funcionamiento offline** | Pendiente |
+| **5 Backend, identidad y autorización** | Pendiente |
+| **6 Cifrado y gestión de claves** | Pendiente |
+| **7 Sincronización multiplataforma** | Pendiente |
+| **8 Aplicación Android** | Pendiente |
+| **9 Seguridad, integración continua y beta** | Pendiente |
+| **10 Lanzamiento gradual** | Pendiente |
 
 La [hoja de ruta](docs/ROADMAP.md) incluye las **30 subfases**, entregables, pruebas y orden de trabajo. Consulta también la [convención obligatoria](docs/CONVENCIONES_FASES.md).
 

@@ -163,16 +163,16 @@ La numeración oficial está en [ROADMAP.md](../ROADMAP.md), con 30 subfases y c
 
 | Fase oficial | Enfoque | Evidencia |
 |---|---|---|
-| **Fase 1: Análisis y línea base** | Conocer los riesgos y fijar el comportamiento actual antes de migrar. | Pruebas, revisión y entregables documentados |
-| **Fase 2: Contratos y sistema de diseño** | Modularizar sin modificar la interfaz aprobada. | Pruebas, revisión y entregables documentados |
-| **Fase 3: Núcleo compartido en Rust** | Concentrar las funciones sensibles e interoperables en componentes mantenibles. | Pruebas, revisión y entregables documentados |
-| **Fase 4: Persistencia local y funcionamiento offline** | Garantizar datos disponibles sin Internet y migraciones recuperables. | Pruebas, revisión y entregables documentados |
-| **Fase 5: Backend, identidad y autorización** | Proporcionar servicios online con separación verificable entre usuarios. | Pruebas, revisión y entregables documentados |
-| **Fase 6: Cifrado y gestión de claves** | Proteger contenidos privados sin perder la capacidad de recuperación legítima. | Pruebas, revisión y entregables documentados |
-| **Fase 7: Sincronización multiplataforma** | Conciliar datos offline entre Windows, Linux y Android sin pérdidas. | Pruebas, revisión y entregables documentados |
-| **Fase 8: Aplicación Android** | Construir un cliente móvil con la identidad SMART UNI y seguridad compartida. | Pruebas, revisión y entregables documentados |
-| **Fase 9: Seguridad, integración continua y beta** | Verificar que los controles prometidos existen y resisten fallos. | Pruebas, revisión y entregables documentados |
-| **Fase 10: Lanzamiento gradual** | Publicar con controles de privacidad, soporte y operación. | Pruebas, revisión y entregables documentados |
+| **1 Análisis y línea base** | Conocer los riesgos y fijar el comportamiento actual antes de migrar. | Pruebas, revisión y entregables documentados |
+| **2 Contratos y sistema de diseño** | Modularizar sin modificar la interfaz aprobada. | Pruebas, revisión y entregables documentados |
+| **3 Núcleo compartido en Rust** | Concentrar las funciones sensibles e interoperables en componentes mantenibles. | Pruebas, revisión y entregables documentados |
+| **4 Persistencia local y funcionamiento offline** | Garantizar datos disponibles sin Internet y migraciones recuperables. | Pruebas, revisión y entregables documentados |
+| **5 Backend, identidad y autorización** | Proporcionar servicios online con separación verificable entre usuarios. | Pruebas, revisión y entregables documentados |
+| **6 Cifrado y gestión de claves** | Proteger contenidos privados sin perder la capacidad de recuperación legítima. | Pruebas, revisión y entregables documentados |
+| **7 Sincronización multiplataforma** | Conciliar datos offline entre Windows, Linux y Android sin pérdidas. | Pruebas, revisión y entregables documentados |
+| **8 Aplicación Android** | Construir un cliente móvil con la identidad SMART UNI y seguridad compartida. | Pruebas, revisión y entregables documentados |
+| **9 Seguridad, integración continua y beta** | Verificar que los controles prometidos existen y resisten fallos. | Pruebas, revisión y entregables documentados |
+| **10 Lanzamiento gradual** | Publicar con controles de privacidad, soporte y operación. | Pruebas, revisión y entregables documentados |
 
 ## 12. Matriz mínima de pruebas de seguridad
 
@@ -208,4 +208,4 @@ La numeración oficial está en [ROADMAP.md](../ROADMAP.md), con 30 subfases y c
 
 ---
 
-**Estado final de este documento:** arquitectura acordable, no código aplicado. El diseño actual y los archivos de la entrega final permanecen intactos. El primer trabajo práctico sería completar Fase 1: Análisis y línea base, seguida de Fase 2: Contratos y sistema de diseño; después construir el núcleo Rust con pruebas criptográficas cruzadas.
+**Estado final de este documento:** arquitectura acordable, no código aplicado. El diseño actual y los archivos de la entrega final permanecen intactos. El primer trabajo práctico sería completar 1 Análisis y línea base, seguida de 2 Contratos y sistema de diseño; después construir el núcleo Rust con pruebas criptográficas cruzadas.

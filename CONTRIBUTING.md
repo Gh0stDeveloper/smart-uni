@@ -4,7 +4,7 @@ El trabajo de SMART UNI debe mantener la interfaz aprobada, proteger los datos y
 
 ## Identificación obligatoria del trabajo
 
-Toda tarea por etapas debe denominarse **Fase 1: Nombre** y **Subfase 1.1: Nombre**, utilizando la numeración oficial de [docs/ROADMAP.md](docs/ROADMAP.md).
+Toda tarea por etapas debe denominarse **1 Nombre** y **1.1 Nombre**, utilizando la numeración oficial de [docs/ROADMAP.md](docs/ROADMAP.md).
 
 Reglas completas: [docs/CONVENCIONES_FASES.md](docs/CONVENCIONES_FASES.md).
 

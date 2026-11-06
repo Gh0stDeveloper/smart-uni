@@ -19,15 +19,15 @@
 
 ## Estado por fases
 
-- **Fase 1: Análisis y línea base** — En preparación; auditoría pendiente.
-- **Fase 2: Contratos y sistema de diseño** — Pendiente.
-- **Fase 3: Núcleo compartido en Rust** — Pendiente.
-- **Fase 4: Persistencia local y funcionamiento offline** — Pendiente.
-- **Fase 5: Backend, identidad y autorización** — Pendiente.
-- **Fase 6: Cifrado y gestión de claves** — Pendiente.
-- **Fase 7: Sincronización multiplataforma** — Pendiente.
-- **Fase 8: Aplicación Android** — Pendiente.
-- **Fase 9: Seguridad, integración continua y beta** — Pendiente.
-- **Fase 10: Lanzamiento gradual** — Pendiente.
+- **1 Análisis y línea base** — En preparación; auditoría pendiente.
+- **2 Contratos y sistema de diseño** — Pendiente.
+- **3 Núcleo compartido en Rust** — Pendiente.
+- **4 Persistencia local y funcionamiento offline** — Pendiente.
+- **5 Backend, identidad y autorización** — Pendiente.
+- **6 Cifrado y gestión de claves** — Pendiente.
+- **7 Sincronización multiplataforma** — Pendiente.
+- **8 Aplicación Android** — Pendiente.
+- **9 Seguridad, integración continua y beta** — Pendiente.
+- **10 Lanzamiento gradual** — Pendiente.
 
 La numeración definitiva y sus subfases se encuentran en [ROADMAP.md](../ROADMAP.md). No atribuir al prototipo controles de seguridad que todavía son propuestas.
