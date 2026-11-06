@@ -138,6 +138,48 @@ jint https_health(JNIEnv* env, const std::string& origin) {
     return success ? status : -1;
 }
 
+// Operaciones HTTP fijas en C++. La autorización y el framing pertenecen al
+// servidor; este puente solo devuelve estado/respuesta sin afirmar sincronización.
+jobject exchange_api(JNIEnv* env, jstring raw_origin, jbyteArray token,
+                     jint operation, jlong cursor, jbyteArray payload) {
+    if (raw_origin == nullptr || token == nullptr || operation < 0 || operation > 3 ||
+        cursor < 0 || (operation != 2 && payload != nullptr) ||
+        (operation == 2 && payload == nullptr) ||
+        env->GetArrayLength(token) < 10 || env->GetArrayLength(token) > 16384 ||
+        (payload && env->GetArrayLength(payload) > 180 * 1024)) return nullptr;
+    const char* chars = env->GetStringUTFChars(raw_origin, nullptr);
+    if (!chars || !safe(env)) return nullptr;
+    std::string origin(chars);
+    env->ReleaseStringUTFChars(raw_origin, chars);
+    if (!valid_origin(origin)) return nullptr;
+
+    const char* method = operation == 2 ? "POST" : "GET";
+    std::string route;
+    switch (operation) {
+        case 0: route = "/api/v1/me"; break;
+        case 1: route = "/api/v1/sync/pull?cursor=" +
+                        std::to_string(static_cast<int64_t>(cursor)) + "&limit=10"; break;
+        case 2: route = "/api/v1/sync/push"; break;
+        case 3: route = "/api/v1/sync/conflicts"; break;
+        default: return nullptr;
+    }
+    jclass transport = env->FindClass("xyz/smartuni/app/NativeHttpTls");
+    if (!transport || !safe(env)) return nullptr;
+    jmethodID send = env->GetStaticMethodID(transport, "execute",
+            "(Ljava/lang/String;[B[BLjava/lang/String;)Lxyz/smartuni/app/HttpReply;");
+    if (!send || !safe(env)) return nullptr;
+    jstring url = env->NewStringUTF((origin + route).c_str());
+    jstring request_method = env->NewStringUTF(method);
+    if (!url || !request_method || !safe(env)) return nullptr;
+    jobject reply = env->CallStaticObjectMethod(
+        transport, send, url, token, payload, request_method);
+    if (!safe(env)) return nullptr;
+    env->DeleteLocalRef(url);
+    env->DeleteLocalRef(request_method);
+    env->DeleteLocalRef(transport);
+    return reply;
+}
+
 }  // namespace
 
 extern "C" JNIEXPORT jint JNICALL
@@ -174,4 +216,12 @@ Java_xyz_smartuni_app_NativeBridge_checkHealth(JNIEnv* env, jclass, jstring base
     const std::string origin(chars);
     env->ReleaseStringUTFChars(base, chars);
     return https_health(env, origin);
+}
+
+extern "C" JNIEXPORT jobject JNICALL
+Java_xyz_smartuni_app_NativeBridge_apiRequest(JNIEnv* env, jclass,
+                                               jstring origin, jbyteArray bearer,
+                                               jint operation, jlong cursor,
+                                               jbyteArray payload) {
+    return exchange_api(env, origin, bearer, operation, cursor, payload);
 }

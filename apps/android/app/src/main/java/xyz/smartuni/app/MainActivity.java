@@ -1,6 +1,14 @@
 package xyz.smartuni.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.net.Uri;
+import android.text.InputType;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.Calendar;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -140,17 +148,19 @@ public final class MainActivity extends Activity {
             showHome();
         } else if ("Perfil".equals(destination)) {
             showProfile();
-        } else {
-            mainContent.addView(text("Sección preparada para integración con el dominio compartido.", 16, MUTED, false));
-            addSpacing(mainContent, 12);
-            mainContent.addView(text("Todavía no hay datos sincronizados ni sesión autorizada. No se usarán ejemplos como si fueran datos reales.", 14, MUTED, false));
+        } else if ("Tareas".equals(destination)) {
+            showTasks();
+        } else if ("Calendario".equals(destination)) {
+            showCalendar();
+        } else if ("Materiales".equals(destination)) {
+            showMaterials();
         }
     }
 
     private void showHome() {
         mainContent.addView(text("Modo local protegido", 18, CTA, true));
         addSpacing(mainContent, 10);
-        mainContent.addView(text("Puedes escribir y abrir un apunte cifrado en este dispositivo. La sincronización y el inicio de sesión aún no están habilitados.", 16, TEXT, false));
+        mainContent.addView(text("Apuntes, tareas, calendario y materiales locales cifrados con Rust. Sin inicio de sesión ni sincronización habilitados.", 16, TEXT, false));
         addSpacing(mainContent, 18);
         mainContent.addView(button("Abrir mis apuntes", () -> showScreen("Apuntes")));
         addSpacing(mainContent, 18);
@@ -164,49 +174,262 @@ public final class MainActivity extends Activity {
         }
     }
 
-    private void showNotes() {
-        mainContent.addView(text("Apunte privado de este dispositivo", 16, TEXT, true));
-        addSpacing(mainContent, 8);
-        mainContent.addView(text("Solo almacenamiento local cifrado; sin nube ni recuperación todavía.", 14, MUTED, false));
-        addSpacing(mainContent, 12);
-        EditText editor = new EditText(this);
-        editor.setHint("Escribe tu apunte...");
-        editor.setTextSize(16);
-        editor.setMinLines(5);
-        editor.setMaxLines(14);
-        editor.setGravity(Gravity.TOP | Gravity.START);
-        editor.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
-                android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE |
-                android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        editor.setContentDescription("Contenido de apunte privado");
-        mainContent.addView(editor, new LinearLayout.LayoutParams(-1, -2));
-        TextView status = text("", 14, MUTED, false);
-        addSpacing(mainContent, 12);
-        try {
-            byte[] saved = new EncryptedNotesStore(this).read();
-            editor.setText(new String(saved, StandardCharsets.UTF_8));
-            Arrays.fill(saved, (byte) 0);
-            status.setText("Disponible sin conexión. Los cambios se guardan al pulsar el botón.");
-        } catch (Exception | LinkageError error) {
-            editor.setEnabled(false);
-            status.setText("No se pudo abrir el apunte de forma segura. No se ha sobrescrito.");
-            status.setTextColor(Color.RED);
+    private EditText field(String hint, boolean multiline) {
+        EditText edit = new EditText(this);
+        edit.setTextSize(16);
+        edit.setHint(hint);
+        edit.setSingleLine(!multiline);
+        edit.setInputType(multiline
+                ? InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                : InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        if (multiline) {
+            edit.setMinLines(3);
+            edit.setGravity(Gravity.TOP | Gravity.START);
         }
-        mainContent.addView(button("Guardar cifrado en dispositivo", () -> {
-            byte[] plain = editor.getText().toString().getBytes(StandardCharsets.UTF_8);
-            try {
-                new EncryptedNotesStore(this).save(plain);
-                status.setText("Apunte guardado localmente y cifrado con Rust.");
-                status.setTextColor(CTA);
-            } catch (Exception | LinkageError failure) {
-                status.setText("Error al guardar. Se conserva el contenido anterior.");
-                status.setTextColor(Color.RED);
-            } finally {
-                Arrays.fill(plain, (byte) 0);
+        edit.setContentDescription(hint);
+        return edit;
+    }
+
+    private void showVaultError(String message) {
+        mainContent.addView(text("Bóveda inaccesible: " + message
+                + ". No se crearán datos en claro ni se sobrescribirá el contenido.", 15,
+                Color.RED, false));
+    }
+
+    private void action(String section, VaultAction operation) {
+        try {
+            operation.run();
+            showScreen(section);
+        } catch (Exception | LinkageError error) {
+            new AlertDialog.Builder(this).setTitle("Operación no realizada")
+                    .setMessage("La bóveda cifrada no pudo guardar el cambio. No se utilizó almacenamiento sin protección.")
+                    .setPositiveButton("Aceptar", null).show();
+        }
+    }
+
+    private interface VaultAction {
+        void run() throws Exception;
+    }
+
+    private void askAdd(String section, String category, boolean detail, boolean date) {
+        LinearLayout form = new LinearLayout(this);
+        form.setPadding(dp(20), dp(12), dp(20), dp(8));
+        form.setOrientation(LinearLayout.VERTICAL);
+        EditText title = field("Título", false);
+        form.addView(title);
+        EditText description = null;
+        if (detail) {
+            description = field("Contenido del apunte", true);
+            form.addView(description);
+        }
+        final EditText contents = description;
+        EditText day = null;
+        if (date) {
+            day = field("Fecha AAAA-MM-DD", false);
+            day.setFocusable(false);
+            day.setOnClickListener(v -> {
+                Calendar current = Calendar.getInstance();
+                new DatePickerDialog(this, (picker, year, month, d) ->
+                        ((EditText)v).setText(String.format(java.util.Locale.ROOT,
+                                "%04d-%02d-%02d", year, month + 1, d)),
+                        current.get(Calendar.YEAR), current.get(Calendar.MONTH),
+                        current.get(Calendar.DAY_OF_MONTH)).show();
+            });
+            day.setContentDescription("Elegir fecha en calendario");
+            form.addView(day);
+        }
+        final EditText dateField = day;
+        new AlertDialog.Builder(this).setTitle("Nuevo " + section.toLowerCase(java.util.Locale.ROOT))
+                .setView(form)
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Guardar", (dialog, which) -> action(section,
+                    () -> new LocalVault(this).add(category, title.getText().toString(),
+                        contents == null ? "" : contents.getText().toString(),
+                        dateField == null ? "" : dateField.getText().toString()))).show();
+    }
+
+    private void askDelete(String section, String category, String id) {
+        new AlertDialog.Builder(this).setTitle("Eliminar registro")
+                .setMessage("La eliminación será local. No existe aún una copia sincronizada.")
+                .setNegativeButton("Cancelar", null)
+                .setPositiveButton("Eliminar", (dialog, which) -> action(section,
+                        () -> new LocalVault(this).delete(category, id))).show();
+    }
+
+    private void renderRows(String section, String category) {
+        try {
+            JSONArray rows = new LocalVault(this).list(category);
+            if (rows.length() == 0) {
+                mainContent.addView(text("Sin registros en este dispositivo.", 15, MUTED, false));
+                return;
             }
+            for (int i = rows.length() - 1; i >= 0; i--) {
+                JSONObject item = rows.getJSONObject(i);
+                String id = item.getString("id");
+                String title = item.getString("title");
+                addSpacing(mainContent, 12);
+                mainContent.addView(text(title, 17, TEXT, true));
+                if (LocalVault.NOTES.equals(category)) {
+                    String body = item.optString("text");
+                    mainContent.addView(text(body.length() > 180
+                            ? body.substring(0, 180) + "…"
+                            : body, 14, MUTED, false));
+                    mainContent.addView(button("Editar " + title, () ->
+                            askEditNote(id, title, body)));
+                } else if (LocalVault.EVENTS.equals(category)) {
+                    mainContent.addView(text(item.optString("date"), 15, MUTED, false));
+                } else if (LocalVault.TASKS.equals(category)) {
+                    boolean done = item.optBoolean("done");
+                    mainContent.addView(button(done ? "Marcar pendiente" : "Completar tarea",
+                            () -> action(section, () -> new LocalVault(this).toggleTask(id))));
+                }
+                mainContent.addView(button("Eliminar " + title,
+                        () -> askDelete(section, category, id)));
+            }
+        } catch (Exception | LinkageError error) {
+            showVaultError("fallo de autenticación, clave o lectura");
+        }
+    }
+
+    private void askEditNote(String id, String oldTitle, String oldBody) {
+        LinearLayout form = new LinearLayout(this);
+        form.setOrientation(LinearLayout.VERTICAL);
+        form.setPadding(dp(16), dp(8), dp(16), dp(8));
+        EditText title = field("Título", false);
+        title.setText(oldTitle);
+        form.addView(title);
+        EditText body = field("Contenido", true);
+        body.setText(oldBody);
+        form.addView(body);
+        new AlertDialog.Builder(this).setTitle("Editar apunte")
+            .setView(form)
+            .setNegativeButton("Cancelar", null)
+            .setPositiveButton("Guardar", (dialog, which) ->
+                action("Apuntes", () -> new LocalVault(this)
+                    .updateNote(id, title.getText().toString(), body.getText().toString())))
+            .show();
+    }
+
+    private void showNotes() {
+        mainContent.addView(text("Apuntes privados de este dispositivo", 15, MUTED, false));
+        addSpacing(mainContent, 12);
+        mainContent.addView(button("Nuevo apunte", () ->
+                askAdd("Apuntes", LocalVault.NOTES, true, false)));
+        renderRows("Apuntes", LocalVault.NOTES);
+    }
+
+    private void showTasks() {
+        mainContent.addView(text("Lista de tareas offline cifrada. Aún no se sincroniza.", 15, MUTED, false));
+        addSpacing(mainContent, 12);
+        mainContent.addView(button("Nueva tarea", () ->
+                askAdd("Tareas", LocalVault.TASKS, false, false)));
+        renderRows("Tareas", LocalVault.TASKS);
+    }
+
+    private void showCalendar() {
+        mainContent.addView(text("Eventos locales sin integración con calendario externo.", 15, MUTED, false));
+        addSpacing(mainContent, 12);
+        mainContent.addView(button("Nuevo evento", () ->
+                askAdd("Calendario", LocalVault.EVENTS, false, true)));
+        renderRows("Calendario", LocalVault.EVENTS);
+    }
+
+    private void showMaterials() {
+        mainContent.addView(text("Archivos cifrados en almacenamiento privado, sin subirlos a la nube.", 15, MUTED, false));
+        addSpacing(mainContent, 12);
+        mainContent.addView(button("Importar material (máximo 8 MiB)", () -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.setType("*/*");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(intent, 81);
         }));
-        addSpacing(mainContent, 10);
-        mainContent.addView(status);
+        try {
+            JSONArray rows = new LocalVault(this).list(LocalVault.MATERIALS);
+            if (rows.length() == 0) {
+                mainContent.addView(text("Todavía no hay materiales importados.", 14, MUTED, false));
+            }
+            for (int i = rows.length() - 1; i >= 0; i--) {
+                JSONObject item = rows.getJSONObject(i);
+                String id = item.getString("id");
+                String filename = item.getString("title");
+                String fileId = item.optString("text");
+                addSpacing(mainContent, 10);
+                mainContent.addView(text(filename, 16, TEXT, true));
+                mainContent.addView(text(item.optString("date") + " bytes cifrados", 13, MUTED, false));
+                mainContent.addView(button("Vista previa de texto", () -> previewMaterial(fileId, filename)));
+                mainContent.addView(button("Eliminar material", () ->
+                        new AlertDialog.Builder(this).setTitle("Eliminar material")
+                        .setMessage("Se eliminará la referencia y el archivo cifrado local.")
+                        .setNegativeButton("Cancelar", null)
+                        .setPositiveButton("Eliminar", (dialog, which) ->
+                            action("Materiales", () ->
+                                new MaterialVault(this).deleteMaterial(fileId, id))).show()));
+            }
+        } catch (Exception | LinkageError error) {
+            showVaultError("no se pueden leer los materiales");
+        }
+    }
+
+    private void previewMaterial(String fileId, String filename) {
+        String lower = filename.toLowerCase(java.util.Locale.ROOT);
+        if (!(lower.endsWith(".txt") || lower.endsWith(".md") || lower.endsWith(".csv"))) {
+            new AlertDialog.Builder(this).setTitle("Vista previa no disponible")
+                    .setMessage("No se abrirán PDF, Office ni imágenes con aplicaciones externas sin una política de exportación segura.")
+                    .setPositiveButton("Aceptar", null).show();
+            return;
+        }
+        io.execute(() -> {
+            String message;
+            try {
+                byte[] data = new MaterialVault(this).readMaterial(fileId);
+                try {
+                    message = new String(data, StandardCharsets.UTF_8);
+                } finally {
+                    Arrays.fill(data, (byte) 0);
+                }
+            } catch (Exception | LinkageError e) {
+                message = "No se pudo autenticar o leer este material.";
+            }
+            final String preview = message;
+            runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    ScrollView scroll = new ScrollView(this);
+                    TextView body = text(preview, 14, TEXT, false);
+                    body.setPadding(dp(18), dp(12), dp(18), dp(12));
+                    scroll.addView(body);
+                    new AlertDialog.Builder(this).setTitle(filename).setView(scroll)
+                            .setPositiveButton("Cerrar", null).show();
+                }
+            });
+        });
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != 81 || resultCode != RESULT_OK || data == null ||
+                data.getData() == null) return;
+        final Uri uri = data.getData();
+        io.execute(() -> {
+            boolean saved = false;
+            try {
+                new MaterialVault(this).importDocument(uri);
+                saved = true;
+            } catch (Exception | LinkageError ignored) {
+                // No registrar URI, ruta o contenido sensible.
+            }
+            final boolean imported = saved;
+            runOnUiThread(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    showScreen("Materiales");
+                    new AlertDialog.Builder(this)
+                        .setTitle(imported ? "Material cifrado" : "No se pudo importar")
+                        .setMessage(imported
+                            ? "Material guardado localmente con Rust y Android Keystore."
+                            : "Archivo inaccesible, tipo no admitido, demasiado grande o error de cifrado. No se guardó contenido en claro.")
+                        .setPositiveButton("Aceptar", null).show();
+                }
+            });
+        });
     }
 
     private void showProfile() {

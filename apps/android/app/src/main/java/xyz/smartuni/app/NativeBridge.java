@@ -17,4 +17,11 @@ public final class NativeBridge {
     public static native byte[] open(byte[] key, byte[] context, byte[] ciphertext);
     /** Diagnóstico público de /healthz por HTTPS; sin autenticación ni sync. */
     public static native int checkHealth(String httpsOrigin);
+    /**
+     * 0=me, 1=pull, 2=push, 3=conflicts. Rutas fijadas en JNI C++.
+     * Requiere bearer OIDC provisto externamente: no hay login Android todavía.
+     * Esta API NO efectúa ACK ni modifica cursores locales.
+     */
+    public static native HttpReply apiRequest(String httpsOrigin, byte[] bearer,
+                                               int operation, long cursor, byte[] jsonBody);
 }
