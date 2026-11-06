@@ -90,8 +90,14 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           script: |
             adb wait-for-device
-            cd apps/android
-            gradle --no-daemon :app:connectedDebugAndroidTest
+            mkdir -p apps/android/app/build/diagnostics
+            set +e
+            (cd apps/android && gradle --no-daemon :app:connectedDebugAndroidTest)
+            test_result=$?
+            # Capturar errores mientras el emulador aún vive, no después de teardown.
+            adb logcat -d -t 5000 -v threadtime > apps/android/app/build/diagnostics/emulator.log || true
+            adb shell dumpsys activity processes > apps/android/app/build/diagnostics/processes.txt || true
+            exit "$test_result"
       - name: Capturar diagnóstico limitado del emulador
         if: failure()
         shell: bash
