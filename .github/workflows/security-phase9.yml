@@ -46,6 +46,27 @@ jobs:
             exit 1
           fi
           echo "PASS: beta bloqueada por falta de evidencias verificadas"
+  supply-chain-gate:
+    name: Dependencias Python y npm deben estar libres de advisories registrados
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar pip-audit
+        run: python -m pip install pip-audit
+      - name: Denegar dependencias backend vulnerables
+        run: pip-audit -r services/api/requirements.txt
+      - name: Preparar grafo npm temporal (hasta versionar lockfile)
+        working-directory: apps/web
+        run: npm install --package-lock-only --ignore-scripts --no-fund
+      - name: Denegar CVE npm altas y críticas
+        working-directory: apps/web
+        run: npm audit --audit-level=high
   dependency-observation:
     name: SCA de dependencias (advisory; hallazgos bloquean beta)
     runs-on: ubuntu-latest
