@@ -126,10 +126,7 @@ def verify_password(password: str, stored: str) -> bool:
     try:
         if not isinstance(stored, str) or len(stored) > 256:
             return False
-        algorithm, rounds, hex_salt, hex_digest = stored.split('
-
-
-)
+        algorithm, rounds, hex_salt, hex_digest = stored.split('$')
         if algorithm != 'pbkdf2_sha256' or not rounds.isascii() or not rounds.isdecimal() or len(rounds) > 7:
             return False
         iterations = int(rounds)
