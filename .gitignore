@@ -28,3 +28,10 @@ apps/desktop/data/*.json
 **/materiales/
 **/backups/
 **/phase1-evidence/
+
+# SMART UNI SQLCipher: jamás versionar bases cifradas o estados transitorios
+*.sqlcipher
+*.sqlcipher-*
+*.staging
+*.restore
+*.pre-restore-*

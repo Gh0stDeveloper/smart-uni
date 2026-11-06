@@ -19,7 +19,7 @@ SMART UNI 2.0 evolucionará desde el prototipo de escritorio existente hacia un 
 </div>
 
 > [!IMPORTANT]
-> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, web, la API online, la sincronización, la base cifrada y E2EE siguen **planificados, no implementados**. Existe ya un núcleo Rust 0.1.0 con contratos, ABI y pruebas criptográficas, pero **no está conectado al flujo de datos ni a la interfaz**. No se deben introducir datos privados reales en esta versión.
+> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, web, API online, sincronización y E2EE permanecen sin implementar. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. Existe ya un núcleo Rust 0.1.0 con contratos, ABI y pruebas criptográficas, pero **no está conectado al flujo de datos ni a la interfaz**. No se deben introducir datos privados reales en esta versión.
 
 ---
 
@@ -59,7 +59,7 @@ La arquitectura futura prioriza el uso sin conexión, la preservación de datos,
 | Tareas | Actividades pendientes y completadas |
 | Apuntes | Notas organizadas por materias |
 
-Los datos se almacenan actualmente en **JSON local**. La lista Amigos todavía no ofrece comunicación online real.
+Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativa experimental, la etapa 4 permite SQLCipher con migración conservadora, cola offline y keyring del SO, pero **no cifra adjuntos ni constituye un sistema de producción**. La lista Amigos no ofrece comunicación online.
 
 ## Tecnologías y plataformas
 
@@ -96,7 +96,7 @@ Los datos se almacenan actualmente en **JSON local**. La lista Amigos todavía n
 
 </div>
 
-**En uso:** Python/Tkinter modularizado, JSON local v1, contratos JSON Schema, núcleo Rust 0.1.0 y ABI C de validación, pruebas AES-GCM, compilaciones y tokens canónicos. **Pendientes:** incorporación del núcleo a los datos del producto, Android, Next.js, FastAPI, PostgreSQL, SQLite protegido, E2EE e integración Figma.
+**En uso:** Python/Tkinter, JSON legacy, SQLCipher opt-in de la etapa 4, outbox offline, contratos, Rust 0.1.0 y ABI C, pruebas AES-GCM, compilación y tokens. **Pendientes:** cifrado de materiales, keyring probado en sesión real, Rust integrado en datos, Android, backend, sincronización, E2EE e integración Figma.
 
 ## Arquitectura prevista
 
@@ -171,7 +171,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-La suite de escritorio detecta **43 casos**: 39 verifican el comportamiento del prototipo (dos requieren pantalla gráfica) y cuatro pruebas FFI se **omiten** al no existir biblioteca Rust en esa ejecución. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
+La suite de escritorio detecta **65 casos**: 39 verifican el prototipo y 26 se omiten sin dependencias especiales (22 SQLCipher y 4 FFI). Los 22 casos SQLCipher se ejecutan **sin omisiones** en su workflow Windows/Linux, igual que los cuatro FFI en el workflow Rust. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
 
 Para comprobar la nomenclatura documental, desde la raíz:
 
@@ -190,7 +190,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 | **1 Análisis y línea base** | Completada: [evidencias de cierre](docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) |
 | **2 Contratos y sistema de diseño** | Completada: [evidencias de cierre](docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md) |
 | **3 Núcleo compartido en Rust** | Completada: [evidencias de cierre](docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md) |
-| **4 Persistencia local y funcionamiento offline** | Pendiente |
+| **4 Persistencia local y funcionamiento offline** | Implementación técnica validada, **opt-in**, no apta para producción: [acta de cierre](docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) |
 | **5 Backend, identidad y autorización** | Pendiente |
 | **6 Cifrado y gestión de claves** | Pendiente |
 | **7 Sincronización multiplataforma** | Pendiente |
@@ -219,9 +219,14 @@ Se planean Argon2id cuando corresponda, TLS, cifrado en reposo, gestión de clav
 - [Política de seguridad](SECURITY.md)
 - [Guía de contribución](CONTRIBUTING.md)
 - [Estado real de componentes](docs/architecture/00_ESTADO_Y_PRIORIDADES.md)
+- **[Registro maestro de pendientes y riesgos abiertos (P01–P30)](docs/PENDIENTES_SMART_UNI_2_0.md)**
 
 **Desarrollo:** [Ghost Developer](https://github.com/Gh0stDeveloper)
 
 ---
 
 <div align="center">SMART UNI · Organización académica con diseño consistente y evolución segura</div>
+
+## Persistencia cifrada opcional (etapa 4)
+
+Para probar desde código fuente, instalar `pip install -r apps/desktop/requirements-secure.txt` y configurar `SMARTUNI_STORAGE=secure` con keyring del SO desbloqueado antes de iniciar. La aplicación usa `data.sqlcipher` y preserva `data.json` si migra; si falta la clave no se degrada a SQLite sin cifrar. El EXE normal **no empaqueta SQLCipher**. La importación de materiales se bloquea en modo seguro hasta tener contenedores de archivos cifrados. [Pruebas y límites](docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) · [Todos los pendientes](docs/PENDIENTES_SMART_UNI_2_0.md).

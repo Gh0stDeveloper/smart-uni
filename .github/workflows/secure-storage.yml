@@ -10,6 +10,8 @@ on:
       - 'apps/desktop/smart_uni/migration.py'
       - 'apps/desktop/smart_uni/offline_queue.py'
       - 'apps/desktop/tests/test_phase4_*.py'
+      - 'docs/phase-4/**'
+      - 'docs/PENDIENTES_SMART_UNI_2_0.md'
       - 'apps/desktop/requirements-secure.txt'
       - '.github/workflows/secure-storage.yml'
   pull_request:
@@ -21,6 +23,8 @@ on:
       - 'apps/desktop/smart_uni/migration.py'
       - 'apps/desktop/smart_uni/offline_queue.py'
       - 'apps/desktop/tests/test_phase4_*.py'
+      - 'docs/phase-4/**'
+      - 'docs/PENDIENTES_SMART_UNI_2_0.md'
       - 'apps/desktop/requirements-secure.txt'
       - '.github/workflows/secure-storage.yml'
   workflow_dispatch:

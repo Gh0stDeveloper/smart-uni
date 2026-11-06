@@ -102,20 +102,22 @@
 
 ### 4.1 Base local protegida
 
-- [ ] Introducir SQLite cifrado y protección de claves por sistema operativo.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Introducir SQLite cifrado y protección de claves por sistema operativo.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 4.2 Migración JSON y respaldos
 
-- [ ] Migrar sin borrar el origen; verificar restauración e interrupciones.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Migrar sin borrar el origen; verificar restauración e interrupciones.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 4.3 Cola de operaciones pendientes
 
-- [ ] Guardar cambios y outbox en una transacción; reflejar estados discretos.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Guardar cambios y outbox en una transacción; reflejar estados discretos.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+**Criterio de cierre del hito técnico:** pruebas y evidencia verificadas **en modo SQLCipher opt-in**, sin declarar protección de producción. [4.1 SQLCipher](phase-4/4.1_BASE_LOCAL_PROTEGIDA.md) · [4.2 Migración y respaldos](phase-4/4.2_MIGRACION_JSON_Y_RESPALDOS.md) · [4.3 Outbox](phase-4/4.3_COLA_DE_OPERACIONES_PENDIENTES.md) · [Acta con pruebas reales](phase-4/4_CIERRE_Y_EVIDENCIAS.md). Las dependencias y criterios de cierre productivo que no se cubrieron siguen **abiertos** en el [registro maestro P01–P30](PENDIENTES_SMART_UNI_2_0.md).
+
+**No confundir:** el EXE clásico sigue en JSON, el modo seguro bloquea materiales y no hay sync/red. El cierre técnico de la etapa 4 no autoriza datos reales.
 
 ## 5 Backend, identidad y autorización
 
@@ -247,6 +249,6 @@
 
 ## Control del avance
 
-Las etapas **1 Análisis y línea base**, **2 Contratos y sistema de diseño** y **3 Núcleo compartido en Rust** están **completadas y validadas dentro de su alcance**, con las evidencias de CI enlazadas en cada apartado. El núcleo Rust tiene 14 pruebas y el puente Python 4 pruebas aprobadas por sistema, además de AES-GCM contrastado con OpenSSL y compilación Android ARM64. Las etapas **4–10 permanecen pendientes**. Siguen sin resolverse los riesgos de almacenamiento, autorización y gestión de claves; el producto aún no está listo para datos privados reales.
+Las etapas **1–3 están validadas dentro de sus alcances**. La **etapa 4 incorpora SQLCipher, migración recuperable y outbox probados**, pero solamente mediante modo **opt-in experimental**: 22 pruebas SQLCipher aprobadas en cada SO, sin habilitación predeterminada ni adjuntos cifrados. Las etapas **5–10 siguen pendientes**. Persisten **30 asuntos abiertos o parcialmente resueltos**, registrados obligatoriamente en [PENDIENTES_SMART_UNI_2_0.md](PENDIENTES_SMART_UNI_2_0.md). El prototipo sigue sin ser seguro para datos privados reales.
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

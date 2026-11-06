@@ -17,7 +17,7 @@ python main.py
 
 Registro y acceso local, panel, cursos, horarios, anuncios, Inicio, Perfil, Amigos, Calendario, Material, Tareas y Apuntes.
 
-Los registros se guardan en JSON. Todavía **no existe sincronización real, cifrado de base de datos, servidor ni aplicación Android**.
+El modo de uso normal guarda JSON **sin cifrar**. La etapa 4 añadió un repositorio **SQLCipher experimental y opcional**; sin backend, APK Android, E2EE ni cifrado de materiales. El modo seguro bloquea materiales en vez de guardarlos sin protección.
 
 ## Pruebas
 
@@ -26,7 +26,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-Son 39 pruebas automatizadas (17 originales + 9 de línea base + 13 de la etapa 2); dos requieren pantalla gráfica. Evidencia: [etapa 1](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) y [etapa 2](../../docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md).
+Son 65 casos descubiertos en la suite normal: 39 de funcionalidad y regresión, 22 pruebas SQLCipher omitidas cuando no hay dependencias opcionales, y cuatro pruebas FFI Rust omitidas sin la biblioteca nativa; dos pruebas requieren pantalla gráfica. En CI especial SQLCipher se ejecutan 22/22 sin omisiones. Evidencia: [etapa 1](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) y [etapa 2](../../docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md).
 
 ## Windows
 
@@ -46,3 +46,9 @@ Las decisiones de SMART UNI 2.0 están en `../../docs/architecture/`.
 ## Núcleo nativo Rust disponible (etapa 3)
 
 El adaptador opcional `smart_uni/native_bridge.py` puede cargar una biblioteca Rust local construida con Cargo al definir `SMARTUNI_NATIVE_LIB`; no participa en el arranque de Tkinter ni cambia el login o los datos actuales. [Documentación y pruebas](../../docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md). En el workflow normal hay 43 tests descubiertos (39 ejecutados + 4 de puente omitidos); en el workflow Rust se ejecutan los cuatro tests de FFI **contra código nativo real**, tanto en Windows como en Linux.
+
+## Modo cifrado opt-in (4.1–4.3)
+
+Instalar `python -m pip install -r requirements-secure.txt` en Windows/Linux con keyring del SO desbloqueado. Establecer `SMARTUNI_STORAGE=secure` y ejecutar `python main.py`. La base local utiliza SQLCipher y, si existe JSON v1, lo migra **conservando el origen**. Si falta clave o servicio de claves, aborta sin crear una base sin cifrar. El EXE clásico de GitHub Actions no incluye SQLCipher; esta configuración debe probarse desde fuente.
+
+El modo seguro mantiene tareas, apuntes y perfil en SQLCipher, registra operaciones cubiertas en la outbox y presenta estados locales discretos. No cifra materiales: su importación se bloquea para evitar filtraciones. No se garantiza aún autorización por sesión ni red; nunca mostrar “sincronizado” sin ACK del servidor. [Acta técnica](../../docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) y [registro de pendientes P01–P30](../../docs/PENDIENTES_SMART_UNI_2_0.md).
