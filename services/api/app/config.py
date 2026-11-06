@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 import os
 from urllib.parse import urlsplit
+from sqlalchemy.engine.url import make_url
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,14 @@ class Settings:
                 raise ValueError(name + " debe ser URL HTTPS confiable y sin credenciales")
         if "?" in self.oidc_issuer or "#" in self.oidc_issuer:
             raise ValueError("OIDC_ISSUER no admite parámetros")
+        # El CRUD v1 en claro solo puede habilitarse en laboratorio aislado.
+        # No basta con una variable de entorno accidental en producción.
+        if self.allow_legacy_plaintext_notes:
+            issuer_host = urlsplit(self.oidc_issuer).hostname or ""
+            db_host = make_url(self.database_url).host
+            if not issuer_host.endswith(".invalid") or db_host not in ("localhost", "127.0.0.1", "::1"):
+                raise ValueError("Notas demo plaintext solo con IdP sintético y PostgreSQL local")
+
 
     @classmethod
     def from_env(cls):
