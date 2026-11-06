@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!allowedOrigin(request.headers.get("origin"), process.env.PORTAL_ORIGIN ?? "")) {
+  if (!allowedOrigin(request.headers.get("origin"), process.env.PORTAL_ORIGIN ?? "", process.env.NODE_ENV !== "production")) {
     return Response.json({ error: "Origen no permitido" }, { status: 403 });
   }
   if (!request.headers.get("content-type")?.startsWith("application/json")) {

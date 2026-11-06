@@ -49,3 +49,21 @@ jobs:
           path: apps/web/package-lock.json
           if-no-files-found: error
           retention-days: 30
+      - name: HTTP smoke - denegar anónimos y origen CSRF ausente
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run start -- -p 3000 > /tmp/smartuni-next.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 50); do
+            if curl --silent --output /dev/null http://127.0.0.1:3000/api/notes; then break; fi
+            sleep 1
+          done
+          notes=$(curl --silent --output /dev/null --write-out "%{http_code}" http://127.0.0.1:3000/api/notes)
+          admin=$(curl --silent --output /dev/null --write-out "%{http_code}" http://127.0.0.1:3000/api/admin/metrics)
+          csrf=$(curl --silent --output /dev/null --write-out "%{http_code}" -X POST -H "Content-Type: application/json" -d '{"title":"x","content":"y"}' http://127.0.0.1:3000/api/notes)
+          printf 'Anonymous notes: %s, admin: %s, missing Origin POST: %s\n' "$notes" "$admin" "$csrf"
+          test "$notes" = "401"
+          test "$admin" = "401"
+          test "$csrf" = "403"

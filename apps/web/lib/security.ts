@@ -3,13 +3,17 @@ export function validSessionId(value: unknown): value is string {
   return typeof value === "string" && value.length > 0 && value.length <= 255;
 }
 
-export function allowedOrigin(actual: string | null, expected: string): boolean {
+export function allowedOrigin(actual: string | null, expected: string, allowLocalHttp = false): boolean {
   if (!actual || !expected) return false;
   try {
     const actualUrl = new URL(actual);
     const expectedUrl = new URL(expected);
     return actual === actualUrl.origin && expected === expectedUrl.origin &&
-      actualUrl.origin === expectedUrl.origin && actualUrl.protocol === "https:";
+      actualUrl.origin === expectedUrl.origin && (
+        actualUrl.protocol === "https:" ||
+        (allowLocalHttp && actualUrl.protocol === "http:" &&
+          ["localhost", "127.0.0.1"].includes(actualUrl.hostname))
+      );
   } catch {
     return false;
   }

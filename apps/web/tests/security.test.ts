@@ -11,6 +11,8 @@ test("la sesión requiere un ID concreto y no confía en objetos vacíos", () =>
 test("CSRF: rechaza ausencia de Origin, ataques cross-origin o HTTP", () => {
   const good = "https://portal.smartuni.invalid";
   assert.equal(allowedOrigin(good, good), true);
+  assert.equal(allowedOrigin("http://localhost:3000", "http://localhost:3000", true), true);
+  assert.equal(allowedOrigin("http://evil.invalid", "http://evil.invalid", true), false);
   for (const bad of [null, "", "https://evil.invalid", "http://portal.smartuni.invalid",
     "https://portal.smartuni.invalid.evil.invalid", "https://portal.smartuni.invalid/"]) {
     assert.equal(allowedOrigin(bad, good), false);
