@@ -1,0 +1,51 @@
+name: Portal Next.js OIDC y seguridad
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/web-portal.yml'
+  pull_request:
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/web-portal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  portal:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      CI: 'true'
+      NEXT_TELEMETRY_DISABLED: '1'
+      # Variables sintéticas: nunca conectar a cuentas ni servidores reales durante CI.
+      AUTH_SECRET: synthetic_only_not_for_production_6qCWmCpGh64pX7Yt
+      AUTH_URL: https://portal.smartuni.invalid
+      AUTH_KEYCLOAK_ID: smartuni-portal-ci
+      AUTH_KEYCLOAK_SECRET: synthetic_client_secret_only
+      AUTH_KEYCLOAK_ISSUER: https://issuer.smartuni.invalid/realms/test
+      SMARTUNI_API_INTERNAL_URL: https://api.smartuni.invalid/
+      PORTAL_ORIGIN: https://portal.smartuni.invalid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias declaradas
+        run: npm install --no-audit --no-fund
+      - name: Ejecutar pruebas de seguridad de rutas
+        run: npm run test
+      - name: Validar TypeScript
+        run: npm run typecheck
+      - name: Compilar Next.js
+        run: npm run build
+      - name: Conservar lockfile generado como evidencia de resolución
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartuni-web-dependency-lock-ci
+          path: apps/web/package-lock.json
+          if-no-files-found: error
+          retention-days: 30
