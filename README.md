@@ -19,7 +19,7 @@ SMART UNI 2.0 evolucionará desde el prototipo de escritorio existente hacia un 
 </div>
 
 > [!IMPORTANT]
-> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Las versiones Android y web, el núcleo Rust, la API online, la sincronización, la base cifrada y el E2EE están **planificados, no implementados**. No se deben introducir datos privados reales en esta versión.
+> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, web, la API online, la sincronización, la base cifrada y E2EE siguen **planificados, no implementados**. Existe ya un núcleo Rust 0.1.0 con contratos, ABI y pruebas criptográficas, pero **no está conectado al flujo de datos ni a la interfaz**. No se deben introducir datos privados reales en esta versión.
 
 ---
 
@@ -68,7 +68,7 @@ Los datos se almacenan actualmente en **JSON local**. La lista Amigos todavía n
 | Icono | Tecnología | Responsabilidad | Estado |
 |---|---|---|---|
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="26" alt="Python" /> | **Python** | Escritorio Tkinter y futura API | Escritorio funcional |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg" width="26" alt="Rust" /> | **Rust** | Núcleo nativo compartido y seguridad | Planificado |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg" width="26" alt="Rust" /> | **Rust** | Dominio, validación de contratos, ABI C y AES-256-GCM probado | Implementado parcialmente (etapa 3; sin integración en la app) |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg" width="26" alt="C++" /> | **C++** | Red/JNI nativo para Android | Planificado |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" width="26" alt="Java" /> | **Java** | Interfaz Android | Planificado |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="26" alt="TypeScript" /> | **TypeScript** | Next.js, portal y administración | Planificado |
@@ -96,7 +96,7 @@ Los datos se almacenan actualmente en **JSON local**. La lista Amigos todavía n
 
 </div>
 
-**En uso:** Python/Tkinter modularizado, repositorio JSON v1, sesión local, contratos JSON Schema versionados, compilación y pruebas de escritorio, iconos SVG y tokens canónicos. **Previstos:** Rust, Android, Next.js, FastAPI, PostgreSQL, SQLite protegido e integración de Figma.
+**En uso:** Python/Tkinter modularizado, JSON local v1, contratos JSON Schema, núcleo Rust 0.1.0 y ABI C de validación, pruebas AES-GCM, compilaciones y tokens canónicos. **Pendientes:** incorporación del núcleo a los datos del producto, Android, Next.js, FastAPI, PostgreSQL, SQLite protegido, E2EE e integración Figma.
 
 ## Arquitectura prevista
 
@@ -148,7 +148,7 @@ smart-uni/
 └── README.md
 ```
 
-Los directorios de Android, web, API y Rust **no contienen todavía productos ejecutables**.
+Los directorios Android, web y API **no contienen todavía productos ejecutables**. El directorio Rust sí contiene ahora una biblioteca real, con pruebas multiplataforma y compilación ARM64 para Android, pero sin aplicación Android ni backend.
 
 ## Instalación y uso
 
@@ -171,7 +171,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-La suite incluye **39 casos** (17 originales, 9 de línea base, 6 de separación de capas, 4 de contratos y 3 del diseño); dos requieren sesión gráfica. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
+La suite de escritorio detecta **43 casos**: 39 verifican el comportamiento del prototipo (dos requieren pantalla gráfica) y cuatro pruebas FFI se **omiten** al no existir biblioteca Rust en esa ejecución. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
 
 Para comprobar la nomenclatura documental, desde la raíz:
 
@@ -189,7 +189,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 |---|---|
 | **1 Análisis y línea base** | Completada: [evidencias de cierre](docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) |
 | **2 Contratos y sistema de diseño** | Completada: [evidencias de cierre](docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md) |
-| **3 Núcleo compartido en Rust** | Pendiente |
+| **3 Núcleo compartido en Rust** | Completada: [evidencias de cierre](docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md) |
 | **4 Persistencia local y funcionamiento offline** | Pendiente |
 | **5 Backend, identidad y autorización** | Pendiente |
 | **6 Cifrado y gestión de claves** | Pendiente |

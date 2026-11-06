@@ -79,20 +79,22 @@
 
 ### 3.1 Dominio y biblioteca Rust
 
-- [ ] Implementar lógica compartida con pruebas y versiones de datos.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Implementar lógica compartida con pruebas y versiones de datos.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 3.2 Interfaces nativas y FFI
 
-- [ ] Preparar enlaces Python ↔ Rust y C/C++ ↔ Rust para Android.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Preparar enlaces Python ↔ Rust y C/C++ ↔ Rust para Android.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 3.3 Validación criptográfica cruzada
 
-- [ ] Seleccionar bibliotecas auditadas y probar vectores entre plataformas.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Seleccionar bibliotecas auditadas y probar vectores entre plataformas.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+**Evidencia de cierre:** [3.1 Dominio Rust](phase-3/3.1_DOMINIO_Y_BIBLIOTECA_RUST.md) · [3.2 FFI](phase-3/3.2_INTERFACES_NATIVAS_Y_FFI.md) · [3.3 Vectores criptográficos](phase-3/3.3_VALIDACION_CRIPTOGRAFICA_CRUZADA.md) · [Acta de cierre](phase-3/3_CIERRE_Y_EVIDENCIAS.md). [GitHub Actions #42216145594](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42216145594): Rust 14/14 pruebas en Windows y Linux, puente Python 4/4 por sistema, AES-GCM contrastado mediante OpenSSL, consumidor C++ ejecutado en Linux y compilación Android ARM64 con NDK. No se ha ejecutado el binario en Android ni se han migrado datos a Rust.
+
+**Criterio de cierre:** completado para el alcance de dominio, ABI nativa y validación cruzada de primitivas. El cifrado del usuario, gestión de claves y cliente Android permanecen pendientes de las etapas correspondientes.
 
 ## 4 Persistencia local y funcionamiento offline
 
@@ -245,6 +247,6 @@
 
 ## Control del avance
 
-Las etapas **1 Análisis y línea base** y **2 Contratos y sistema de diseño** están **completadas y validadas** según las evidencias referenciadas: 39/39 pruebas por sistema en la etapa 2, capturas y respaldos sintéticos, EXE Windows y validadores documentales/de contratos en verde. Las etapas **3–10 permanecen pendientes**. La modularización no subsana por sí sola los riesgos de seguridad identificados en 1.2.
+Las etapas **1 Análisis y línea base**, **2 Contratos y sistema de diseño** y **3 Núcleo compartido en Rust** están **completadas y validadas dentro de su alcance**, con las evidencias de CI enlazadas en cada apartado. El núcleo Rust tiene 14 pruebas y el puente Python 4 pruebas aprobadas por sistema, además de AES-GCM contrastado con OpenSSL y compilación Android ARM64. Las etapas **4–10 permanecen pendientes**. Siguen sin resolverse los riesgos de almacenamiento, autorización y gestión de claves; el producto aún no está listo para datos privados reales.
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

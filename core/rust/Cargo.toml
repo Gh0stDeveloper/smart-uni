@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
 description = "SMART UNI dominio y contratos compartidos"
-license = "MIT"
+publish = false
 
 [lib]
 name = "smartuni_core"

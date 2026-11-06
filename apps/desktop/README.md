@@ -42,3 +42,7 @@ Las decisiones de SMART UNI 2.0 están en `../../docs/architecture/`.
 ## Organización de la etapa 2
 
 `smart_uni/domain.py` mantiene validaciones y algoritmos heredados; `repository.py` abstrae el JSON; `session.py` conserva la identidad local sin introducir API online; `core.py` y `student_data.py` implementan los servicios, y las pantallas originales permanecen en `ui.py` y `student_ui.py`. Los roles visuales se leen mediante `design_system.py` de los tokens originales. Ningún control remoto de autorización, SQLite, Rust ni sincronización está implementado todavía.
+
+## Núcleo nativo Rust disponible (etapa 3)
+
+El adaptador opcional `smart_uni/native_bridge.py` puede cargar una biblioteca Rust local construida con Cargo al definir `SMARTUNI_NATIVE_LIB`; no participa en el arranque de Tkinter ni cambia el login o los datos actuales. [Documentación y pruebas](../../docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md). En el workflow normal hay 43 tests descubiertos (39 ejecutados + 4 de puente omitidos); en el workflow Rust se ejecutan los cuatro tests de FFI **contra código nativo real**, tanto en Windows como en Linux.

@@ -8,7 +8,7 @@ No subir archivos JSON de usuarios, bases de datos, claves privadas, tokens, cer
 
 ## Modelo de seguridad propuesto (no implementado)
 
-- Rust compartido para cifrado, gestión de operaciones offline y validaciones.
+- Ya existe un núcleo Rust con dominio, ABI y vectores AES-256-GCM probados; cifrado de datos reales, gestión de claves y sincronización siguen **sin implementar**. Ver [etapa 3](docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md).
 - TLS 1.3 para las comunicaciones; cuando corresponda, cifrado de extremo a extremo sobre TLS.
 - Cifrado local con claves individuales y almacenes del sistema operativo.
 - Argon2id en sistemas que administren contraseñas; OAuth2/OIDC con PKCE para autenticación online.
