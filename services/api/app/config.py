@@ -10,6 +10,7 @@ class Settings:
     oidc_issuer: str
     oidc_audience: str
     oidc_jwks_url: str
+    allow_legacy_plaintext_notes: bool = False
 
     def __post_init__(self):
         if not self.database_url.startswith("postgresql+psycopg://"):
@@ -30,4 +31,5 @@ class Settings:
             oidc_issuer=os.environ["OIDC_ISSUER"].rstrip("/"),
             oidc_audience=os.environ["OIDC_AUDIENCE"],
             oidc_jwks_url=os.environ["OIDC_JWKS_URL"],
+            allow_legacy_plaintext_notes=os.environ.get("SMARTUNI_DEMO_PLAINTEXT_NOTES") == "1",
         )

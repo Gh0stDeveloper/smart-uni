@@ -108,12 +108,19 @@ def create_app(settings: Settings | None = None, *, verifier: OidcVerifier | Non
     def me(identity: Identity = Depends(authenticated)):
         return MeView(id=identity.id, role=identity.role)
 
+    def demo_plaintext_guard():
+        # Fail closed: stages 5 legacy plaintext CRUD only for synthetic demos.
+        if not settings.allow_legacy_plaintext_notes:
+            raise HTTPException(status_code=410,
+                                detail="Endpoint de texto claro deshabilitado; usa /api/v1/sync")
+
     @app.get("/api/v1/notes", response_model=list[NoteView])
     def list_notes(
         limit: int = Query(default=30, ge=1, le=100),
         offset: int = Query(default=0, ge=0, le=10000),
         identity: Identity = Depends(authenticated),
         db: Session = Depends(get_session),
+        _legacy: None = Depends(demo_plaintext_guard),
     ):
         return db.scalars(
             select(Note).where(Note.owner_id == identity.id)
@@ -126,6 +133,7 @@ def create_app(settings: Settings | None = None, *, verifier: OidcVerifier | Non
         values: NoteCreate,
         identity: Identity = Depends(authenticated),
         db: Session = Depends(get_session),
+        _legacy: None = Depends(demo_plaintext_guard),
     ):
         row = Note(id=uuid4(), owner_id=identity.id, title=values.title, content=values.content)
         db.add(row)
@@ -139,11 +147,11 @@ def create_app(settings: Settings | None = None, *, verifier: OidcVerifier | Non
             raise HTTPException(status_code=404, detail="Recurso no encontrado")
         return note
 
-    @app.get("/api/v1/notes/{note_id}", response_model=NoteView)
+    @app.get("/api/v1/notes/{note_id}", response_model=NoteView, dependencies=[Depends(demo_plaintext_guard)])
     def get_note(note_id: UUID, identity: Identity = Depends(authenticated), db: Session = Depends(get_session)):
         return owned_note(db, identity, note_id)
 
-    @app.put("/api/v1/notes/{note_id}", response_model=NoteView)
+    @app.put("/api/v1/notes/{note_id}", response_model=NoteView, dependencies=[Depends(demo_plaintext_guard)])
     def update_note(note_id: UUID, values: NoteUpdate, identity: Identity = Depends(authenticated), db: Session = Depends(get_session)):
         note = owned_note(db, identity, note_id)
         note.title, note.content = values.title, values.content
@@ -151,7 +159,7 @@ def create_app(settings: Settings | None = None, *, verifier: OidcVerifier | Non
         db.refresh(note)
         return note
 
-    @app.delete("/api/v1/notes/{note_id}", status_code=204)
+    @app.delete("/api/v1/notes/{note_id}", status_code=204, dependencies=[Depends(demo_plaintext_guard)])
     def delete_note(note_id: UUID, identity: Identity = Depends(authenticated), db: Session = Depends(get_session)):
         note = owned_note(db, identity, note_id)
         db.delete(note)

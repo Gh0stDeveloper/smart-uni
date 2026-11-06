@@ -50,7 +50,7 @@ def make_token(sub="alumno-A", *, role="student", issuer=ISSUER, audience=AUDIEN
 @pytest.fixture
 def setup():
     dburl = os.environ["DATABASE_URL"]
-    settings = Settings(dburl, ISSUER, AUDIENCE, ISSUER + "/certs")
+    settings = Settings(dburl, ISSUER, AUDIENCE, ISSUER + "/certs", allow_legacy_plaintext_notes=True)
     engine = create_engine(dburl)
     with engine.begin() as db:
         db.execute(text("TRUNCATE TABLE revoked_tokens, notes, identities RESTART IDENTITY CASCADE"))
@@ -192,3 +192,17 @@ def test_confidential_responses_cannot_be_cached(setup):
     assert "no-store" in response.headers["cache-control"]
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
+
+
+def test_plaintext_notes_disabled_unless_explicitly_enabled(setup):
+    client, engine = setup
+    strict_settings = Settings(os.environ["DATABASE_URL"], ISSUER, AUDIENCE, ISSUER + "/certs")
+    strict = create_app(strict_settings, verifier=OidcVerifier(strict_settings, key_client=FixtureJWKS()),
+                        engine=engine)
+    token = make_token("strict-no-plaintext")
+    with TestClient(strict) as secured:
+        assert secured.get("/api/v1/notes", headers=headers(token)).status_code == 410
+        assert secured.post("/api/v1/notes", headers=headers(token),
+                            json={"title": "synthetic", "content": "no"}).status_code == 410
+        assert secured.get("/api/v1/me", headers=headers(token)).status_code == 200
+        assert secured.get("/api/v1/sync/pull", headers=headers(token)).status_code == 200
