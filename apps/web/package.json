@@ -1,0 +1,26 @@
+{
+  "name": "smartuni-portal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "next": "16.4.5",
+    "next-auth": "5.0.0-beta.32",
+    "react": "19.2.2",
+    "react-dom": "19.2.2"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.0",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "typescript": "5.9.3",
+    "tsx": "4.20.6"
+  }
+}

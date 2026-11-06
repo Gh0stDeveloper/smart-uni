@@ -1,0 +1,36 @@
+:root {
+  --blue: #2B80EC;
+  --aqua: #2BB2C4;
+  --ink: #243448;
+  --muted: #65768C;
+  --line: #E2E8F0;
+  --page: #F3F7FC;
+  --white: #FFFFFF;
+}
+* { box-sizing: border-box; }
+html, body { padding: 0; margin: 0; min-height: 100%; }
+body { background: var(--page); color: var(--ink); font-family: Roboto, Arial, sans-serif; }
+a { color: var(--blue); }
+.container { max-width: 1060px; margin: 0 auto; padding: 28px 22px 72px; }
+.brand { display: flex; align-items: center; gap: 13px; text-decoration: none; color: var(--ink); font-weight: 800; font-size: 22px; }
+.brand img { width: 48px; height: 48px; object-fit: contain; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 26px; }
+.card { background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 7px 24px rgba(26,65,110,.05); padding: 26px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+h1, h2, h3 { font-family: Poppins, Arial, sans-serif; letter-spacing: -.025em; }
+h1 { font-size: clamp(30px, 4vw, 46px); margin: 0 0 14px; line-height: 1.15; }
+h2 { margin-top: 0; font-size: 23px; }
+p { line-height: 1.6; }
+.muted { color: var(--muted); }
+.btn { font: inherit; display: inline-block; border: 0; border-radius: 8px; padding: 12px 20px; color: white; background: var(--blue); font-weight: 700; cursor: pointer; }
+.btn.secondary { background: var(--aqua); }
+.btn.outline { color: var(--blue); background: white; border: 1px solid var(--line); }
+.btn:hover { filter: brightness(.94); }
+input, textarea { display: block; width: 100%; font: inherit; padding: 12px; margin: 6px 0 12px; border: 1px solid #BAC7D5; border-radius: 8px; }
+label { font-weight: 600; }
+textarea { min-height: 130px; resize: vertical; }
+.notice { padding: 14px 18px; border: 1px solid var(--line); border-left: 4px solid var(--aqua); border-radius: 8px; background: #fff; margin-bottom: 20px; }
+.note { border: 1px solid var(--line); border-radius: 9px; padding: 16px; margin-bottom: 12px; }
+.note p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 560px) { .top { align-items: flex-start; flex-direction: column; } .container { padding: 16px; } }
