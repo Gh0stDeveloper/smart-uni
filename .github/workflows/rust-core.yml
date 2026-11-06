@@ -12,6 +12,8 @@ on:
       - 'apps/desktop/tests/test_phase6_interop.py'
       - 'apps/desktop/smart_uni/secure_files.py'
       - 'apps/desktop/tests/test_phase6_materials.py'
+      - 'apps/desktop/smart_uni/key_recovery.py'
+      - 'apps/desktop/tests/test_phase6_key_recovery.py'
       - 'scripts/check_crypto_vectors.py'
       - '.github/workflows/rust-core.yml'
   pull_request:
@@ -71,6 +73,9 @@ jobs:
       - name: Materiales cifrados integrados con SQLCipher y Rust
         working-directory: apps/desktop
         run: python -m unittest discover -s tests -p test_phase6_materials.py -v
+      - name: Restauración de clave SQLCipher con paquete Argon2id
+        working-directory: apps/desktop
+        run: python -m unittest discover -s tests -p test_phase6_key_recovery.py -v
       - name: Prueba de enlace Python-ctypes a Rust
         working-directory: apps/desktop
         run: python -m unittest discover -s tests -p test_phase3_native.py -v

@@ -176,4 +176,23 @@ class SecureMaterialStore:
         old = repo._keys.get(identifier)
         if old is not None and old != key:
             raise StorageError("La clave existente difiere de la copia; no sobrescribir.")
+        # No guardar una clave de recuperación ajena si existen adjuntos:
+        # comprobar al menos un ciphertext existente antes de instalar la clave.
+        space = repo.read().get("student_spaces", {}).get(clean, {})
+        entries = [x for x in space.get("materials", []) if x.get("storage") == "suaead1"]
+        if entries:
+            item = entries[0]
+            item_id = item.get("id", "")
+            if not isinstance(item_id, str) or len(item_id) != 32 or any(
+                c not in "0123456789abcdef" for c in item_id
+            ):
+                raise StorageError("Material cifrado corrupto.")
+            folder = repo.path.parent / "encrypted-materials"
+            file_path = folder / (item_id + ".sun1")
+            if folder.is_symlink() or file_path.is_symlink() or not file_path.is_file():
+                raise StorageError("No se puede validar la clave recuperada sin el ciphertext.")
+            try:
+                cipher.decrypt(key, cls._context(clean, item_id), file_path.read_bytes())
+            except Exception as exc:
+                raise StorageError("La recuperación no corresponde a los materiales.") from exc
         repo._keys.put(identifier, key)
