@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'apps/desktop/smart_uni/secure_storage.py'
+      - 'apps/desktop/smart_uni/secure_files.py'
+      - 'apps/desktop/smart_uni/secure_crypto.py'
       - 'apps/desktop/smart_uni/storage_mode.py'
       - 'apps/desktop/smart_uni/student_data.py'
       - 'apps/desktop/main.py'
@@ -17,6 +19,8 @@ on:
   pull_request:
     paths:
       - 'apps/desktop/smart_uni/secure_storage.py'
+      - 'apps/desktop/smart_uni/secure_files.py'
+      - 'apps/desktop/smart_uni/secure_crypto.py'
       - 'apps/desktop/smart_uni/storage_mode.py'
       - 'apps/desktop/smart_uni/student_data.py'
       - 'apps/desktop/main.py'

@@ -10,6 +10,8 @@ on:
       - 'apps/desktop/tests/test_phase3_native.py'
       - 'apps/desktop/smart_uni/secure_crypto.py'
       - 'apps/desktop/tests/test_phase6_interop.py'
+      - 'apps/desktop/smart_uni/secure_files.py'
+      - 'apps/desktop/tests/test_phase6_materials.py'
       - 'scripts/check_crypto_vectors.py'
       - '.github/workflows/rust-core.yml'
   pull_request:
@@ -64,6 +66,11 @@ jobs:
       - name: Validación cruzada Rust/OpenSSL/Argon2id (Python)
         working-directory: apps/desktop
         run: python -m unittest discover -s tests -p test_phase6_interop.py -v
+      - name: Instalar SQLCipher y keyring para pruebas de adjuntos
+        run: python -m pip install -r apps/desktop/requirements-secure.txt
+      - name: Materiales cifrados integrados con SQLCipher y Rust
+        working-directory: apps/desktop
+        run: python -m unittest discover -s tests -p test_phase6_materials.py -v
       - name: Prueba de enlace Python-ctypes a Rust
         working-directory: apps/desktop
         run: python -m unittest discover -s tests -p test_phase3_native.py -v
