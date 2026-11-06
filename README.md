@@ -19,7 +19,7 @@ SMART UNI 2.0 evolucionará desde el prototipo de escritorio existente hacia un 
 </div>
 
 > [!IMPORTANT]
-> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, web, API online, sincronización y E2EE permanecen sin implementar. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. Existe ya un núcleo Rust 0.1.0 con contratos, ABI y pruebas criptográficas, pero **no está conectado al flujo de datos ni a la interfaz**. No se deben introducir datos privados reales en esta versión.
+> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, sincronización y E2EE siguen sin implementar. **La API FastAPI/PostgreSQL y el portal Next.js existen y pasan CI, pero todavía no están desplegados ni conectados a un proveedor OIDC real**. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. Existe ya un núcleo Rust 0.1.0 con contratos, ABI y pruebas criptográficas, pero **no está conectado al flujo de datos ni a la interfaz**. No se deben introducir datos privados reales en esta versión.
 
 ---
 
@@ -67,11 +67,11 @@ Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativ
 
 | Icono | Tecnología | Responsabilidad | Estado |
 |---|---|---|---|
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="26" alt="Python" /> | **Python** | Escritorio Tkinter y futura API | Escritorio funcional |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="26" alt="Python" /> | **Python** | Escritorio Tkinter y backend FastAPI | Escritorio + API de laboratorio funcional |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg" width="26" alt="Rust" /> | **Rust** | Dominio, validación de contratos, ABI C y AES-256-GCM probado | Implementado parcialmente (etapa 3; sin integración en la app) |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/cplusplus/cplusplus-original.svg" width="26" alt="C++" /> | **C++** | Red/JNI nativo para Android | Planificado |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" width="26" alt="Java" /> | **Java** | Interfaz Android | Planificado |
-| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="26" alt="TypeScript" /> | **TypeScript** | Next.js, portal y administración | Planificado |
+| <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="26" alt="TypeScript" /> | **TypeScript** | Next.js, portal y administración | Portal implementado y probado, sin desplegar |
 | <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="26" alt="JavaScript" /> | **JavaScript** | Herramientas web | Planificado |
 
 ### Herramientas y programas
@@ -96,7 +96,7 @@ Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativ
 
 </div>
 
-**En uso:** Python/Tkinter, JSON legacy, SQLCipher opt-in de la etapa 4, outbox offline, contratos, Rust 0.1.0 y ABI C, pruebas AES-GCM, compilación y tokens. **Pendientes:** cifrado de materiales, keyring probado en sesión real, Rust integrado en datos, Android, backend, sincronización, E2EE e integración Figma.
+**En uso:** Python/Tkinter, JSON legacy, SQLCipher opt-in, outbox offline, Rust 0.1.0, FastAPI/PostgreSQL con Alembic y Next.js/Auth.js probados, contratos versionados y tokens de diseño. **Pendientes:** despliegue API/portal, IdP externo real, cifrado de materiales, keyring real, integración de Rust con datos, Android, sincronización, E2EE y Figma.
 
 ## Arquitectura prevista
 
@@ -133,9 +133,9 @@ smart-uni/
 ├── apps/
 │   ├── desktop/            # Prototipo Python ejecutable
 │   ├── android/            # Arquitectura futura Java/C++/Rust
-│   └── web/                # Portal Next.js futuro
+│   └── web/                # Portal Next.js implementado (no desplegado)
 ├── core/rust/              # Documentación del núcleo futuro
-├── services/api/           # Documentación del backend futuro
+├── services/api/           # FastAPI, PostgreSQL y migraciones Alembic
 ├── packages/design-system/ # Tokens canónicos e identidad visual
 ├── packages/contracts/     # Esquemas v1 de datos y operaciones
 ├── docs/
@@ -148,7 +148,7 @@ smart-uni/
 └── README.md
 ```
 
-Los directorios Android, web y API **no contienen todavía productos ejecutables**. El directorio Rust sí contiene ahora una biblioteca real, con pruebas multiplataforma y compilación ARM64 para Android, pero sin aplicación Android ni backend.
+Android aún no tiene cliente ejecutable. Web y API ahora contienen código funcional y probado en CI, **pero sin despliegue ni login externo comprobado**. Rust contiene la biblioteca compartida con pruebas para Windows/Linux y compilación arm64 Android.
 
 ## Instalación y uso
 
@@ -171,7 +171,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-La suite de escritorio detecta **65 casos**: 39 verifican el prototipo y 26 se omiten sin dependencias especiales (22 SQLCipher y 4 FFI). Los 22 casos SQLCipher se ejecutan **sin omisiones** en su workflow Windows/Linux, igual que los cuatro FFI en el workflow Rust. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
+La suite de escritorio detecta **68 casos**: 42 se ejecutan correctamente en el flujo normal (39 previos y 3 pruebas PBKDF2) y 26 se omiten sin dependencias opcionales (22 SQLCipher y 4 FFI). Los 22 casos SQLCipher se ejecutan **sin omisiones** en su workflow Windows/Linux, igual que los cuatro FFI en el workflow Rust. El workflow Rust ejecuta esas cuatro pruebas contra la biblioteca real en Windows/Linux, además de las 14 pruebas Rust en cada sistema. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
 
 Para comprobar la nomenclatura documental, desde la raíz:
 
@@ -191,7 +191,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 | **2 Contratos y sistema de diseño** | Completada: [evidencias de cierre](docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md) |
 | **3 Núcleo compartido en Rust** | Completada: [evidencias de cierre](docs/phase-3/3_CIERRE_Y_EVIDENCIAS.md) |
 | **4 Persistencia local y funcionamiento offline** | Implementación técnica validada, **opt-in**, no apta para producción: [acta de cierre](docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) |
-| **5 Backend, identidad y autorización** | Pendiente |
+| **5 Backend, identidad y autorización** | Base técnica implementada y validada, sin despliegue ni IdP externo: [acta 5](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) |
 | **6 Cifrado y gestión de claves** | Pendiente |
 | **7 Sincronización multiplataforma** | Pendiente |
 | **8 Aplicación Android** | Pendiente |
@@ -219,7 +219,7 @@ Se planean Argon2id cuando corresponda, TLS, cifrado en reposo, gestión de clav
 - [Política de seguridad](SECURITY.md)
 - [Guía de contribución](CONTRIBUTING.md)
 - [Estado real de componentes](docs/architecture/00_ESTADO_Y_PRIORIDADES.md)
-- **[Registro maestro de pendientes y riesgos abiertos (P01–P30)](docs/PENDIENTES_SMART_UNI_2_0.md)**
+- **[Registro maestro de pendientes y riesgos abiertos (P01–P36)](docs/PENDIENTES_SMART_UNI_2_0.md)**
 
 **Desarrollo:** [Ghost Developer](https://github.com/Gh0stDeveloper)
 
@@ -230,3 +230,7 @@ Se planean Argon2id cuando corresponda, TLS, cifrado en reposo, gestión de clav
 ## Persistencia cifrada opcional (etapa 4)
 
 Para probar desde código fuente, instalar `pip install -r apps/desktop/requirements-secure.txt` y configurar `SMARTUNI_STORAGE=secure` con keyring del SO desbloqueado antes de iniciar. La aplicación usa `data.sqlcipher` y preserva `data.json` si migra; si falta la clave no se degrada a SQLite sin cifrar. El EXE normal **no empaqueta SQLCipher**. La importación de materiales se bloquea en modo seguro hasta tener contenedores de archivos cifrados. [Pruebas y límites](docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) · [Todos los pendientes](docs/PENDIENTES_SMART_UNI_2_0.md).
+
+## Backend y portal de laboratorio — etapa 5
+
+La API [FastAPI + PostgreSQL](services/api/README.md) dispone de migraciones Alembic, consultas parametrizadas, JWT OIDC RS256, propietario por identidad DB, rol admin validado por PostgreSQL y revocación de tokens propia. El [portal Next.js](apps/web/README.md) utiliza Auth.js con PKCE, state y nonce, cookies de sesión protegidas y BFF que no expone tokens al navegador. **No hay todavía IdP externo conectado ni despliegue productivo.** Los apuntes de prueba del backend se almacenan sin E2EE. [Acta técnica](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) y [36 pendientes de seguridad y funcionalidad](docs/PENDIENTES_SMART_UNI_2_0.md).

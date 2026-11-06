@@ -26,7 +26,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-Son 65 casos descubiertos en la suite normal: 39 de funcionalidad y regresión, 22 pruebas SQLCipher omitidas cuando no hay dependencias opcionales, y cuatro pruebas FFI Rust omitidas sin la biblioteca nativa; dos pruebas requieren pantalla gráfica. En CI especial SQLCipher se ejecutan 22/22 sin omisiones. Evidencia: [etapa 1](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) y [etapa 2](../../docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md).
+Son 68 casos descubiertos en la suite normal: 42 de funcionalidad y regresión (incluyendo tres pruebas PBKDF2), 22 pruebas SQLCipher omitidas cuando no hay dependencias opcionales, y cuatro pruebas FFI Rust omitidas sin la biblioteca nativa; dos pruebas requieren pantalla gráfica. En CI especial SQLCipher se ejecutan 22/22 sin omisiones. Evidencia: [etapa 1](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) y [etapa 2](../../docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md).
 
 ## Windows
 
@@ -51,4 +51,8 @@ El adaptador opcional `smart_uni/native_bridge.py` puede cargar una biblioteca R
 
 Instalar `python -m pip install -r requirements-secure.txt` en Windows/Linux con keyring del SO desbloqueado. Establecer `SMARTUNI_STORAGE=secure` y ejecutar `python main.py`. La base local utiliza SQLCipher y, si existe JSON v1, lo migra **conservando el origen**. Si falta clave o servicio de claves, aborta sin crear una base sin cifrar. El EXE clásico de GitHub Actions no incluye SQLCipher; esta configuración debe probarse desde fuente.
 
-El modo seguro mantiene tareas, apuntes y perfil en SQLCipher, registra operaciones cubiertas en la outbox y presenta estados locales discretos. No cifra materiales: su importación se bloquea para evitar filtraciones. No se garantiza aún autorización por sesión ni red; nunca mostrar “sincronizado” sin ACK del servidor. [Acta técnica](../../docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) y [registro de pendientes P01–P30](../../docs/PENDIENTES_SMART_UNI_2_0.md).
+El modo seguro mantiene tareas, apuntes y perfil en SQLCipher, registra operaciones cubiertas en la outbox y presenta estados locales discretos. No cifra materiales: su importación se bloquea para evitar filtraciones. No se garantiza aún autorización por sesión ni red; nunca mostrar “sincronizado” sin ACK del servidor. [Acta técnica](../../docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) y [registro de pendientes P01–P36](../../docs/PENDIENTES_SMART_UNI_2_0.md).
+
+## Protección de hash histórico y etapa 5
+
+Se añadieron límites verificables de costo PBKDF2 (100 000 a 1 000 000 rondas, sal de 16 bytes, digest de 32 bytes) conservando las 260 000 rondas de registros existentes. [Regresión CI](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42225588765). La nueva API remota existe en [services/api](../../services/api/README.md), **sin conexión al cliente Tkinter y sin autorización de sesión local todavía**. No introducir datos reales en el JSON o los materiales clásicos.

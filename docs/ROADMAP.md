@@ -125,20 +125,20 @@
 
 ### 5.1 API y PostgreSQL
 
-- [ ] Desarrollar FastAPI, migraciones, validaciones y SQL parametrizado.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Desarrollar FastAPI, migraciones, validaciones y SQL parametrizado.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 5.2 Portal Next.js
 
-- [ ] Crear panel TypeScript con roles, cookies seguras y defensas web.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Crear panel TypeScript con roles, cookies seguras y defensas web.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 5.3 Cuentas y permisos
 
-- [ ] OIDC/OAuth con PKCE; pruebas de aislamiento, sesiones y autorización.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] OIDC/OAuth con PKCE; pruebas de aislamiento, sesiones y autorización.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+**Criterio de cierre del hito técnico:** implementado y validado con Postgres de laboratorio y pruebas de JWT RSA, TypeScript y HTTP. [5.1 API y PostgreSQL](phase-5/5.1_API_Y_POSTGRESQL.md) · [5.2 Portal Next.js](phase-5/5.2_PORTAL_NEXT_JS.md) · [5.3 Cuentas y permisos](phase-5/5.3_CUENTAS_Y_PERMISOS.md) · [Acta de cierre](phase-5/5_CIERRE_Y_EVIDENCIAS.md). **No equivale a identidad productiva ni a login OIDC externo probado**. Prueba de IdP real, refresh y despliegue siguen abiertos en [registro P01–P36](PENDIENTES_SMART_UNI_2_0.md).
 
 ## 6 Cifrado y gestión de claves
 
@@ -249,6 +249,6 @@
 
 ## Control del avance
 
-Las etapas **1–3 están validadas dentro de sus alcances**. La **etapa 4 incorpora SQLCipher, migración recuperable y outbox probados**, pero solamente mediante modo **opt-in experimental**: 22 pruebas SQLCipher aprobadas en cada SO, sin habilitación predeterminada ni adjuntos cifrados. Las etapas **5–10 siguen pendientes**. Persisten **30 asuntos abiertos o parcialmente resueltos**, registrados obligatoriamente en [PENDIENTES_SMART_UNI_2_0.md](PENDIENTES_SMART_UNI_2_0.md). El prototipo sigue sin ser seguro para datos privados reales.
+Las etapas **1–5 están implementadas y verificadas dentro de su alcance técnico**. La etapa 4 mantiene SQLCipher como opt-in experimental; la etapa 5 aporta FastAPI/PostgreSQL con 14 pruebas de identidad/autorización y portal Next.js con controles HTTP 401/403. **No se han desplegado API/portal ni conectado un IdP externo real**, y el backend todavía no cifra apuntes E2EE. Las etapas **6–10 siguen pendientes**. El [registro maestro de 36 asuntos](PENDIENTES_SMART_UNI_2_0.md) controla los pendientes abiertos o parcialmente mitigados, aunque exista código ya probado.
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

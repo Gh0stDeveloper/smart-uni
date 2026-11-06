@@ -43,4 +43,4 @@ No hay API de contraseñas propias, cambio de rol por el cliente, E2EE de notas,
 
 [Workflow backend](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/backend-api.yml): PostgreSQL 16 real, alembic upgrade/downgrade/upgrade, firmas RSA de test y aislamiento de cuentas, JWT manipulados y revocación. Fixture JWKS es local para evitar depender de una cuenta real; NO verifica descubrimiento/JWKS ni login de un proveedor OIDC remoto.
 
-Falta despliegue, RLS como defensa adicional, limitación de tráfico, operación/backup y revisión externa de seguridad. Consultar los pendientes P02, P15, P16, P17, P18 y P31–P35 antes de tratarlo como listo para datos reales.
+Falta despliegue, RLS como defensa adicional, limitación de tráfico, operación/backup y revisión externa de seguridad. Consultar los pendientes P02, P15, P16, P17, P18 y P31–P36 antes de tratarlo como listo para datos reales.

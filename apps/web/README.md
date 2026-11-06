@@ -34,4 +34,4 @@ Para desarrollo, se admite Origin HTTP solo en localhost/127.0.0.1; en producci�
 
 ## Pruebas y pendientes
 
-El [workflow web](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/web-portal.yml) prueba TypeScript, build, seguridad de origen, URL fija del API y rutas HTTP sin sesión. No prueba acceso interactivo con IdP de producción ni cookies detrás de reverse proxy. No hay token refresh operativo ni sincronización entre escritorio y Android; revisar [registro maestro P01–P35](../../docs/PENDIENTES_SMART_UNI_2_0.md).
+El [workflow web](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/web-portal.yml) prueba TypeScript, build, seguridad de origen, URL fija del API y rutas HTTP sin sesión. No prueba acceso interactivo con IdP de producción ni cookies detrás de reverse proxy. No hay token refresh operativo ni sincronización entre escritorio y Android; revisar [registro maestro P01–P36](../../docs/PENDIENTES_SMART_UNI_2_0.md).
