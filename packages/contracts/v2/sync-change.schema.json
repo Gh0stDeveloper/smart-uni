@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:smart-uni:contracts:sync-v2:change",
+  "title": "SMART UNI v2 - client encrypted sync mutation",
+  "description": "Owner ID is intentionally absent and ALWAYS derived from verified OIDC session. Client sends SUAEAD01, never raw notes, labels, keys or secrets. Deletes are authenticated encrypted tombstones.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "operation_id",
+    "resource_id",
+    "base_revision",
+    "epoch",
+    "deleted",
+    "ciphertext_b64"
+  ],
+  "properties": {
+    "operation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "resource_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "base_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "deleted": {
+      "type": "boolean"
+    },
+    "ciphertext_b64": {
+      "type": "string",
+      "contentEncoding": "base64",
+      "maxLength": 180000,
+      "minLength": 24
+    },
+    "blob_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "resolve_conflict_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    }
+  }
+}

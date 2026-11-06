@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:smart-uni:contracts:sync-v2:blob-init",
+  "title": "SMART UNI v2 - resumable encrypted attachment manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "blob_id",
+    "resource_id",
+    "base_revision",
+    "epoch",
+    "total_size",
+    "sha256"
+  ],
+  "properties": {
+    "blob_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "resource_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "base_revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "epoch": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2147483647
+    },
+    "total_size": {
+      "type": "integer",
+      "minimum": 39,
+      "maximum": 8388908
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
