@@ -124,20 +124,27 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, stored: str) -> bool:
     """Comparamos la contraseña escrita con el hash que ya estaba guardado."""
     try:
-        algorithm, rounds, hex_salt, hex_digest = stored.split('$')
-
-        if algorithm != 'pbkdf2_sha256':
+        if not isinstance(stored, str) or len(stored) > 256:
             return False
+        algorithm, rounds, hex_salt, hex_digest = stored.split('
 
+
+)
+        if algorithm != 'pbkdf2_sha256' or not rounds.isascii() or not rounds.isdecimal() or len(rounds) > 7:
+            return False
+        iterations = int(rounds)
+        # Evitar trabajo arbitrario si alguien modifica el archivo JSON.
+        # El formato histórico SMART UNI utiliza 260 000 iteraciones.
+        if not 100_000 <= iterations <= 1_000_000:
+            return False
+        salt = bytes.fromhex(hex_salt)
+        digest = bytes.fromhex(hex_digest)
+        if len(salt) != 16 or len(digest) != 32:
+            return False
         calculated = hashlib.pbkdf2_hmac(
-            'sha256',
-            password.encode('utf-8'),
-            bytes.fromhex(hex_salt),
-            int(rounds),
+            'sha256', password.encode('utf-8'), salt, iterations,
         )
-
-        return hmac.compare_digest(calculated, bytes.fromhex(hex_digest))
-
+        return hmac.compare_digest(calculated, digest)
     except (ValueError, AttributeError, TypeError):
         return False
 
