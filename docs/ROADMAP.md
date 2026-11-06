@@ -56,20 +56,22 @@
 
 ### 2.1 Separación de capas de escritorio
 
-- [ ] Separar UI, dominio, repositorios y sesión sin romper funciones.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Separar UI, dominio, repositorios y sesión sin romper funciones.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 2.2 Contratos compartidos
 
-- [ ] Versionar esquemas, identificadores, errores y operaciones entre clientes.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Versionar esquemas, identificadores, errores y operaciones entre clientes.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 2.3 Sistema visual y Figma
 
-- [ ] Centralizar diseño, tokens, iconos y proceso de revisión entre plataformas.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Centralizar diseño, tokens, iconos y proceso de revisión entre plataformas.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+**Evidencias verificadas:** [2.1 Separación](phase-2/2.1_SEPARACION_DE_CAPAS.md) · [2.2 Contratos](phase-2/2.2_CONTRATOS_COMPARTIDOS.md) · [2.3 Diseño](phase-2/2.3_SISTEMA_VISUAL_Y_FIGMA.md) · [Acta de cierre](phase-2/2_CIERRE_Y_EVIDENCIAS.md). Implementación validada en [commit 0a02c42](https://github.com/Gh0stDeveloper/smart-uni/commit/0a02c42c22d481c34bf20d374ac2bc2dead50000): 39 pruebas OK en Windows y Linux ([Actions #42162128163](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42162128163)), comprobación de contratos/diseño [#42162128182](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42162128182), compilación EXE Windows [#42162128160](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42162128160) y convención [#42162128175](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42162128175) en verde. Capturas y respaldo sintético por sistema publicados. No se ha iniciado 3 ni mitigado R01/R02.
+
+**Criterio de cierre:** cumplido dentro de este alcance de modularización, contratos y conservación del diseño, con revisión de evidencia.
 
 ## 3 Núcleo compartido en Rust
 
@@ -243,6 +245,6 @@
 
 ## Control del avance
 
-La etapa **1 Análisis y línea base** está **completada y validada** con 26 pruebas satisfactorias en cada SO, capturas y respaldos sintéticos, compilación Windows y validación de convenciones. Las etapas 2–10 siguen pendientes y no se ha iniciado la etapa 2. Los riesgos identificados no están resueltos por esta validación.
+Las etapas **1 Análisis y línea base** y **2 Contratos y sistema de diseño** están **completadas y validadas** según las evidencias referenciadas: 39/39 pruebas por sistema en la etapa 2, capturas y respaldos sintéticos, EXE Windows y validadores documentales/de contratos en verde. Las etapas **3–10 permanecen pendientes**. La modularización no subsana por sí sola los riesgos de seguridad identificados en 1.2.
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

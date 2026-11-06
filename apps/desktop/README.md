@@ -26,7 +26,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-Son 26 pruebas automatizadas (17 originales + 9 de línea base); las dos de navegación usan una pantalla gráfica. Evidencia: [acta de cierre](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md).
+Son 39 pruebas automatizadas (17 originales + 9 de línea base + 13 de la etapa 2); dos requieren pantalla gráfica. Evidencia: [etapa 1](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) y [etapa 2](../../docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md).
 
 ## Windows
 
@@ -39,3 +39,6 @@ También hay un flujo de GitHub Actions para compilar la aplicación.
 La fuente del diseño está en `design/figma_svg/` y los colores/fuentes en `design/tokens.json`. Los recursos actuales son una base de referencia; algunas maquetas antiguas pueden no representar la navegación final. La interfaz ejecutable es la referencia de comportamiento visual actual.
 
 Las decisiones de SMART UNI 2.0 están en `../../docs/architecture/`.
+## Organización de la etapa 2
+
+`smart_uni/domain.py` mantiene validaciones y algoritmos heredados; `repository.py` abstrae el JSON; `session.py` conserva la identidad local sin introducir API online; `core.py` y `student_data.py` implementan los servicios, y las pantallas originales permanecen en `ui.py` y `student_ui.py`. Los roles visuales se leen mediante `design_system.py` de los tokens originales. Ningún control remoto de autorización, SQLite, Rust ni sincronización está implementado todavía.

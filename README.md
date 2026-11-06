@@ -96,7 +96,7 @@ Los datos se almacenan actualmente en **JSON local**. La lista Amigos todavía n
 
 </div>
 
-**En uso:** Python/Tkinter, compilación y pruebas de escritorio, iconos SVG y tokens. **Previstos:** Rust, Android, Next.js, FastAPI, PostgreSQL, SQLite protegido e integración de Figma.
+**En uso:** Python/Tkinter modularizado, repositorio JSON v1, sesión local, contratos JSON Schema versionados, compilación y pruebas de escritorio, iconos SVG y tokens canónicos. **Previstos:** Rust, Android, Next.js, FastAPI, PostgreSQL, SQLite protegido e integración de Figma.
 
 ## Arquitectura prevista
 
@@ -136,7 +136,8 @@ smart-uni/
 │   └── web/                # Portal Next.js futuro
 ├── core/rust/              # Documentación del núcleo futuro
 ├── services/api/           # Documentación del backend futuro
-├── packages/design-system/ # Tokens y normas visuales
+├── packages/design-system/ # Tokens canónicos e identidad visual
+├── packages/contracts/     # Esquemas v1 de datos y operaciones
 ├── docs/
 │   ├── ROADMAP.md          # Fases y subfases oficiales
 │   ├── CONVENCIONES_FASES.md
@@ -170,7 +171,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-La suite incluye **26 casos** (17 originales y 9 de línea base); dos requieren sesión gráfica. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
+La suite incluye **39 casos** (17 originales, 9 de línea base, 6 de separación de capas, 4 de contratos y 3 del diseño); dos requieren sesión gráfica. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
 
 Para comprobar la nomenclatura documental, desde la raíz:
 
@@ -187,7 +188,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 | Etapa | Estado |
 |---|---|
 | **1 Análisis y línea base** | Completada: [evidencias de cierre](docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) |
-| **2 Contratos y sistema de diseño** | Pendiente |
+| **2 Contratos y sistema de diseño** | Completada: [evidencias de cierre](docs/phase-2/2_CIERRE_Y_EVIDENCIAS.md) |
 | **3 Núcleo compartido en Rust** | Pendiente |
 | **4 Persistencia local y funcionamiento offline** | Pendiente |
 | **5 Backend, identidad y autorización** | Pendiente |
