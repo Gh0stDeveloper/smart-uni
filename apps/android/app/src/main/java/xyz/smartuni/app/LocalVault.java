@@ -80,6 +80,10 @@ final class LocalVault {
             }
             return root;
         }
+        if (file.getBaseFile().length() < 39 ||
+                file.getBaseFile().length() > MAX_BYTES + 512) {
+            throw new GeneralSecurityException("Tamaño de contenedor inválido");
+        }
         byte[] encrypted = file.readFully();
         if (encrypted.length < 39 || encrypted.length > MAX_BYTES + 512) {
             throw new GeneralSecurityException("Contenedor de bóveda inválido");

@@ -54,3 +54,17 @@ Release usa R8 + shrinkResources, con reglas para mantener los símbolos Java ne
 - Nuevas pruebas instrumentadas para bóveda, corrupción, Keystore y validación de URLs. Continúa pendiente su ejecución verde en el emulador y teléfonos reales.
 
 [Segundo commit de implementación](https://github.com/Gh0stDeveloper/smart-uni/commit/c0203af7ebdc822fac6e25e3d661807540fcce90) · [Acta fase 8](../../docs/phase-8/8_CIERRE_Y_EVIDENCIAS.md).
+
+## Login OIDC de laboratorio (opt-in, sin secretos embebidos)
+
+`net.openid:appauth:0.11.1` gestiona el navegador externo y Authorization Code + PKCE S256/state/nonce. Proveer al compilador únicamente identificadores **públicos**:
+
+```bash
+export SMARTUNI_OIDC_ISSUER='https://idp.example.org/realms/smartuni'
+export SMARTUNI_OIDC_CLIENT_ID='smartuni-android'
+export SMARTUNI_API_ORIGIN='https://api.example.org'
+```
+
+Los valores son ilustrativos y no corresponden a servicios reales. El proveedor debe registrar `xyz.smartuni.app:/oauth2redirect` como redirect de cliente público y configurar audience JWT `smartuni-api` para el backend. Sin esos valores el login permanece deshabilitado; no hay credenciales fijas. El access token, cuando existe, se persiste cifrado Rust/Keystore, se caduca localmente y puede comprobarse con GET /me mediante JNI C++.
+
+**Límites:** no hay token refresh, logout global, enlace de dispositivos, App Links verificados ni validación real con proveedor; un callback de esquema personalizado requiere análisis de su superficie de intercepción. Este login no supone sincronización ni E2EE compartido. La cuenta y su servidor deben configurarse fuera del repositorio por el responsable autorizado.

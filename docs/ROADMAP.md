@@ -186,7 +186,7 @@
 
 **Objetivo:** Construir un cliente móvil con la identidad SMART UNI y seguridad compartida.
 
-**Implementación ampliada en main:** proyecto Gradle Java con seis secciones y birrete original; CRUD local cifrado de apuntes, tareas, eventos y materiales; adaptador API HTTPS con rutas fijas C++/JNI, uso de Rust AES-GCM y Android Keystore; workflows APK/AAB y pruebas instrumentadas. Código [c0203af](https://github.com/Gh0stDeveloper/smart-uni/commit/c0203af7ebdc822fac6e25e3d661807540fcce90). **Todavía no equivale a 8 completada:** OIDC/PKCE, sincronización E2EE entre dispositivos, SQLCipher multientidad, recuperación, firma comercial y pruebas físicas quedan pendientes. [Acta provisional y evidencias](phase-8/8_CIERRE_Y_EVIDENCIAS.md).
+**Implementación ampliada en main:** proyecto Gradle Java con seis secciones y birrete original; CRUD local cifrado de apuntes, tareas, eventos y materiales; adaptador API HTTPS con rutas fijas C++/JNI, uso de Rust AES-GCM y Android Keystore; workflows APK/AAB y pruebas instrumentadas. Código [c0203af](https://github.com/Gh0stDeveloper/smart-uni/commit/c0203af7ebdc822fac6e25e3d661807540fcce90). **Todavía no equivale a 8 completada:** OIDC/PKCE con proveedor real (implementación base AppAuth disponible), sincronización E2EE entre dispositivos, SQLCipher multientidad, recuperación, firma comercial y pruebas físicas quedan pendientes. [Acta provisional y evidencias](phase-8/8_CIERRE_Y_EVIDENCIAS.md).
 
 ### 8.1 Interfaz nativa Java
 

@@ -47,6 +47,9 @@ final class KeyVault {
         store.load(null);
         byte[] existing = null;
         if (file.getBaseFile().exists()) {
+            if (file.getBaseFile().length() != IV_LENGTH + KEY_LENGTH + 16) {
+                throw new GeneralSecurityException("Tamaño de clave envuelta inválido");
+            }
             existing = file.readFully();
             if (existing.length != IV_LENGTH + KEY_LENGTH + 16) {
                 throw new GeneralSecurityException("Paquete de clave inválido");

@@ -98,4 +98,20 @@ public final class NativeCryptoInstrumentedTest {
         assertTrue(store.containsAlias("smartuni.local.wrap.v1"));
         assertNotNull(store.getKey("smartuni.local.wrap.v1", null));
     }
+
+    @Test public void oidcSessionIsCiphedAndClearedWithoutNetwork() throws Exception {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        SessionVault vault = new SessionVault(context);
+        final String synthetic = "synthetic-access-token-SMART-UNI-8";
+        vault.save(synthetic, System.currentTimeMillis() + 60000);
+        byte[] secured = java.nio.file.Files.readAllBytes(
+                new java.io.File(context.getFilesDir(), "local_auth.sun1").toPath());
+        String text = new String(secured, StandardCharsets.ISO_8859_1);
+        assertFalse("El bearer aparece en disco", text.contains(synthetic));
+        byte[] restored = vault.bearer();
+        assertArrayEquals(synthetic.getBytes(StandardCharsets.US_ASCII), restored);
+        Arrays.fill(restored, (byte) 0);
+        vault.clear();
+        assertNull(vault.bearer());
+    }
 }

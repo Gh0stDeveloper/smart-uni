@@ -26,6 +26,9 @@ final class EncryptedNotesStore {
         if (!file.getBaseFile().exists()) {
             return new byte[0];
         }
+        if (file.getBaseFile().length() > MAX_NOTE_BYTES + 512) {
+            throw new GeneralSecurityException("Archivo demasiado grande");
+        }
         byte[] blob = file.readFully();
         if (blob.length > MAX_NOTE_BYTES + 512) {
             throw new GeneralSecurityException("Archivo demasiado grande");
