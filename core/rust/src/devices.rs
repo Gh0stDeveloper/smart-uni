@@ -2,12 +2,12 @@
 //! X25519/HKDF-SHA256/AES-256-GCM. Base cifra al receptor pero NO autentica
 //! la identidad del remitente ni prueba que un dispositivo sea confiable.
 //! El alta debe autorizarse con sesión + prueba de posesión en una fase futura.
+use hpke::rand_core::RngCore;
 use hpke::{
     aead::AesGcm256, kdf::HkdfSha256, kem::X25519HkdfSha256, setup_receiver, setup_sender,
     Deserializable, Kem as _, OpModeR, OpModeS, Serializable,
 };
 use std::collections::BTreeMap;
-use hpke::rand_core::RngCore;
 use zeroize::Zeroizing;
 
 type Kem = X25519HkdfSha256;
@@ -139,7 +139,10 @@ impl DeviceRoster {
     /// Revoca un destinatario y genera una clave NUEVA para el siguiente epoch.
     /// El dueño debe re-cifrar/re-envolver los datos que el retirado conocía;
     /// no existe borrado retroactivo de contenido que éste haya copiado.
-    pub fn revoke_and_rotate(&mut self, id: &str) -> Result<(u64, Zeroizing<[u8; 32]>), DeviceError> {
+    pub fn revoke_and_rotate(
+        &mut self,
+        id: &str,
+    ) -> Result<(u64, Zeroizing<[u8; 32]>), DeviceError> {
         let next = self.epoch.checked_add(1).ok_or(DeviceError::Invalid)?;
         let device = self.devices.get_mut(id).ok_or(DeviceError::Invalid)?;
         if !device.1 {
