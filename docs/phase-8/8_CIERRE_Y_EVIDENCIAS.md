@@ -1,27 +1,32 @@
-# 8 Aplicación Android — evaluación de avance
+# 8 Aplicación Android — seguimiento de cierre técnico
 
-## Alcance del commit
+**Estado actual: etapa abierta, tres subfases parcialmente implementadas.** La existencia de código o APK no autoriza distribución real ni cierre de los checkboxes oficiales.
 
-Implementación inicial Android Java + C++ JNI + Rust; navegación y un apunte offline cifrado con Android Keystore. La compilación ARM64/x86_64 y los tests instrumentados están definidos en [workflow Android](../../.github/workflows/android.yml). La **ejecución de CI del nuevo commit y su resultado** deben verificarse antes de declarar una subfase cerrada. Esta acta no inventa resultados.
+## Implementación inicial anterior
 
-| Subfase | Implementado | Para cierre |
+Android Java con seis pantallas y un apunte local cifrado por Rust/Keystore; integración binaria ABI Rust ARM64/x86_64. El build [#42296402993](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42296402993) generó APK debug, release y AAB release de laboratorio, pero **falló la instrumentación** con ADB offline y Process crashed antes de ejecutar tests. Los intentos posteriores [#42301518374](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42301518374) y [#42302247683](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42302247683) también registraron fallo de la etapa de emulador; ningún resultado permite atribuir el crash exclusivamente a aplicación o infraestructura.
+
+## Segunda iteración en main
+
+[Implementación 8.1–8.3](https://github.com/Gh0stDeveloper/smart-uni/commit/c0203af7ebdc822fac6e25e3d661807540fcce90):
+
+| Subfase | Nueva función implementada | Evidencia aún necesaria |
 |---|---|---|
-| 8.1 Interfaz nativa Java | Activity funcional, identidad visual, navegación, editor de nota local | Build CI verde y accesibilidad en móviles/tablets, más secciones de dominio |
-| 8.2 Comunicación C++/JNI | Puente criptográfico y diagnóstico HTTPS `/healthz` sin secretos | OIDC PKCE real y push/pull/blobs nativos + pruebas de TLS/red |
-| 8.3 Rust y Android Keystore | Rust staticlib, Keystore envuelve DEK, cifrado en Rust, fail-closed, tests instrumentados y configuración de build APK/AAB | CI APK/AAB verde, ejecución en dispositivo físico, firma release verificable, recuperación |
+| 8.1 Interfaz Java | CRUD local de notas, tareas, eventos; importación/lectura de materiales cifrados y diseño original | Build, test emulador, UI/accessibility en móviles/tablets físicos, persistencia concurrente |
+| 8.2 Comunicación JNI | Endpoints fijos me, sync pull/push/conflicts por C++, adaptador TLS Android con bearer dinámico, limites y respuesta tipada | OIDC/PKCE real, owner/E2EE/ACK, blobs, IdP HTTPS real, control anti-MITM, reintentos/errores |
+| 8.3 Rust/Keystore | Bóveda multi-registro y archivos cifrados mediante Rust/Keystore, migración conservadora de un apunte, fail-closed al perder el wrap; pruebas nuevas | CI instrumentado en verde, SQLCipher, recovery, TEE/StrongBox, firma release, dispositivos reales |
 
-## Garantías y restricciones
+La segunda compilación se verificará en [Actions Android](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/android.yml) para este commit. **No atribuir éxito a la ejecución hasta que termine**.
 
-El resultado NO sincroniza con Windows/Linux; no usa sesión OIDC ni autorización de usuario, no soporta transferencias remotas, no migra registros ni dispone de copias restaurables. Si se pierde la Keystore se puede perder el apunte. APK debug firmado de pruebas != artefacto de producción. AAB release **sin firma** no se puede subir a Google Play. Pruebas automatizadas en emulador tampoco certifican hardware Keystore real.
+## Restricciones explícitas
 
-Los controles P01/P15/P18/P37/P38/P41/P44–P52 siguen abiertos, junto con el trabajo Android nuevo. No usar datos reales ni comunicar disponibilidad productiva hasta revisar seguridad en la etapa 9.
+No existe login ni sesión OIDC del cliente Android, ni enrolamiento HPKE autenticado, ni sincronización real entre Windows/Linux/Android, ni almacenamiento SQLCipher para Android. El motor JNI de request no transforma respuestas en cambios locales. No hay recuperación validada tras pérdida del dispositivo; si Keystore se pierde, los archivos pueden quedar inaccesibles. No se incluyen credenciales de firma comercial; APK debug es de laboratorio, AAB sin firma no es apto para Play.
 
-## Próxima revisión
+## Próximos trabajos
 
-1. Consultar [Actions Android](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/android.yml) del commit.
-2. Corregir errores de compilación o pruebas, documentar hash y ejecución específicos.
-3. Integrar OIDC/PKCE, E2EE multi-objeto/SQLCipher y sincronización con APIs v2 antes de marcar 8.2/8.3 terminadas.
+1. Resolver fallos de CI/emulador y validar seis tests instrumentados.
+2. Implementar OIDC/PKCE + enrolamiento de dispositivo, sesión/clave protegida y autorización real; conectar protocolo E2EE incremental.
+3. Completar objetos académicos, SQLCipher y material/metadata atómicos, previsualización segura, recuperación y múltiples instalaciones.
+4. Validar accesibilidad, integridad, firma y pruebas físicas, y solo entonces revisar checkboxes 8.1–8.3.
 
-## Observación posterior — inicio de etapa 9
-
-Al consultar el resultado final del [run Android #42296402993](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42296402993) se verificó que **no pasó**: construyó paquetes y publicó el artefacto, pero ADB informó offline de forma repetida y la instrumentación se cerró con Process crashed (0/0 tests). La etapa 8 sigue abierta. Fase 9 añade diagnósticos y KVM para intentar reproducir y corregir; no se atribuye el crash a una causa única sin más pruebas.
+Los riesgos P01/P14/P15/P18/P41/P44–P57 continúan abiertos en [registro maestro](../PENDIENTES_SMART_UNI_2_0.md).

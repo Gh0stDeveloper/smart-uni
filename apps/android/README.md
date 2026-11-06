@@ -2,7 +2,7 @@
 
 Cliente nativo experimental desarrollado en **Java** (interfaz/accesibilidad), **C++/JNI** (adaptador HTTPS, sin rutas o secretos en Java) y **smartuni-core Rust** (AEAD interoperable). Misma paleta e isotipo original del escritorio.
 
-**Estado:** código de laboratorio de 8.1 y parte de 8.2/8.3. No contiene login OIDC/PKCE, sincronización multiusuario, base SQLCipher Android, recuperación de dispositivos ni enrolamiento HPKE. No cargar información personal real. La sección Apuntes almacena **un único apunte local** por dispositivo, no el conjunto completo de funciones del escritorio. Nunca muestra "sincronizado" sin ACK.
+**Estado:** código de laboratorio de 8.1 y parte de 8.2/8.3. No contiene login OIDC/PKCE, sincronización multiusuario, base SQLCipher Android, recuperación de dispositivos ni enrolamiento HPKE. No cargar información personal real. La sección Apuntes, Tareas y Calendario almacena varios registros locales cifrados; Materiales permite importar contenidos cifrados y vista previa exclusivamente de texto. Son funciones experimentales sin sync. Aún no equivale al conjunto completo de funciones del escritorio. Nunca muestra "sincronizado" sin ACK.
 
 ## Compilación desde fuente
 
@@ -45,3 +45,12 @@ Test real en emulador x86_64 API 35: JNI ↔ Rust autoprueba, cifrado/descifrado
 ## Endurecimiento en etapa 9 (experimental)
 
 Release usa R8 + shrinkResources, con reglas para mantener los símbolos Java necesarios para JNI. Se añadió política de verificación offline de releases en scripts/phase9_release_policy.py y SAST/beta gate; **no** implementa in-app updates, release firmado ni recuperación del vault. El workflow Android anterior #42296402993 construyó paquetes pero **falló la prueba instrumentada**; consultar docs/phase-9 y no distribuirlo a estudiantes reales.
+
+## Segunda integración — 8.1 a 8.3
+
+- `LocalVault.java`: bóveda JSON completamente cifrada con Rust/KeyVault y reemplazo atómico, notas múltiples editables, tareas y eventos locales. No equivale a SQLCipher ni a sincronización E2EE.
+- `MaterialVault.java`: importación por selector del SO, sin almacenar temporalmente archivos en claro, cifrado local hasta 8 MiB y lectura interna de texto, sin visores externos para PDF/Office/imagen.
+- `NativeBridge.apiRequest`: rutas GET /me, pull, conflicts y POST push fijadas en C++; `NativeHttpTls` utiliza certificado/hostname TLS del SO, sin redirecciones. Requiere bearer OIDC externo; aún no existe login Android, ni aplicación de eventos remotos ni ACK.
+- Nuevas pruebas instrumentadas para bóveda, corrupción, Keystore y validación de URLs. Continúa pendiente su ejecución verde en el emulador y teléfonos reales.
+
+[Segundo commit de implementación](https://github.com/Gh0stDeveloper/smart-uni/commit/c0203af7ebdc822fac6e25e3d661807540fcce90) · [Acta fase 8](../../docs/phase-8/8_CIERRE_Y_EVIDENCIAS.md).

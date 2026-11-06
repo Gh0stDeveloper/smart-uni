@@ -2,7 +2,7 @@
 
 > **Referencia obligatoria:** [Convención de fases y subfases](CONVENCIONES_FASES.md). Los títulos se escriben únicamente como **1 Nombre** y **1.1 Nombre**, sin prefijos ni dos puntos. Se comienza en 1, con numeración correlativa y sin letras.
 >
-> **Estado del producto:** existe un prototipo de escritorio Python/Tkinter. El núcleo Rust, Android, el backend, la sincronización online y el cifrado E2EE están planificados, no implementados.
+> **Estado del producto:** existe un prototipo de escritorio Python/Tkinter. El núcleo Rust, el backend E2EE experimental, el almacenamiento opt-in y el cliente Android Java/C++/Rust ya disponen de código y CI; la aplicación integrada en producción y la sincronización entre dispositivos reales siguen pendientes.
 
 ## Índice de fases
 
@@ -186,7 +186,7 @@
 
 **Objetivo:** Construir un cliente móvil con la identidad SMART UNI y seguridad compartida.
 
-**Implementación inicial en curso:** proyecto Gradle Java con las seis secciones adaptativas y birrete original; nota local cifrada con Rust/Android Keystore; adaptador C++/JNI para diagnóstico HTTPS; workflows APK/AAB y pruebas instrumentadas. **Todavía no equivale a 8 completada:** OIDC/PKCE, sincronización entre dispositivos, almacenamiento multi-entidad, firma comercial y pruebas físicas quedan pendientes. [Acta provisional y evidencias](phase-8/8_CIERRE_Y_EVIDENCIAS.md).
+**Implementación ampliada en main:** proyecto Gradle Java con seis secciones y birrete original; CRUD local cifrado de apuntes, tareas, eventos y materiales; adaptador API HTTPS con rutas fijas C++/JNI, uso de Rust AES-GCM y Android Keystore; workflows APK/AAB y pruebas instrumentadas. Código [c0203af](https://github.com/Gh0stDeveloper/smart-uni/commit/c0203af7ebdc822fac6e25e3d661807540fcce90). **Todavía no equivale a 8 completada:** OIDC/PKCE, sincronización E2EE entre dispositivos, SQLCipher multientidad, recuperación, firma comercial y pruebas físicas quedan pendientes. [Acta provisional y evidencias](phase-8/8_CIERRE_Y_EVIDENCIAS.md).
 
 ### 8.1 Interfaz nativa Java
 

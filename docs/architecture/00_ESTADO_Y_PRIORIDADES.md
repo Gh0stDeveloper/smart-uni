@@ -10,7 +10,7 @@
 
 ## Arquitectura prevista, todavía no implementada
 
-- Android Java, C++/JNI y Rust.
+- Android Java, C++/JNI y Rust ya se encuentran compilables en un cliente experimental con almacenamiento cifrado local; falta integrarlo a OIDC y sync E2EE real.
 - Integración del núcleo Rust ya existente en la lógica operativa de escritorio y Android; el crate/ABI y sus pruebas sí se implementaron en la etapa 3.
 - Despliegue operativo de FastAPI/PostgreSQL y portal Next.js ya implementados en laboratorio; servicios de almacenamiento privado y OIDC externo aún faltan.
 - Producción: SQLCipher por defecto y KeyStore real, cifrado de archivos grandes, gestión de dispositivos autenticada, recuperación asistida y E2EE hacia API. El modo opt-in ya cifra copias locales de materiales mediante Rust y tiene paquetes de recuperación Argon2id probados; NO protege el modo legacy ni la API.
@@ -26,12 +26,12 @@
 - **5 Backend, identidad y autorización** — Base técnica FastAPI/PostgreSQL, JWT RS256 con rol/propietario verificado y portal Next.js/Auth.js con controles HTTP; **sin login IdP externo ni despliegue real**. [Acta](../phase-5/5_CIERRE_Y_EVIDENCIAS.md).
 - **6 Cifrado y gestión de claves** — Componentes de laboratorio validados: AEAD Rust/FFI, contenedores locales de materiales y recuperación, HPKE con roster en memoria y C++/Android compilado. **No E2EE productivo**. [Acta](../phase-6/6_CIERRE_Y_EVIDENCIAS.md).
 - **7 Sincronización multiplataforma** — Motor técnico E2EE de laboratorio (PostgreSQL, Rust/SQLCipher, cursor, CAS, conflictos, tombstones y blobs cifrados reanudables), sin IdP real, Android ni sincronización UI automática. [Acta](../phase-7/7_CIERRE_Y_EVIDENCIAS.md).
-- **8 Aplicación Android** — Pendiente.
-- **9 Seguridad, integración continua y beta** — Pendiente.
+- **8 Aplicación Android** — Parcial: interfaz con CRUD local cifrado, rutas API vía JNI C++ y Keystore/Rust; falta instrumentación aprobada, IdP y sincronización productiva. [Acta](../phase-8/8_CIERRE_Y_EVIDENCIAS.md).
+- **9 Seguridad, integración continua y beta** — Parcial: CodeQL/SCA/gates CI y firma offline experimental; beta externa sin autorizar. [Acta](../phase-9/9_CIERRE_Y_EVIDENCIAS.md).
 - **10 Lanzamiento gradual** — Pendiente.
 
 La numeración definitiva y sus subfases se encuentran en [ROADMAP.md](../ROADMAP.md). No atribuir al prototipo controles de seguridad que todavía son propuestas.
 
 ## Deuda técnica y seguridad abierta
 
-El [registro maestro de 52 pendientes](../PENDIENTES_SMART_UNI_2_0.md) es obligatorio para las etapas siguientes. Especialmente críticos son JSON/materiales legacy en claro, autorización por cuenta, protección y recuperación de claves, sincronización remota y validación de dependencias antes del lanzamiento.
+El [registro maestro de 64 asuntos](../PENDIENTES_SMART_UNI_2_0.md) es obligatorio para las etapas siguientes. Especialmente críticos son JSON/materiales legacy en claro, autorización por cuenta, protección y recuperación de claves, sincronización remota y validación de dependencias antes del lanzamiento.
