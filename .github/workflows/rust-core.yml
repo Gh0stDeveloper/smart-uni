@@ -8,6 +8,7 @@ on:
       - 'packages/contracts/v1/**'
       - 'apps/desktop/smart_uni/native_bridge.py'
       - 'apps/desktop/tests/test_phase3_native.py'
+      - 'scripts/check_crypto_vectors.py'
       - '.github/workflows/rust-core.yml'
   pull_request:
     paths:
@@ -51,6 +52,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validar AES-GCM con implementacion independiente Python
+        run: |
+          python -m pip install "cryptography==44.0.2"
+          python scripts/check_crypto_vectors.py
       - name: Prueba de enlace Python-ctypes a Rust
         working-directory: apps/desktop
         run: python -m unittest discover -s tests -p test_phase3_native.py -v

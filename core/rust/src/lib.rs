@@ -1,5 +1,6 @@
 //! Núcleo SMART UNI: dominio y contratos versionados sin IO.
 pub mod contracts;
+pub mod crypto;
 pub mod domain;
 pub mod ffi;
 pub const CORE_VERSION: &str = env!("CARGO_PKG_VERSION");

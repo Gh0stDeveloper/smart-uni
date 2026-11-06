@@ -29,6 +29,8 @@ class NativeCore:
         self._native.smartuni_abi_version.restype = ctypes.c_uint32
         if self._native.smartuni_abi_version() != self.ABI_VERSION:
             raise NativeCoreError("Versión de ABI incompatible.")
+        self._native.smartuni_crypto_self_test_v1.argtypes = []
+        self._native.smartuni_crypto_self_test_v1.restype = ctypes.c_int32
         for name in ("smartuni_validate_email_v1", "smartuni_validate_operation_v1"):
             fn = getattr(self._native, name)
             fn.argtypes = (ctypes.c_void_p, ctypes.c_size_t)
@@ -48,3 +50,7 @@ class NativeCore:
     def validate_operation(self, operation: dict) -> None:
         document = json.dumps(operation, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         self._invoke("smartuni_validate_operation_v1", document)
+
+    def crypto_self_test(self) -> None:
+        if self._native.smartuni_crypto_self_test_v1() != 0:
+            raise NativeCoreError("La autoprueba de vectores AES-GCM falló.")

@@ -1,0 +1,26 @@
+{
+  "algorithm": "AES-256-GCM",
+  "spec": "NIST GCM vectors published in BoringSSL test collection",
+  "source": "https://boringssl.googlesource.com/boringssl/+/e8c862cf1421/crypto/cipher/test/aes_256_gcm_tests.txt",
+  "notes": "Valores públicos y artificiales para pruebas de interoperabilidad; NO son claves secretas.",
+  "vectors": [
+    {
+      "id": "zero-empty",
+      "key_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "nonce_hex": "000000000000000000000000",
+      "aad_hex": "",
+      "plaintext_hex": "",
+      "ciphertext_hex": "",
+      "tag_hex": "530f8afbc74536b9a963b4f1c4cb738b"
+    },
+    {
+      "id": "zero-16",
+      "key_hex": "0000000000000000000000000000000000000000000000000000000000000000",
+      "nonce_hex": "000000000000000000000000",
+      "aad_hex": "",
+      "plaintext_hex": "00000000000000000000000000000000",
+      "ciphertext_hex": "cea7403d4d606b6e074ec5d3baf39d18",
+      "tag_hex": "d0d1c8a799996bf0265b98b5d48ab919"
+    }
+  ]
+}

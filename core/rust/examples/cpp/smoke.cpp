@@ -11,6 +11,7 @@ int main() {
         R"("actor_ref":"student@example.edu","occurred_at":"2026-11-06T04:00:00Z","payload":{}})";
     const auto *bytes = reinterpret_cast<const uint8_t *>(operation);
     assert(smartuni_abi_version() == SMARTUNI_ABI_VERSION);
+    assert(smartuni_crypto_self_test_v1() == SMARTUNI_STATUS_OK);
     assert(smartuni_validate_operation_v1(bytes, std::strlen(operation)) == SMARTUNI_STATUS_OK);
     const char *invalid = "{}";
     assert(smartuni_validate_operation_v1(reinterpret_cast<const uint8_t *>(invalid), 2) == SMARTUNI_STATUS_INVALID);

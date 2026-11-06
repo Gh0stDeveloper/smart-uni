@@ -17,6 +17,9 @@ class TestRustFFI(unittest.TestCase):
     def setUpClass(cls):
         cls.core = NativeCore()
 
+    def test_real_crypto_known_answer_test(self):
+        self.core.crypto_self_test()
+
     def test_real_ffi_validates_email(self):
         self.core.validate_email("STUDENT@EXAMPLE.EDU")
         with self.assertRaises(NativeCoreError):

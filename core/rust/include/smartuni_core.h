@@ -16,6 +16,7 @@ extern "C" {
 
 /* Punteros válidos por toda la llamada; no se transfieren ni liberan buffers. */
 uint32_t smartuni_abi_version(void);
+int32_t smartuni_crypto_self_test_v1(void);
 int32_t smartuni_validate_email_v1(const uint8_t *ptr, size_t len);
 int32_t smartuni_validate_operation_v1(const uint8_t *ptr, size_t len);
 

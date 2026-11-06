@@ -107,3 +107,15 @@ mod tests {
         );
     }
 }
+
+/// Autoprueba criptográfica KAT; no recibe claves ni cifra datos externos.
+#[no_mangle]
+pub extern "C" fn smartuni_crypto_self_test_v1() -> i32 {
+    protected(|| {
+        if crate::crypto::known_answer_self_test() {
+            OK
+        } else {
+            ERR_INVALID
+        }
+    })
+}
