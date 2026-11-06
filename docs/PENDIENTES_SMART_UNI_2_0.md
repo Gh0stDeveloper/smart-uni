@@ -116,7 +116,7 @@
 | P63 | **Crítica** | Pendiente | No existe beta real con IdP y enrolamiento HPKE, recuperación de Keystore, evidencia Windows/Linux/Android físicos ni sincronización de app instalada; la puerta de checklist está bloqueada. | 9.3: doce verificaciones reales firmadas/revisadas y sin bloqueos críticos |
 | P64 | Alta | Pendiente | No hay firma de instaladores Windows/Linux, soporte de backups y migraciones durante rollback; APK/AAB release experimentales no se pueden publicar sin certificado y revisión de cadenas de firma. | 9.2/9.3: firma/procedencia por SO, ensayo upgrade/restore, recuperación tras interrupción |
 
-**Política de fase 9:** ningún escaneo advisory verde significa riesgo CVE cero; no afirmar beta aprobada ni publicar builds hasta cierre físico, login real y claves, actualización firmada y revisión documentada. [Acta etapa 9](phase-9/9_CIERRE_Y_EVIDENCIAS.md).
+**Política del hito 9 —** ningún escaneo advisory verde significa riesgo CVE cero; no afirmar beta aprobada ni publicar builds hasta cierre físico, login real y claves, actualización firmada y revisión documentada. [Acta etapa 9](phase-9/9_CIERRE_Y_EVIDENCIAS.md).
 
 ## Política obligatoria de continuidad
 
