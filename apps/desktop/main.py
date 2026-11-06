@@ -3,7 +3,8 @@
 import os
 from pathlib import Path
 
-from smart_uni.core import SmartUniService, seed_demo
+from smart_uni.core import seed_demo
+from smart_uni.storage_mode import open_service
 from smart_uni.ui import SmartUniApp
 from smart_uni.student_data import StudentSpaceService, seed_student_demo
 
@@ -19,11 +20,15 @@ def main():
         )
     )
 
-    service = SmartUniService(data_path)
+    # El modo secure requiere SQLCipher y un almacén del SO disponibles.
+    # El modo habitual mantiene los datos del prototipo exactamente como antes.
+    mode = os.environ.get('SMARTUNI_STORAGE', 'legacy')
+    service = open_service(data_path, mode=mode)
 
-    # Con esta cuenta podemos probar las pantallas durante la exposición.
-    seed_demo(service)
-    seed_student_demo(StudentSpaceService(service))
+    # Las credenciales públicas de demo jamás se crean en el modo secure.
+    if mode == 'legacy':
+        seed_demo(service)
+        seed_student_demo(StudentSpaceService(service))
 
     app = SmartUniApp(service)
     app.mainloop()

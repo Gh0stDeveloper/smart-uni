@@ -94,24 +94,51 @@ class StudentSpaceService:
         """Leemos una copia, para evitar cambiar el JSON por accidente."""
         return self._read_space(email)
 
-    def _change(self, email: str, section: str, operation):
-        """Guardamos cada cambio mediante la escritura segura original."""
+    def _change(self, email: str, section: str, operation, *,
+                event_type=None, event_payload=None, entity_id=None):
+        """SQLCipher usa transacción con outbox; JSON retiene su flujo original."""
         email = validate_email(email)
+
+        def mutate(data):
+            if not any(student['email'] == email for student in data['students']):
+                raise ValidationError('No encontramos la cuenta del estudiante.')
+            spaces = data.setdefault('student_spaces', {})
+            space = spaces.setdefault(email, new_space())
+            space.setdefault(section, [])
+            return operation(space[section])
+
+        from .secure_storage import EncryptedSQLiteRepository
+        if isinstance(self.base.repository, EncryptedSQLiteRepository) and event_type:
+            from .offline_queue import OfflineOutbox, make_message
+            message = make_message(
+                event_type, email,
+                event_payload if event_payload is not None else {"section": section},
+                entity_id=entity_id,
+            )
+            inserted, result = OfflineOutbox(self.base.repository).apply(message, mutate)
+            if not inserted:
+                raise RuntimeError('ID inesperadamente repetido al guardar el cambio.')
+            return result
+
         data = self.base._read()
-
-        if not any(student['email'] == email for student in data['students']):
-            raise ValidationError('No encontramos la cuenta del estudiante.')
-
-        spaces = data.setdefault('student_spaces', {})
-        space = spaces.setdefault(email, new_space())
-        space.setdefault(section, [])
-        result = operation(space[section])
+        result = mutate(data)
         self.base._write(data)
         return result
 
     def _add(self, email: str, section: str, values: dict) -> dict:
         item = {'id': uuid.uuid4().hex, **values}
-        self._change(email, section, lambda items: items.append(item))
+        event = {
+            'friends': 'friends.add',
+            'events': 'events.create',
+            'tasks': 'tasks.create',
+            'notes': 'notes.create',
+            'materials': 'materials.import',
+        }.get(section)
+        self._change(
+            email, section, lambda items: items.append(item),
+            event_type=event, event_payload={'section': section, 'item': item},
+            entity_id=item['id'],
+        )
         return item
 
     def remove(self, email: str, section: str, item_id: str) -> bool:
@@ -124,7 +151,13 @@ class StudentSpaceService:
             items[:] = [item for item in items if item['id'] != item_id]
             return before != len(items)
 
-        return self._change(email, section, remove_item)
+        event = {'notes': 'notes.delete', 'materials': 'materials.delete'}.get(section)
+        return self._change(
+            email, section, remove_item,
+            event_type=event,
+            event_payload={'section': section, 'item_id': item_id},
+            entity_id=item_id,
+        )
 
     def add_friend(self, email: str, name: str, contact: str) -> dict:
         name = required_text(name, 'el nombre del compañero', 100)
@@ -197,7 +230,12 @@ class StudentSpaceService:
 
             raise ValidationError('No encontramos esa tarea.')
 
-        return self._change(email, 'tasks', change)
+        return self._change(
+            email, 'tasks', change,
+            event_type='tasks.toggle',
+            event_payload={'item_id': item_id},
+            entity_id=item_id,
+        )
 
     def add_note(self, email: str, title: str, subject: str, content: str) -> dict:
         title = required_text(title, 'el título del apunte', 120)
@@ -230,10 +268,21 @@ class StudentSpaceService:
 
             raise ValidationError('No encontramos ese apunte.')
 
-        self._change(email, 'notes', change)
+        self._change(
+            email, 'notes', change,
+            event_type='notes.update',
+            event_payload={'item_id': note_id, 'title': title, 'content': content},
+            entity_id=note_id,
+        )
 
     def add_material(self, email: str, subject: str, source: str) -> dict:
-        """Copiamos el documento a nuestra carpeta local para no perder la ruta."""
+        """El modo seguro no genera copias de materiales sin cifrar."""
+        from .secure_storage import EncryptedSQLiteRepository
+        if isinstance(self.base.repository, EncryptedSQLiteRepository):
+            raise ValidationError(
+                'La importación de archivos cifrados está pendiente. '
+                'No se guardará ninguna copia sin protección.'
+            )
         if subject not in SUBJECTS:
             raise ValidationError('Selecciona una de las materias disponibles.')
 
@@ -273,6 +322,9 @@ class StudentSpaceService:
 
     def material_path(self, email: str, item_id: str) -> Path:
         """La carpeta del material está controlada por la aplicación."""
+        from .secure_storage import EncryptedSQLiteRepository
+        if isinstance(self.base.repository, EncryptedSQLiteRepository):
+            raise ValidationError('Los adjuntos heredados no están cifrados; acceso bloqueado.')
         item = next(
             (entry for entry in self.overview(email)['materials'] if entry['id'] == item_id),
             None,
@@ -305,17 +357,25 @@ class StudentSpaceService:
         """Cambiamos solamente los datos públicos de la cuenta ya iniciada."""
         name = required_text(name, 'tu nombre completo', 100)
         career = required_text(career, 'tu carrera', 100)
-        data = self.base._read()
         email = validate_email(email)
 
-        for student in data['students']:
-            if student['email'] == email:
-                student['name'] = name
-                student['career'] = career
-                self.base._write(data)
-                return {'name': name, 'email': email, 'career': career}
+        def change(data):
+            for student in data['students']:
+                if student['email'] == email:
+                    student['name'] = name
+                    student['career'] = career
+                    return {'name': name, 'email': email, 'career': career}
+            raise ValidationError('No encontramos la cuenta del estudiante.')
 
-        raise ValidationError('No encontramos la cuenta del estudiante.')
+        from .secure_storage import EncryptedSQLiteRepository
+        if isinstance(self.base.repository, EncryptedSQLiteRepository):
+            from .offline_queue import OfflineOutbox, make_message
+            message = make_message('profile.update', email, {'name': name, 'career': career})
+            return OfflineOutbox(self.base.repository).apply(message, change)[1]
+        data = self.base._read()
+        result = change(data)
+        self.base._write(data)
+        return result
 
 
 def seed_student_demo(space: StudentSpaceService):

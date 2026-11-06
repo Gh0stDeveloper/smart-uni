@@ -408,6 +408,17 @@ class SmartUniApp(tk.Tk):
         )
         label(bar, current, 11, COLORS['muted'], bold=True).pack(side='left')
 
+        # Solo modo cifrado experimental: estados locales sin prometer conexión.
+        from .secure_storage import EncryptedSQLiteRepository
+        if isinstance(self.service.repository, EncryptedSQLiteRepository):
+            from .offline_queue import OfflineOutbox
+            local = OfflineOutbox(self.service.repository).status()
+            suffix = f" · {local['pending']} pendiente(s)" if local['pending'] else ''
+            label(
+                bar, local['label'] + suffix, 9, COLORS['muted'],
+                bg=COLORS['surface'],
+            ).pack(side='left', padx=(18, 0))
+
         tk.Button(
             bar,
             text='Cerrar sesión',
