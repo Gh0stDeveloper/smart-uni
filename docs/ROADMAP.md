@@ -209,6 +209,8 @@
 
 **Objetivo:** Verificar que los controles prometidos existen y resisten fallos.
 
+**Desarrollo inicial en curso:** tests negativos SQLi/aislamiento, 640 mutaciones de ABI Rust, SAST CodeQL, informes SCA, puerta estática de seguridad, R8 Android, verificador offline de firma Ed25519 y downgrade, y checklist beta que rechaza por defecto. Los requisitos de auditoría real, firma comercial, actualización de clientes y dispositivos físicos NO se han completado. [Acta y limitaciones](phase-9/9_CIERRE_Y_EVIDENCIAS.md). **Las casillas se mantienen sin marcar** hasta cumplir cada criterio íntegramente.
+
 ### 9.1 Auditoría de seguridad
 
 - [ ] Pruebas SQLi, control de acceso, SAST, dependencias y fuzzing.
@@ -251,6 +253,6 @@
 
 ## Control del avance
 
-Las etapas **1–7 están implementadas y validadas dentro de su alcance técnico experimental**. Etapa 7: sync ciphertext-only y conflictos en FastAPI/PostgreSQL, cliente Rust/SQLCipher, cursor CAS y adjuntos reanudables con 22 pruebas API, 6 E2E Linux y 5 pruebas nativas del cliente por SO. **Sin sincronización automática de producto, Android, IdP real ni distribución de claves segura; API plaintext legacy bloqueada por defecto**. Etapa **8 iniciada pero sin cierre técnico**; etapas **9–10 pendientes**. [Registro maestro actualizado](PENDIENTES_SMART_UNI_2_0.md).
+Las etapas **1–7 están implementadas y validadas dentro de su alcance técnico experimental**. Etapa 7: sync ciphertext-only y conflictos en FastAPI/PostgreSQL, cliente Rust/SQLCipher, cursor CAS y adjuntos reanudables con 22 pruebas API, 6 E2E Linux y 5 pruebas nativas del cliente por SO. **Sin sincronización automática de producto, Android, IdP real ni distribución de claves segura; API plaintext legacy bloqueada por defecto**. Etapas **8 y 9 en curso, sin cierre técnico**; etapa **10 pendiente**. La etapa 8 tiene compilaciones Android reproducibles, pero instrumentación [#42296402993](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42296402993) fallida (ADB offline/crash; cero tests), por lo que no se autoriza beta. [Registro maestro actualizado](PENDIENTES_SMART_UNI_2_0.md).
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

@@ -41,3 +41,7 @@ Test real en emulador x86_64 API 35: JNI ↔ Rust autoprueba, cifrado/descifrado
 ## Documentación
 
 [ROADMAP](../../docs/ROADMAP.md) · [8.1 Interfaz](../../docs/phase-8/8.1_INTERFAZ_NATIVA_JAVA.md) · [8.2 JNI](../../docs/phase-8/8.2_COMUNICACION_CPP_JNI.md) · [8.3 Rust/Keystore](../../docs/phase-8/8.3_RUST_Y_ANDROID_KEYSTORE.md) · [Pendientes](../../docs/PENDIENTES_SMART_UNI_2_0.md).
+
+## Endurecimiento en etapa 9 (experimental)
+
+Release usa R8 + shrinkResources, con reglas para mantener los símbolos Java necesarios para JNI. Se añadió política de verificación offline de releases en scripts/phase9_release_policy.py y SAST/beta gate; **no** implementa in-app updates, release firmado ni recuperación del vault. El workflow Android anterior #42296402993 construyó paquetes pero **falló la prueba instrumentada**; consultar docs/phase-9 y no distribuirlo a estudiantes reales.

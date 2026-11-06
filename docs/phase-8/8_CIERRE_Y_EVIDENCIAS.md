@@ -21,3 +21,7 @@ Los controles P01/P15/P18/P37/P38/P41/P44–P52 siguen abiertos, junto con el tr
 1. Consultar [Actions Android](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/android.yml) del commit.
 2. Corregir errores de compilación o pruebas, documentar hash y ejecución específicos.
 3. Integrar OIDC/PKCE, E2EE multi-objeto/SQLCipher y sincronización con APIs v2 antes de marcar 8.2/8.3 terminadas.
+
+## Observación posterior — inicio de etapa 9
+
+Al consultar el resultado final del [run Android #42296402993](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42296402993) se verificó que **no pasó**: construyó paquetes y publicó el artefacto, pero ADB informó offline de forma repetida y la instrumentación se cerró con Process crashed (0/0 tests). La etapa 8 sigue abierta. Fase 9 añade diagnósticos y KVM para intentar reproducir y corregir; no se atribuye el crash a una causa única sin más pruebas.

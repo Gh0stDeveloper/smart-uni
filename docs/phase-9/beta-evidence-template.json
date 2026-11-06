@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "scope": "SMART UNI 2.0 beta de laboratorio (SIN aprobación de publicación)",
+  "checks": {
+    "android_instrumentation": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "android_physical": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "android_keystore_recovery": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "windows_linux_secure_storage": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "real_oidc_pkce": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "cross_device_sync": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "encrypted_backup_restore": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "key_rotation_revocation": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "signed_release_artifacts": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "update_rollback_verified": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "security_findings_triaged": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    },
+    "accessibility_mobile": {
+      "status": "blocked",
+      "evidence": "",
+      "reviewed_by": ""
+    }
+  },
+  "blocking_critical_findings": null,
+  "publication_approval": false
+}

@@ -13,9 +13,9 @@ No subir archivos JSON de usuarios, bases de datos, claves privadas, tokens, cer
 - Base SQLCipher protegida solo **en modo opt-in**; archivos nuevos de hasta 8 MiB se guardan cifrados por Rust, con claves de contenido separadas de la clave DB y paquetes Argon2id recuperables. El origen importado sigue externo, el modo JSON es claro, el visor externo está bloqueado, el EXE común no incorpora Rust/SQLCipher ni se han probado keyrings OS físicos.
 - API FastAPI/PostgreSQL valida tokens OIDC RS256 y permisos por propietario; portal Next.js usa Auth.js con PKCE/state/nonce y cookies protegidas. **Falta proveedor OIDC externo, refresh/logout global y despliegue HTTPS real**. Contraseñas legacy PBKDF2 ahora limitan iteraciones; Argon2id y gestión completa de credenciales siguen pendientes.
 - Permisos básicos y consultas SQLAlchemy parametrizadas probados en API PostgreSQL de laboratorio; RLS, auditoría operativa, rate limiting y permisos de DB de producción siguen pendientes.
-- Firmado de artefactos y verificación de actualizaciones.
+- Etapa 9: verificador **offline** de manifiesto Ed25519/SHA256/anti-downgrade con claves sintéticas y CI; no es actualizador instalado, ni reemplaza firma APK/AAB/EXE comercial. CodeQL y auditorías SCA se incorporan, pendientes de triaje de findings. Android build usa R8 y sigue con instrumentación pendiente.
 
-**La existencia de biblioteca o pruebas sintéticas no implica protección del producto distribuido.** No introducir datos privados reales: quedan [52 pendientes abiertos o parciales](docs/PENDIENTES_SMART_UNI_2_0.md), incluido control de acceso, cifrado de adjuntos y recuperación de claves. Se exigirán pruebas en equipos reales y revisión de seguridad antes de producción.
+**La existencia de biblioteca o pruebas sintéticas no implica protección del producto distribuido.** No introducir datos privados reales: quedan [64 asuntos identificados, muchos abiertos o parciales](docs/PENDIENTES_SMART_UNI_2_0.md), incluido control de acceso, cifrado de adjuntos y recuperación de claves. Se exigirán pruebas en equipos reales y revisión de seguridad antes de producción.
 
 ## Informes de vulnerabilidades
 
@@ -26,3 +26,7 @@ Evitar publicar detalles explotables en issues públicos. Contactar de forma pri
 FastAPI recibe únicamente ciphertext en /api/v1/sync y deriva propietario de OIDC; el cliente SQLCipher/Rust autentica tags AEAD y tombstones. El CRUD de notas legacy en claro está deshabilitado **por defecto** y devuelve HTTP 410. SMARTUNI_DEMO_PLAINTEXT_NOTES=1 es exclusivamente para pruebas sintéticas, no distribución; la tabla notes previa todavía no se ha migrado ni borrado.
 
 No hay provisión de clave verificada por dispositivo, IdP real, Android activo, anti-rollback firmado, cuotas completas, RLS ni auditoría externa. El EXE clásico sigue en JSON/credenciales demo. [Acta 7](docs/phase-7/7_CIERRE_Y_EVIDENCIAS.md).
+
+## Etapa 9: control de publicación
+
+La [etapa 9](docs/phase-9/9_CIERRE_Y_EVIDENCIAS.md) agrega negativos de HTTP, mutaciones ABI y puerta beta. La instrumentación Android previa [#42296402993](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42296402993) falló (crash antes de completar tests). Un resultado de build no autoriza beta externa, publicación ni datos reales. Revisión de CodeQL/SCA y auditoría independiente aún requeridas.

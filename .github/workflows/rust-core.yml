@@ -19,6 +19,7 @@ on:
       - 'scripts/check_crypto_vectors.py'
       - '.github/workflows/rust-core.yml'
       - 'docs/phase-7/**'
+      - 'scripts/phase9_fuzz_ffi.py'
       - 'docs/PENDIENTES_SMART_UNI_2_0.md'
   pull_request:
     paths:
@@ -63,6 +64,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Mutaciones deterministas contra ABI Rust nativa (640 casos)
+        run: python scripts/phase9_fuzz_ffi.py
       - name: Validar AES-GCM con implementacion independiente Python
         run: |
           python -m pip install "cryptography==44.0.2"

@@ -68,6 +68,13 @@ jobs:
             apps/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 14
+      - name: Habilitar aceleración KVM de Android
+        shell: bash
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm || true
       - name: Probar JNI Rust y Android Keystore en emulador real
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -76,7 +83,22 @@ jobs:
           arch: x86_64
           profile: pixel_3a
           disable-animations: true
-          script: cd apps/android && gradle --no-daemon :app:connectedDebugAndroidTest
+          disable-spellchecker: true
+          emulator-boot-timeout: 900
+          cores: 2
+          ram-size: 2048M
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          script: |
+            adb wait-for-device
+            cd apps/android
+            gradle --no-daemon :app:connectedDebugAndroidTest
+      - name: Capturar diagnóstico limitado del emulador
+        if: failure()
+        shell: bash
+        run: |
+          mkdir -p apps/android/app/build/diagnostics
+          adb logcat -d -t 3000 -v threadtime > apps/android/app/build/diagnostics/emulator.log || true
+
       - name: Guardar resultados de instrumentación
         if: always()
         uses: actions/upload-artifact@v4
@@ -85,5 +107,6 @@ jobs:
           path: |
             apps/android/app/build/outputs/androidTest-results/**
             apps/android/app/build/reports/androidTests/**
+            apps/android/app/build/diagnostics/**
           if-no-files-found: warn
           retention-days: 14

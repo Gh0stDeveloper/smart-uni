@@ -1,6 +1,6 @@
 # SMART UNI 2.0 — Registro maestro de pendientes y riesgos abiertos
 
-**Última revisión:** 6 noviembre 2026. Etapa 8 iniciada, [Etapa 7: alcance y evidencia](phase-7/7_CIERRE_Y_EVIDENCIAS.md). Es obligatorio consultar y actualizar este documento al iniciar/cerrar cada fase, junto con [ROADMAP](ROADMAP.md), [auditoría 1.2](phase-1/1.2_AUDITORIA_Y_MODELO_DE_AMENAZAS.md), [acta 2](phase-2/2_CIERRE_Y_EVIDENCIAS.md) y [acta 3](phase-3/3_CIERRE_Y_EVIDENCIAS.md). Fuente de verdad sobre **lo que NO está listo**, incluyendo trabajos que quedaron a medias en chats anteriores.
+**Última revisión:** 6 noviembre 2026. Etapas 8 y 9 iniciadas, [Etapa 7: alcance y evidencia](phase-7/7_CIERRE_Y_EVIDENCIAS.md). Es obligatorio consultar y actualizar este documento al iniciar/cerrar cada fase, junto con [ROADMAP](ROADMAP.md), [auditoría 1.2](phase-1/1.2_AUDITORIA_Y_MODELO_DE_AMENAZAS.md), [acta 2](phase-2/2_CIERRE_Y_EVIDENCIAS.md) y [acta 3](phase-3/3_CIERRE_Y_EVIDENCIAS.md). Fuente de verdad sobre **lo que NO está listo**, incluyendo trabajos que quedaron a medias en chats anteriores.
 
 **Estados:** Pendiente (no implementado), Parcial (implementado en biblioteca, pruebas o modo experimental, pero no en producción), Resuelto (requiere commit + prueba reproducible + revisión). No eliminar filas antes de evidencia. La aplicación habitual continúa usando JSON sin cifrar; **no usar datos privados reales aún**.
 
@@ -90,7 +90,7 @@
 | P51 | Alta | Parcial | Hay seis pruebas E2E Linux con PostgreSQL/Rust/SQLCipher y cinco pruebas cliente Rust/SQLCipher por SO contra simulador. No se ha probado el enlace sobre TLS real en Windows/Linux, un IdP real, dispositivo Android físico, reconexión bajo conexiones de operadores ni sincronización entre apps instaladas. | 8/9: pruebas de extremos reales con OIDC HTTPS, Android+Windows+Linux y fallo/reinicio/concurrencia bajo carga |
 | P52 | Alta | Pendiente | Tombstones y todas las revisiones se conservan indefinidamente; no hay ACK por dispositivo, mecanismo de compactación, protección del reinicio desde copia antigua ni garantía global de anti-rollback si el servidor oculta eventos. | 8/9: políticas de retención con ACK por dispositivo, firmas de progreso/anti-rollback y test de reintroducción de registros eliminados |
 
-**Hito 7:** nuevo protocolo y motor de laboratorio implementados; no confundir las pruebas con una sincronización multiplataforma habilitada en la aplicación distribuida. [Acta y verificaciones](phase-7/7_CIERRE_Y_EVIDENCIAS.md). La etapa 8 Aplicación Android está en curso, manteniendo riesgos P44–P57 abiertos.
+**Hito 7:** nuevo protocolo y motor de laboratorio implementados; no confundir las pruebas con una sincronización multiplataforma habilitada en la aplicación distribuida. [Acta y verificaciones](phase-7/7_CIERRE_Y_EVIDENCIAS.md). Las etapas 8 y 9 están en curso, manteniendo riesgos P44–P64 abiertos.
 
 ## Pendientes adicionales abiertos de 8 Aplicación Android
 
@@ -104,6 +104,20 @@
 
 **Etapa 8:** implementación inicial de laboratorio, sin cierre ni autorización para datos personales; ver [acta](phase-8/8_CIERRE_Y_EVIDENCIAS.md).
 
+## Pendientes adicionales identificados en 9 Seguridad, integración continua y beta
+
+| ID | Prioridad | Estado | Alcance no resuelto | Criterio de cierre |
+|---|---|---|---|---|
+| P58 | Alta | Parcial | Existe prueba determinista de 640 mutaciones ABI Rust pero falta fuzzing guiado por cobertura libFuzzer/AFL, sanitizers de C++/JNI y corpus de incidentes reales revisado. | 9.1: instrumentación, reproducibilidad y triaje de crashes/riesgos |
+| P59 | **Crítica** | Parcial | Código de auditoría SQLi/BOLA y CodeQL agregado; infraestructura IdP real, permisos mínimos PostgreSQL/RLS, rate-limits, pentest MITM y ciclo de corrección de hallazgos no están implementados. | 9.1: CI y reportes triados, staging HTTPS, prueba de aislamiento con RLS y revisión independiente |
+| P60 | Alta | Parcial | Manifiesto Ed25519 firmado offline y anti-downgrade probado con claves sintéticas; **no está integrado en Android, escritorio, ni servidor**, sin llave de confianza fijada ni versión protegida en dispositivos. | 9.2: transporte firmado, verificador en clientes, despliegue progresivo y pruebas de rollback |
+| P61 | Alta | Parcial | Android release usa R8 y SDK 35, pero el run anterior #42296402993 terminó en fallo de instrumentación (ADB offline/crash, 0 tests). Firma comercial y pruebas hardware pendientes. | 8/9.2: APK/AAB/CI instrumentados y firma verificada en dispositivos reales |
+| P62 | Alta | Parcial | CodeQL y SCA npm/pip/Bandit definidos; hallazgos aún deben comprobarse, los escaneos SCA son advisory, falta lockfile npm comprometido, cargo audit, SBOM y seguimiento CVE. | 9.1/9.2: triaje obligatorio de findings, dependencies reproducibles, firmas y SBOM |
+| P63 | **Crítica** | Pendiente | No existe beta real con IdP y enrolamiento HPKE, recuperación de Keystore, evidencia Windows/Linux/Android físicos ni sincronización de app instalada; la puerta de checklist está bloqueada. | 9.3: doce verificaciones reales firmadas/revisadas y sin bloqueos críticos |
+| P64 | Alta | Pendiente | No hay firma de instaladores Windows/Linux, soporte de backups y migraciones durante rollback; APK/AAB release experimentales no se pueden publicar sin certificado y revisión de cadenas de firma. | 9.2/9.3: firma/procedencia por SO, ensayo upgrade/restore, recuperación tras interrupción |
+
+**Política de fase 9:** ningún escaneo advisory verde significa riesgo CVE cero; no afirmar beta aprobada ni publicar builds hasta cierre físico, login real y claves, actualización firmada y revisión documentada. [Acta etapa 9](phase-9/9_CIERRE_Y_EVIDENCIAS.md).
+
 ## Política obligatoria de continuidad
 
 1. **Antes de cada etapa:** releer esta lista, el ROADMAP y el acta anterior. Si se corrige algo, marcar Parcial o Resuelto con enlace a código, pruebas CI y aceptación, sin borrar la fila.
@@ -111,4 +125,4 @@
 3. **El modo legacy no es seguro para datos privados:** debe mantenerse temporalmente para compatibilidad y recuperación, no como opción aceptable de producción.
 4. **Respaldos/migraciones:** no eliminar origen antes de verificación, recuperación completa y decisión del usuario; revisar materiales y claves además de base.
 5. **No declarar “sincronizado” sin ACK:** el cliente no se ha conectado al backend; outbox es solo cola local y actor_ref no es autorización.
-6. **Etapa del ROADMAP en desarrollo:** 8 Aplicación Android; conservar P01/P15/P18/P44–P57 abiertos hasta contar con clientes reales, autorización OIDC y validación multi-SO.
+6. **Etapas del ROADMAP en desarrollo:** 8 y 9; conservar P01/P15/P18/P44–P64 abiertos hasta contar con clientes reales, autorización OIDC y validación multi-SO.

@@ -49,7 +49,7 @@ jobs:
       - name: Aplicar migraciones PostgreSQL
         run: alembic -c services/api/alembic.ini upgrade head
       - name: Ejecutar pruebas API con PostgreSQL y RSA real
-        run: pytest services/api/tests/test_api.py services/api/tests/test_sync.py -q
+        run: pytest services/api/tests/test_api.py services/api/tests/test_sync.py services/api/tests/test_security_phase9.py -q
       - name: Probar downgrade y re-upgrade
         run: |
           alembic -c services/api/alembic.ini downgrade base
