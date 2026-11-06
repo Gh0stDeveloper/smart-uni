@@ -91,6 +91,7 @@ class SyncBlob(Base):
     )
     resource_id: Mapped[UUID] = mapped_column(PgUUID(as_uuid=True), nullable=False)
     epoch: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    base_revision: Mapped[int] = mapped_column(BigInteger, nullable=False)
     total_size: Mapped[int] = mapped_column(Integer, nullable=False)
     sha256: Mapped[str] = mapped_column(String(64), nullable=False)
     complete: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

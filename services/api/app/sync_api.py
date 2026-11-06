@@ -45,15 +45,20 @@ def decoded(value: str, maximum: int) -> bytes:
     return raw
 
 
-def expected_context(owner: UUID, resource: UUID, epoch: int) -> bytes:
-    return f"sync/{owner.hex}/{resource.hex}/epoch-{epoch}".encode("ascii")
+def expected_context(owner: UUID, resource: UUID, epoch: int,
+                     base_revision: int, kind: str) -> bytes:
+    if kind not in ("put", "delete", "blob"):
+        rejected("Tipo de evento no admitido")
+    return (f"sync/{owner.hex}/{resource.hex}/epoch-{epoch}"
+            f"/base-{base_revision}/kind-{kind}").encode("ascii")
 
 
-def assert_frame(ciphertext: bytes, owner: UUID, resource: UUID, epoch: int):
+def assert_frame(ciphertext: bytes, owner: UUID, resource: UUID, epoch: int,
+                 base_revision: int, kind: str):
     """Only validates authenticated-frame structure; clients validate AEAD tag."""
     if not 1 <= epoch <= 2**31 - 1:
         rejected("Época no admitida")
-    expected = expected_context(owner, resource, epoch)
+    expected = expected_context(owner, resource, epoch, base_revision, kind)
     if len(ciphertext) < 23 + len(expected) + 16 or ciphertext[:8] != b"SUAEAD01":
         rejected("Formato cifrado no admitido")
     if ciphertext[8] != 1:
@@ -93,6 +98,7 @@ class BlobInit(BaseModel):
     blob_id: UUID
     resource_id: UUID
     epoch: int = Field(ge=1, le=2**31 - 1)
+    base_revision: int = Field(ge=0, le=2**63 - 2)
     total_size: int = Field(ge=39, le=MAX_BLOB_BYTES)
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
 
@@ -115,15 +121,13 @@ def make_sync_router(authenticated, get_session):
 
     @router.post("/push")
     def push(data: ChangeWrite, owner=Depends(authenticated), db=Depends(get_session)):
-        if data.deleted:
-            if data.ciphertext_b64 is not None or data.blob_id is not None:
-                rejected("El tombstone no lleva datos cifrados ni adjunto")
-            payload = None
-        else:
-            if data.ciphertext_b64 is None:
-                rejected("El cambio requiere contenedor cifrado")
-            payload = decoded(data.ciphertext_b64, MAX_RECORD_BYTES)
-            assert_frame(payload, owner.id, data.resource_id, data.epoch)
+        if data.deleted and data.blob_id is not None:
+            rejected("El tombstone no incluye adjuntos")
+        if data.ciphertext_b64 is None:
+            rejected("La escritura y la eliminación requieren un sobre cifrado autenticado")
+        payload = decoded(data.ciphertext_b64, MAX_RECORD_BYTES)
+        assert_frame(payload, owner.id, data.resource_id, data.epoch,
+                     data.base_revision, "delete" if data.deleted else "put")
         digest = hash_request({
             "operation_id": data.operation_id.hex,
             "resource_id": data.resource_id.hex,
@@ -162,6 +166,7 @@ def make_sync_router(authenticated, get_session):
                 blob = db.get(SyncBlob, data.blob_id)
                 if blob is None or blob.owner_id != owner.id or not blob.complete or (
                     blob.resource_id != data.resource_id or blob.epoch != data.epoch
+                    or blob.base_revision != data.base_revision
                 ):
                     rejected("Adjunto no verificado o ajeno", 409)
 
@@ -275,12 +280,14 @@ def make_sync_router(authenticated, get_session):
                     rejected("Demasiados archivos pendientes", 429)
                 item = SyncBlob(
                     id=data.blob_id, owner_id=owner.id, resource_id=data.resource_id,
-                    epoch=data.epoch, total_size=data.total_size, sha256=data.sha256, complete=False,
+                    epoch=data.epoch, base_revision=data.base_revision,
+                    total_size=data.total_size, sha256=data.sha256, complete=False,
                 )
                 db.add(item)
                 db.flush()
             elif (item.owner_id != owner.id or item.resource_id != data.resource_id
-                  or item.epoch != data.epoch or item.total_size != data.total_size
+                  or item.epoch != data.epoch or item.base_revision != data.base_revision
+                  or item.total_size != data.total_size
                   or item.sha256 != data.sha256):
                 rejected("Identificador de adjunto en uso o ajeno", 409)
             indices = db.scalars(select(SyncBlobPart.part_index).where(
@@ -357,7 +364,8 @@ def make_sync_router(authenticated, get_session):
             content = b"".join(part.data for part in parts)
             if len(content) != blob.total_size or hashlib.sha256(content).hexdigest() != blob.sha256:
                 rejected("Checksum final inválido", 422)
-            assert_frame(content, owner.id, blob.resource_id, blob.epoch)
+            assert_frame(content, owner.id, blob.resource_id, blob.epoch,
+                         blob.base_revision, "blob")
             blob.complete = True
             db.commit()
             return {"status": "complete", "sha256": blob.sha256}

@@ -29,8 +29,10 @@ def owner(client, token):
     return UUID(reply.json()["id"])
 
 
-def envelope(secret: bytes, owner_id: UUID, resource_id: UUID, plaintext: bytes, epoch=1) -> bytes:
-    ctx = f"sync/{owner_id.hex}/{resource_id.hex}/epoch-{epoch}".encode("ascii")
+def envelope(secret: bytes, owner_id: UUID, resource_id: UUID, plaintext: bytes,
+             epoch=1, base=0, kind="put") -> bytes:
+    ctx = (f"sync/{owner_id.hex}/{resource_id.hex}/epoch-{epoch}"
+           f"/base-{base}/kind-{kind}").encode("ascii")
     nonce = os.urandom(12)
     header = b"SUAEAD01" + b"\x01" + len(ctx).to_bytes(2, "big") + nonce + ctx
     return header + AESGCM(secret).encrypt(nonce, plaintext, header)
@@ -39,12 +41,14 @@ def envelope(secret: bytes, owner_id: UUID, resource_id: UUID, plaintext: bytes,
 def command(owner_id, rid, *, opid=None, base=0, deleted=False, plaintext=b"synthetic-enc",
             key=None, epoch=1, blob_id=None, conflict_id=None):
     key = key or AESGCM.generate_key(bit_length=256)
-    blob = None if deleted else envelope(key, owner_id, rid, plaintext, epoch)
+    blob = envelope(key, owner_id, rid,
+                    b"tombstone:v1" if deleted else plaintext, epoch, base,
+                    "delete" if deleted else "put")
     data = {
         "operation_id": str(opid or uuid4()),
         "resource_id": str(rid),
         "base_revision": base, "epoch": epoch, "deleted": deleted,
-        "ciphertext_b64": base64.b64encode(blob).decode("ascii") if blob is not None else None,
+        "ciphertext_b64": base64.b64encode(blob).decode("ascii"),
     }
     if blob_id is not None:
         data["blob_id"] = str(blob_id)
@@ -124,7 +128,7 @@ def test_conflict_versions_manual_resolution_tombstones_and_full_history(setup):
         cursor = page["cursor"]
     assert [p["revision"] for p in pages] == [1, 2, 3]
     assert [p["deleted"] for p in pages] == [False, False, True]
-    assert pages[-1]["ciphertext_b64"] is None
+    assert pages[-1]["ciphertext_b64"] is not None
     with Session(engine) as session:
         resource = session.get(SyncResource, (uid, rid))
         assert resource.revision == 3 and resource.deleted
@@ -167,10 +171,10 @@ def test_out_of_order_resumable_blob_checksum_and_cross_user_access(setup):
     rid, blobid = uuid4(), uuid4()
     key = AESGCM.generate_key(bit_length=256)
     plaintext = os.urandom(2 * CHUNK_SIZE + 22000)
-    ciphertext = envelope(key, uid, rid, plaintext)
+    ciphertext = envelope(key, uid, rid, plaintext, kind="blob")
     digest = hashlib.sha256(ciphertext).hexdigest()
     info = {"blob_id": str(blobid), "resource_id": str(rid),
-            "epoch": 1, "total_size": len(ciphertext), "sha256": digest}
+            "epoch": 1, "base_revision": 0, "total_size": len(ciphertext), "sha256": digest}
     init = client.post("/api/v1/sync/blobs/init", headers=headers(token), json=info)
     assert init.status_code == 200, init.text
     assert init.json()["received_parts"] == []
@@ -214,9 +218,9 @@ def test_corrupt_blob_rejected_without_completion(setup):
     uid = owner(client, token)
     rid, blobid = uuid4(), uuid4()
     secret = AESGCM.generate_key(bit_length=256)
-    ciphertext = envelope(secret, uid, rid, b"file data")
+    ciphertext = envelope(secret, uid, rid, b"file data", kind="blob")
     info = {"blob_id": str(blobid), "resource_id": str(rid),
-            "epoch": 1, "total_size": len(ciphertext), "sha256": "0" * 64}
+            "epoch": 1, "base_revision": 0, "total_size": len(ciphertext), "sha256": "0" * 64}
     assert client.post("/api/v1/sync/blobs/init", headers=headers(token), json=info).status_code == 200
     headers2 = {**headers(token), "X-Chunk-Sha256": hashlib.sha256(ciphertext).hexdigest()}
     assert client.put(f"/api/v1/sync/blobs/{blobid}/parts/0",

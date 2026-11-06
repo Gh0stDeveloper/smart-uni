@@ -69,6 +69,7 @@ def upgrade():
         sa.Column("owner_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("identities.id", ondelete="CASCADE"), nullable=False),
         sa.Column("resource_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("epoch", sa.BigInteger(), nullable=False),
+        sa.Column("base_revision", sa.BigInteger(), nullable=False),
         sa.Column("total_size", sa.Integer(), nullable=False),
         sa.Column("sha256", sa.String(64), nullable=False),
         sa.Column("complete", sa.Boolean(), nullable=False, server_default=sa.false()),
