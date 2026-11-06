@@ -67,3 +67,5 @@ jobs:
           test "$notes" = "401"
           test "$admin" = "401"
           test "$csrf" = "403"
+          logout=$(curl --silent --output /dev/null --write-out "%{http_code}" -X POST http://127.0.0.1:3000/api/session/revoke)
+          test "$logout" = "403"
