@@ -167,20 +167,20 @@
 
 ### 7.1 Sincronización incremental
 
-- [ ] Push/pull con cursor, revisiones, idempotencia y reintentos.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Push/pull con cursor, revisiones, idempotencia y reintentos.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 7.2 Conflictos y eliminaciones
 
-- [ ] Conservar versiones y permitir resolver conflictos; tombstones.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Conservar versiones y permitir resolver conflictos; tombstones.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 7.3 Materiales y archivos
 
-- [ ] Adjuntos privados cifrados, subida reanudable y verificación de integridad.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Adjuntos privados cifrados, subida reanudable y verificación de integridad.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+**Criterio de cierre técnico:** API PostgreSQL v2 + cliente SQLCipher/Rust opt-in. [7.1 Sincronización incremental](phase-7/7.1_SINCRONIZACION_INCREMENTAL.md) · [7.2 Conflictos y eliminaciones](phase-7/7.2_CONFLICTOS_Y_ELIMINACIONES.md) · [7.3 Materiales y archivos](phase-7/7.3_MATERIALES_Y_ARCHIVOS.md) · [Acta con pruebas E2E](phase-7/7_CIERRE_Y_EVIDENCIAS.md). **Las casillas representan componentes verificados en laboratorio, no sincronización de la UI ni Android.** IdP, enrolamiento de claves, integración UI, red real, anti-rollback y migración del outbox legacy siguen abiertos en [P01–P52](PENDIENTES_SMART_UNI_2_0.md).
 
 ## 8 Aplicación Android
 
@@ -249,6 +249,6 @@
 
 ## Control del avance
 
-Las etapas **1–6 están validadas dentro de su alcance técnico**. SQLCipher sigue siendo experimental opt-in y la etapa 6 añade AEAD Rust, recuperación Argon2id/HPKE y archivos locales cifrados (22 tests Rust + 11 tests nativos integrados por SO, además de 4 FFI existentes). **La API aún almacena apuntes en claro, falta enrolamiento autorizado de dispositivos, IdP externo real, Android en ejecución y E2EE de sincronización.** Etapas **7–10 pendientes**. El [registro maestro de 43 asuntos](PENDIENTES_SMART_UNI_2_0.md) conserva deuda abierta y condiciones de seguridad para uso real.
+Las etapas **1–7 están implementadas y validadas dentro de su alcance técnico experimental**. Etapa 7: sync ciphertext-only y conflictos en FastAPI/PostgreSQL, cliente Rust/SQLCipher, cursor CAS y adjuntos reanudables con 22 pruebas API, 6 E2E Linux y 5 pruebas nativas del cliente por SO. **Sin sincronización automática de producto, Android, IdP real ni distribución de claves segura; API plaintext legacy bloqueada por defecto**. Etapas **8–10 pendientes**. [Registro maestro de 52 asuntos](PENDIENTES_SMART_UNI_2_0.md).
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

@@ -19,7 +19,7 @@ SMART UNI 2.0 evolucionará desde el prototipo de escritorio existente hacia un 
 </div>
 
 > [!IMPORTANT]
-> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android, sincronización y E2EE **completo entre clientes y servidor** siguen sin implementar; la etapa 6 añadió cifrado local de materiales, recuperación de claves y HPKE de laboratorio. **La API FastAPI/PostgreSQL y el portal Next.js existen y pasan CI, pero todavía no están desplegados ni conectados a un proveedor OIDC real**. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. El núcleo Rust 0.1.0 ya cifra materiales del modo seguro mediante ABI y se probó contra OpenSSL, pero la aplicación tradicional y la API no usan todavía E2EE. No se deben introducir datos privados reales en esta versión.
+> **Estado real:** la aplicación de escritorio en Python/Tkinter es un prototipo funcional. Android y sincronización automática de las aplicaciones distribuidas siguen pendientes; la etapa 7 ya implementó servidor ciphertext-only y cliente experimental SQLCipher/Rust con intercambio real de laboratorio, sin IdP ni aprovisionamiento seguro de dispositivos. **La API FastAPI/PostgreSQL y el portal Next.js existen y pasan CI, pero todavía no están desplegados ni conectados a un proveedor OIDC real**. **SQLCipher cifrado ya existe en modo experimental opt-in, no por defecto**. Rust 0.1.0 cifra materiales y eventos del cliente experimental. Las nuevas rutas /api/v1/sync no reciben plaintext; el CRUD legacy de notas devuelve 410 por defecto. No equivale a E2EE del producto distribuido. No se deben introducir datos privados reales en esta versión.
 
 ---
 
@@ -96,7 +96,7 @@ Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativ
 
 </div>
 
-**En uso:** Tkinter/JSON legacy, SQLCipher opt-in con adjuntos cifrados por Rust y outbox, núcleo Rust con AEAD/Argon2id/HPKE, FastAPI/PostgreSQL y Next.js probados, contratos y tokens. **Pendientes:** empaquetado Rust/SQLCipher en EXE, IdP real, permisos de sesión desktop, keyring hardware real, Android/JNI, E2EE en API, sincronización, visor seguro de archivos y Figma.
+**En uso:** Tkinter/JSON legacy, SQLCipher opt-in, Rust AEAD/HPKE/Argon2id, FastAPI/PostgreSQL con sync ciphertext-only, cliente offline E2EE opt-in probado, Next.js y contratos v1/v2. **Pendientes:** login OIDC real de escritorio, distribución autorizada de claves, Android, integración UI, despliegue TLS, revocación completa, anti-rollback, empaquetado y QA.
 
 ## Arquitectura prevista
 
@@ -121,7 +121,7 @@ Por defecto los datos se almacenan en **JSON local sin cifrar**. Como alternativ
                         PostgreSQL + Storage
 ```
 
-La sincronización **offline-first** y el cifrado E2EE son objetivos de diseño. El backend será responsable de autorizar cada recurso; ocultar endpoints en binarios no sustituye la autorización.
+La sincronización **offline-first** ya cuenta con protocolo y motor E2EE de laboratorio, sin activación automática en las aplicaciones. El backend será responsable de autorizar cada recurso; ocultar endpoints en binarios no sustituye la autorización.
 
 [Arquitectura multiplataforma](docs/architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md) · [Plan técnico](docs/architecture/SMART_UNI_2_0_Arquitectura_y_Plan_Produccion.md)
 
@@ -193,7 +193,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 | **4 Persistencia local y funcionamiento offline** | Implementación técnica validada, **opt-in**, no apta para producción: [acta de cierre](docs/phase-4/4_CIERRE_Y_EVIDENCIAS.md) |
 | **5 Backend, identidad y autorización** | Base técnica implementada y validada, sin despliegue ni IdP externo: [acta 5](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) |
 | **6 Cifrado y gestión de claves** | Base criptográfica y archivos seguros opt-in validados: [acta de cierre](docs/phase-6/6_CIERRE_Y_EVIDENCIAS.md); NO E2EE productivo |
-| **7 Sincronización multiplataforma** | Pendiente |
+| **7 Sincronización multiplataforma** | Base técnica de laboratorio validada: [acta 7](docs/phase-7/7_CIERRE_Y_EVIDENCIAS.md). No disponible automáticamente en aplicaciones distribuidas |
 | **8 Aplicación Android** | Pendiente |
 | **9 Seguridad, integración continua y beta** | Pendiente |
 | **10 Lanzamiento gradual** | Pendiente |
@@ -219,7 +219,7 @@ Se planean Argon2id cuando corresponda, TLS, cifrado en reposo, gestión de clav
 - [Política de seguridad](SECURITY.md)
 - [Guía de contribución](CONTRIBUTING.md)
 - [Estado real de componentes](docs/architecture/00_ESTADO_Y_PRIORIDADES.md)
-- **[Registro maestro de pendientes y riesgos abiertos (P01–P43)](docs/PENDIENTES_SMART_UNI_2_0.md)**
+- **[Registro maestro de pendientes y riesgos abiertos (P01–P52)](docs/PENDIENTES_SMART_UNI_2_0.md)**
 
 **Desarrollo:** [Ghost Developer](https://github.com/Gh0stDeveloper)
 
@@ -233,8 +233,14 @@ Para probar desde código fuente, instalar `pip install -r apps/desktop/requirem
 
 ## Backend y portal de laboratorio — etapa 5
 
-La API [FastAPI + PostgreSQL](services/api/README.md) dispone de migraciones Alembic, consultas parametrizadas, JWT OIDC RS256, propietario por identidad DB, rol admin validado por PostgreSQL y revocación de tokens propia. El [portal Next.js](apps/web/README.md) utiliza Auth.js con PKCE, state y nonce, cookies de sesión protegidas y BFF que no expone tokens al navegador. **No hay todavía IdP externo conectado ni despliegue productivo.** Los apuntes de prueba del backend se almacenan sin E2EE. [Acta técnica](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) y [43 pendientes de seguridad y funcionalidad](docs/PENDIENTES_SMART_UNI_2_0.md).
+La API [FastAPI + PostgreSQL](services/api/README.md) dispone de migraciones Alembic, consultas parametrizadas, JWT OIDC RS256, propietario por identidad DB, rol admin validado por PostgreSQL y revocación de tokens propia. El [portal Next.js](apps/web/README.md) utiliza Auth.js con PKCE, state y nonce, cookies de sesión protegidas y BFF que no expone tokens al navegador. **No hay todavía IdP externo conectado ni despliegue productivo.** El CRUD demo anterior de apuntes en claro se bloquea por defecto; el nuevo API sync utiliza ciphertext y la migración de notas históricas sigue pendiente. [Acta técnica](docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md) y [52 pendientes de seguridad y funcionalidad](docs/PENDIENTES_SMART_UNI_2_0.md).
 
 ## Cifrado y recuperación de la etapa 6
 
-El núcleo [Rust](core/rust/README.md) implementa contenedor autenticado `SUAEAD01` AES-256-GCM, paquetes de recuperación `SURECV01` mediante Argon2id, y distribución HPKE X25519 a dispositivos de laboratorio. En modo SQLCipher opt-in, [archivos cifrados](apps/desktop/README.md) se guardan en formato `.sun1` únicamente con biblioteca Rust real; las claves de base y materiales pueden exportarse/restaurarse con **paquetes separados** y frases de recuperación no almacenadas. La lectura de materiales es por bytes en memoria, no abre visores externos de forma automática. **No hay cifrado E2EE de la API, rotación real multi-dispositivo ni Android en ejecución**. [Acta 6](docs/phase-6/6_CIERRE_Y_EVIDENCIAS.md) · [Pendientes P01–P43](docs/PENDIENTES_SMART_UNI_2_0.md).
+El núcleo [Rust](core/rust/README.md) implementa contenedor autenticado `SUAEAD01` AES-256-GCM, paquetes de recuperación `SURECV01` mediante Argon2id, y distribución HPKE X25519 a dispositivos de laboratorio. En modo SQLCipher opt-in, [archivos cifrados](apps/desktop/README.md) se guardan en formato `.sun1` únicamente con biblioteca Rust real; las claves de base y materiales pueden exportarse/restaurarse con **paquetes separados** y frases de recuperación no almacenadas. La lectura de materiales es por bytes en memoria, no abre visores externos de forma automática. **Existe canal de sync cifrado en laboratorio, pero faltan claves distribuidas/rotadas realmente y Android ejecutable**. [Acta 6](docs/phase-6/6_CIERRE_Y_EVIDENCIAS.md) · [Pendientes P01–P52](docs/PENDIENTES_SMART_UNI_2_0.md).
+
+## Sincronización cifrada de laboratorio — etapa 7
+
+El [servidor FastAPI](services/api/README.md) implementa historial por cursor, CAS, conflictos, tombstones cifrados y archivos reanudables por fragmentos. El [cliente SQLCipher/Rust](apps/desktop/README.md) mantiene outbox E2EE durable, reintentos seguros tras perder ACK, historial y descarga/subida con checksum. [Contrato v2](packages/contracts/v2/README.md) · [Acta y evidencias](docs/phase-7/7_CIERRE_Y_EVIDENCIAS.md).
+
+**No se sincroniza automáticamente Tkinter/Android:** el motor necesita una sesión OIDC real, UUID de propietario verificado y una clave E2EE ya aprovisionada. Esas integraciones faltan. El EXE continúa en JSON legacy; portal y API no tienen IdP productivo conectado. No usar datos reales. [Pendientes P01–P52](docs/PENDIENTES_SMART_UNI_2_0.md).
