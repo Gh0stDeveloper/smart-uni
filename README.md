@@ -170,7 +170,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-La suite incluye **17 casos**; dos requieren sesión gráfica. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
+La suite incluye **26 casos** (17 originales y 9 de línea base); dos requieren sesión gráfica. Para generar el ejecutable Windows usa `compilar_exe_windows.bat`; en Linux, `compilar_linux.sh`. Los instaladores firmados todavía no están listos.
 
 Para comprobar la nomenclatura documental, desde la raíz:
 
@@ -186,7 +186,7 @@ Los apartados se identifican únicamente como **1 Nombre** y **1.1 Nombre**, sin
 
 | Etapa | Estado |
 |---|---|
-| **1 Análisis y línea base** | En preparación |
+| **1 Análisis y línea base** | Completada: [evidencias de cierre](docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md) |
 | **2 Contratos y sistema de diseño** | Pendiente |
 | **3 Núcleo compartido en Rust** | Pendiente |
 | **4 Persistencia local y funcionamiento offline** | Pendiente |

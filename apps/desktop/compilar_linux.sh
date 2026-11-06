@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-echo '[1/3] Comprobamos las 17 pruebas...'
+echo '[1/3] Comprobamos la suite de pruebas de escritorio...'
 python3 -m unittest discover -s tests -v
 
 echo '[2/3] Creamos un entorno de compilación e instalamos PyInstaller...'

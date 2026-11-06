@@ -32,20 +32,23 @@
 
 ### 1.1 Inventario del prototipo
 
-- [ ] Inventariar código, dependencias, JSON, archivos, iconografía y pantallas.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Inventariar código, dependencias, JSON, archivos, iconografía y pantallas.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 1.2 Auditoría y modelo de amenazas
 
-- [ ] Documentar credenciales, límites de confianza, datos personales y amenazas.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Documentar credenciales, límites de confianza, datos personales y amenazas.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
 ### 1.3 Pruebas y regresión
 
-- [ ] Crear evidencia reproducible Windows/Linux, capturas y respaldos de prueba.
-- [ ] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
+- [x] Crear evidencia reproducible Windows/Linux, capturas y respaldos de prueba.
+- [x] Adjuntar pruebas, criterios de aceptación y enlace al commit correspondiente.
 
-**Criterio de cierre:** evidencia verificable, pruebas satisfactorias y revisión antes de continuar.
+
+**Evidencia de cierre:** [1.1 Inventario](phase-1/1.1_INVENTARIO_DEL_PROTOTIPO.md) · [1.2 Auditoría](phase-1/1.2_AUDITORIA_Y_MODELO_DE_AMENAZAS.md) · [1.3 Pruebas](phase-1/1.3_PRUEBAS_Y_REGRESION.md) · [Acta de cierre](phase-1/1_CIERRE_Y_EVIDENCIAS.md). Commit de pruebas `212e7b057c17e3f1465e1e6e41560877c8e8a4dd`: 26/26 Windows y 26/26 Linux, capturas y respaldos sintéticos publicados ([Actions #42160375952](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42160375952)). Compilación Windows [#42160375857](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42160375857) y nomenclatura [#42160375903](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42160375903) exitosas. Los riesgos R01–R11 son pendientes de mitigación en etapas posteriores; esta etapa fija la línea base, no certifica seguridad de producción.
+
+**Criterio de cierre:** completado para el alcance de inventario, auditoría y regresión. Revisar riesgos residuales antes de diseñar cambios en 2.
 
 ## 2 Contratos y sistema de diseño
 
@@ -240,6 +243,6 @@
 
 ## Control del avance
 
-La primera fase está **en preparación**; ninguna de las diez fases se considera completada. Un cambio de estado exige evidencia verificable.
+La etapa **1 Análisis y línea base** está **completada y validada** con 26 pruebas satisfactorias en cada SO, capturas y respaldos sintéticos, compilación Windows y validación de convenciones. Las etapas 2–10 siguen pendientes y no se ha iniciado la etapa 2. Los riesgos identificados no están resueltos por esta validación.
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.

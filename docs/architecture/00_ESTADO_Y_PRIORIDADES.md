@@ -4,7 +4,7 @@
 
 - Escritorio Python/Tkinter; inicio de sesión local, registro, cursos, horarios y secciones académicas.
 - Persistencia JSON local y gestión de materiales del prototipo.
-- Conjunto de 17 pruebas, con dos pruebas gráficas dependientes de pantalla.
+- Conjunto de 26 pruebas (17 iniciales + 9 regresión), con dos pruebas gráficas dependientes de pantalla; resultados en ambos SO [documentados](../phase-1/1_CIERRE_Y_EVIDENCIAS.md).
 - Logotipo original, recursos SVG y tokens visuales.
 - Compilación de prototipo mediante GitHub Actions.
 
@@ -19,7 +19,7 @@
 
 ## Estado por fases
 
-- **1 Análisis y línea base** — En preparación; auditoría pendiente.
+- **1 Análisis y línea base** — Completada: inventario y modelo de amenazas documentados, pruebas/capturas/respaldos sintéticos verificados en CI. Riesgos residuales sin corregir.
 - **2 Contratos y sistema de diseño** — Pendiente.
 - **3 Núcleo compartido en Rust** — Pendiente.
 - **4 Persistencia local y funcionamiento offline** — Pendiente.

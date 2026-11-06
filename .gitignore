@@ -27,3 +27,4 @@ apps/desktop/data/*.json
 !apps/desktop/data/ejemplo_lectura.json
 **/materiales/
 **/backups/
+**/phase1-evidence/

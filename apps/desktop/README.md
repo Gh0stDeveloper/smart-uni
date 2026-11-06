@@ -26,7 +26,7 @@ cd apps/desktop
 python -m unittest discover -s tests -v
 ```
 
-Son 17 pruebas automatizadas; las dos de navegación usan una pantalla gráfica.
+Son 26 pruebas automatizadas (17 originales + 9 de línea base); las dos de navegación usan una pantalla gráfica. Evidencia: [acta de cierre](../../docs/phase-1/1_CIERRE_Y_EVIDENCIAS.md).
 
 ## Windows
 
