@@ -1,0 +1,40 @@
+name: Núcleo Rust SMART UNI 2.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'core/rust/**'
+      - 'packages/contracts/v1/**'
+      - 'apps/desktop/smart_uni/native_bridge.py'
+      - 'apps/desktop/tests/test_phase3_native.py'
+      - '.github/workflows/rust-core.yml'
+  pull_request:
+    paths:
+      - 'core/rust/**'
+      - 'packages/contracts/v1/**'
+      - 'apps/desktop/smart_uni/native_bridge.py'
+      - 'apps/desktop/tests/test_phase3_native.py'
+      - '.github/workflows/rust-core.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rust:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Formato Rust
+        run: cargo fmt --manifest-path core/rust/Cargo.toml --all -- --check
+      - name: Compilar y probar Rust
+        run: cargo test --manifest-path core/rust/Cargo.toml --all-targets --verbose
+      - name: Clippy sin avisos
+        run: cargo clippy --manifest-path core/rust/Cargo.toml --all-targets -- -D warnings
