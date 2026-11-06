@@ -218,7 +218,7 @@ def make_sync_router(authenticated, get_session):
             raise
 
     @router.get("/pull")
-    def pull(cursor: int = Query(default=0, ge=0),
+    def pull(cursor: int = Query(default=0, ge=0, le=2**63 - 1),
              limit: int = Query(default=30, ge=1, le=100),
              owner=Depends(authenticated), db=Depends(get_session)):
         changes = db.scalars(
