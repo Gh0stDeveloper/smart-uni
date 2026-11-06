@@ -1,0 +1,24 @@
+{
+  "project": "SMART UNI",
+  "source_of_truth": "packages/design-system/tokens.json",
+  "desktop_mirror": "apps/desktop/design/tokens.json",
+  "original_icon_png": {
+    "path": "apps/desktop/design/previews/00_isotipo_smart_uni.png",
+    "git_blob_sha1": "e59066d4c32c8e65ad763335f87b4f477f3c92b4"
+  },
+  "original_icon_svg": {
+    "path": "apps/desktop/design/figma_svg/00_isotipo_smart_uni.svg",
+    "git_blob_sha1": "429106ade23f1f469f5784327d6bb6e994e3e43d"
+  },
+  "layout_guardrails": {
+    "single_left_navigation": true,
+    "extra_right_sidebar": false,
+    "preserve_login_and_sections": true,
+    "reference_implementation": "apps/desktop/smart_uni/ui.py"
+  },
+  "figma": {
+    "connection_status": "not_configured",
+    "process": "proposal -> human review -> canonical tokens -> desktop mirror -> CI",
+    "no_automatic_main_push": true
+  }
+}

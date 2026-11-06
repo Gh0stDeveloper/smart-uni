@@ -13,6 +13,7 @@ echo '[3/3] Generamos la versión independiente para Linux...'
 .venv-build/bin/python -m PyInstaller --noconfirm --clean --onefile --windowed \
   --name Smart_Uni \
   --add-data 'design/previews/00_isotipo_smart_uni.png:design/previews' \
+  --add-data 'design/tokens.json:design' \
   main.py
 
 echo 'LISTO: dist/Smart_Uni (ejecutable Linux, no Windows)'

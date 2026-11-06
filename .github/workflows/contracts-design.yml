@@ -37,3 +37,7 @@ jobs:
         run: python -m pip install 'jsonschema==4.23.0'
       - name: Verificar contratos versionados
         run: python scripts/check_contracts.py
+      - name: Verificar tokens e identidad visual
+        run: |
+          python scripts/sync_design_tokens.py
+          python scripts/check_design_system.py

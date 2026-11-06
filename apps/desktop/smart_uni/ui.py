@@ -15,26 +15,8 @@ from .core import SmartUniService, ValidationError
 from .session import SessionState
 
 
-# Son los mismos colores de la guía original. No se modificó el diseño.
-COLORS = {
-    'login_bg': '#91C8F0',
-    'aqua': '#2BB2C4',
-    'blue': '#2B80EC',
-    'ink': '#243448',
-    'muted': '#65768C',
-    'form_bg': '#D3D3D3',
-    'field': '#8ACDF7',
-    'surface': '#FFFFFF',
-    'page': '#F3F7FC',
-    'pale': '#D8EBFD',
-    'line': '#E2E8F0',
-    'dark_button': '#333333',
-}
-
-# Poppins para los títulos y Roboto para el texto normal.
-# Si no están instaladas, Tkinter usa una fuente alternativa.
-FONT_TITLE = 'Poppins'
-FONT_TEXT = 'Roboto'
+# Roles de color y tipografía desde los tokens aprobados.
+from .design_system import COLORS, FONT_TITLE, FONT_TEXT
 
 
 def label(parent, text, size=12, color=None, bold=False, bg=None, **kwargs):

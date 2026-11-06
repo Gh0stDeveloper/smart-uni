@@ -17,7 +17,7 @@ if errorlevel 1 goto fail
 if errorlevel 1 goto fail
 %PYTHON% design\build_icon.py
 if errorlevel 1 goto fail
-%PYTHON% -m PyInstaller --noconfirm --clean --onefile --windowed --name Smart_Uni --icon "design\smart_uni.ico" --add-data "design\previews\00_isotipo_smart_uni.png;design/previews" main.py
+%PYTHON% -m PyInstaller --noconfirm --clean --onefile --windowed --name Smart_Uni --icon "design\smart_uni.ico" --add-data "design\previews\00_isotipo_smart_uni.png;design/previews" --add-data "design\tokens.json;design" main.py
 if errorlevel 1 goto fail
 echo Listo: dist\Smart_Uni.exe
 pause

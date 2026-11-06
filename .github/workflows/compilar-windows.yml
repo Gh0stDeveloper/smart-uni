@@ -29,7 +29,7 @@ jobs:
         run: python design/build_icon.py
       - name: Compilar EXE independiente
         working-directory: apps/desktop
-        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name Smart_Uni --icon design/smart_uni.ico --add-data "design/previews/00_isotipo_smart_uni.png;design/previews" main.py
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name Smart_Uni --icon design/smart_uni.ico --add-data "design/previews/00_isotipo_smart_uni.png;design/previews" --add-data "design/tokens.json;design" main.py
       - name: Publicar EXE
         uses: actions/upload-artifact@v4
         with:
