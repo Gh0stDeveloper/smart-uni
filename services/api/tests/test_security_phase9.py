@@ -10,6 +10,7 @@ from uuid import uuid4
 import pytest
 
 from test_api import setup, make_token, headers
+from services.api.app.config import Settings
 from test_sync import command, owner, push
 
 
@@ -75,3 +76,20 @@ def test_push_rejects_forged_owner_role_and_sql_identifier(setup):
     del payload["role"]
     payload["resource_id"] = "x' OR 1=1 --"
     assert push(client, token, payload).status_code == 422
+
+
+def test_plaintext_demo_requires_synthetic_issuer_and_loopback_database():
+    real_issuer = "https://auth.university.example/realm"
+    with pytest.raises(ValueError):
+        Settings("postgresql+psycopg://demo:only@localhost/test",
+                 real_issuer, "smartuni-api", real_issuer + "/certs",
+                 allow_legacy_plaintext_notes=True)
+    issuer = "https://issuer.smartuni.invalid/realms/test"
+    with pytest.raises(ValueError):
+        Settings("postgresql+psycopg://demo:only@db.internal/test",
+                 issuer, "smartuni-api", issuer + "/certs",
+                 allow_legacy_plaintext_notes=True)
+    allowed = Settings("postgresql+psycopg://demo:only@localhost/test",
+                       issuer, "smartuni-api", issuer + "/certs",
+                       allow_legacy_plaintext_notes=True)
+    assert allowed.allow_legacy_plaintext_notes
