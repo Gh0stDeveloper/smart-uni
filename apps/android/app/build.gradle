@@ -7,7 +7,26 @@ android {
     compileSdk 35
     ndkVersion '27.2.12479018'
 
+    // Identificadores OIDC públicos por entorno: jamás inyectar secretos de cliente.
+    def issuer = (System.getenv('SMARTUNI_OIDC_ISSUER') ?: '').trim()
+    def clientId = (System.getenv('SMARTUNI_OIDC_CLIENT_ID') ?: '').trim()
+    def apiOrigin = (System.getenv('SMARTUNI_API_ORIGIN') ?: '').trim()
+    if (issuer && !(issuer ==~ /^https:\/\/[A-Za-z0-9.-]+(?::[0-9]{1,5})?(?:\/[A-Za-z0-9._\/-]*)?$/)) {
+        throw new GradleException('SMARTUNI_OIDC_ISSUER requiere HTTPS sin fragment ni query')
+    }
+    if (clientId && !(clientId ==~ /^[A-Za-z0-9_.-]{1,120}$/)) {
+        throw new GradleException('SMARTUNI_OIDC_CLIENT_ID inválido')
+    }
+    if (apiOrigin && !(apiOrigin ==~ /^https:\/\/[A-Za-z0-9.-]+(?::[0-9]{1,5})?$/)) {
+        throw new GradleException('SMARTUNI_API_ORIGIN debe ser origen HTTPS')
+    }
+    buildFeatures { buildConfig true }
+
     defaultConfig {
+        manifestPlaceholders = [appAuthRedirectScheme: 'xyz.smartuni.app']
+        buildConfigField "String", "OIDC_ISSUER", '"' + issuer + '"'
+        buildConfigField "String", "OIDC_CLIENT_ID", '"' + clientId + '"'
+        buildConfigField "String", "API_ORIGIN", '"' + apiOrigin + '"'
         applicationId 'xyz.smartuni.app'
         minSdk 26
         targetSdk 35
@@ -67,6 +86,8 @@ android {
 }
 
 dependencies {
+    // Biblioteca OIDC de OAuth 2.0 para apps nativas, con PKCE/state/nonce y navegador.
+    implementation 'net.openid:appauth:0.11.1'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test:runner:1.6.2'
 }

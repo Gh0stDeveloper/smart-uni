@@ -9,6 +9,8 @@
         android:fullBackupContent="false"
         android:usesCleartextTraffic="false"
         android:theme="@style/SmartUniTheme">
+        <activity android:name=".OidcCallbackActivity"
+            android:exported="false" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

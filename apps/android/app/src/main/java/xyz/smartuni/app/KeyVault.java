@@ -69,7 +69,8 @@ final class KeyVault {
             return key;
         }
 
-        if (new File(app.getFilesDir(), "local_note.sun1").exists() ||
+        if (new File(app.getFilesDir(), "local_auth.sun1").exists() ||
+                new File(app.getFilesDir(), "local_note.sun1").exists() ||
                 new File(app.getFilesDir(), "local_vault.sun1").exists() ||
                 hasEncryptedMaterials()) {
             throw new GeneralSecurityException("Nota presente sin llave; se requiere recuperación");

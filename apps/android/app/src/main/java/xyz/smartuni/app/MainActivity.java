@@ -433,30 +433,114 @@ public final class MainActivity extends Activity {
     }
 
     private void showProfile() {
-        mainContent.addView(text("Sesión: desconectada", 17, MUTED, true));
+        mainContent.addView(text("Identidad y sincronización", 18, TEXT, true));
         addSpacing(mainContent, 8);
-        mainContent.addView(text("OIDC/PKCE y enrolamiento seguro de dispositivos son requisitos pendientes. No se aceptan credenciales locales falsas.", 14, TEXT, false));
+        mainContent.addView(text("La autenticación depende de un OIDC real y no habilita sincronización automáticamente.", 14, MUTED, false));
+        addSpacing(mainContent, 10);
+        boolean session = false;
+        try {
+            byte[] token = new SessionVault(this).bearer();
+            session = token != null;
+            if (token != null) Arrays.fill(token, (byte) 0);
+        } catch (Exception | LinkageError ignored) {
+            mainContent.addView(text("No se pudo autenticar la bóveda de sesión.", 14, Color.RED, false));
+        }
+        mainContent.addView(text(session
+                ? "Token cifrado en este dispositivo (acceso API aún no verificado)"
+                : "No existe una sesión local vigente", 15, session ? CTA : MUTED, true));
+        addSpacing(mainContent, 12);
+        if (OidcLogin.configured()) {
+            mainContent.addView(button("Iniciar sesión con OIDC/PKCE", () -> OidcLogin.start(this)));
+        } else {
+            mainContent.addView(text("No se configuró IdP OIDC ni client_id para esta compilación. Inicio de sesión deshabilitado.", 14, MUTED, false));
+        }
+        if (session) {
+            mainContent.addView(button("Cerrar sesión local", () -> {
+                try {
+                    new SessionVault(this).clear();
+                    showScreen("Perfil");
+                } catch (Exception e) {
+                    new AlertDialog.Builder(this).setMessage("No se pudo borrar la sesión local.")
+                            .setPositiveButton("Aceptar", null).show();
+                }
+            }));
+            if (!BuildConfig.API_ORIGIN.isEmpty()) {
+                mainContent.addView(button("Verificar acceso API (GET /me)", () -> {
+                    io.execute(() -> {
+                        int status = -1;
+                        byte[] bearer = null;
+                        try {
+                            bearer = new SessionVault(this).bearer();
+                            if (bearer != null) {
+                                HttpReply reply = NativeBridge.apiRequest(
+                                        BuildConfig.API_ORIGIN, bearer, 0, 0, null);
+                                status = reply == null ? -1 : reply.status;
+                                if (reply != null && reply.body != null) {
+                                    Arrays.fill(reply.body, (byte) 0);
+                                }
+                            }
+                        } catch (Exception | LinkageError ignored) {
+                            status = -1;
+                        } finally {
+                            if (bearer != null) Arrays.fill(bearer, (byte) 0);
+                        }
+                        final int result = status;
+                        runOnUiThread(() -> {
+                            if (!isDestroyed() && !isFinishing()) {
+                                new AlertDialog.Builder(this)
+                                    .setTitle("Estado de la API")
+                                    .setMessage(result == 200
+                                        ? "La API aceptó temporalmente el bearer. No existe todavía sincronización."
+                                        : result == 401 || result == 403
+                                        ? "La API rechazó la sesión: HTTP " + result
+                                        : "Sin verificación de acceso. Código HTTP: " + result)
+                                    .setPositiveButton("Aceptar", null).show();
+                            }
+                        });
+                    });
+                }));
+            }
+        }
         addSpacing(mainContent, 18);
-        mainContent.addView(text("Diagnóstico HTTPS (solo /healthz; no envía datos privados)", 16, TEXT, true));
+        mainContent.addView(text("Diagnóstico HTTPS público /healthz", 16, TEXT, true));
         EditText origin = new EditText(this);
         origin.setHint("https://servidor.example");
         origin.setSingleLine(true);
-        origin.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_URI);
-        origin.setContentDescription("Origen HTTPS de diagnóstico");
+        origin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        origin.setContentDescription("Origen HTTPS para comprobar disponibilidad pública");
         mainContent.addView(origin);
-        TextView result = text("Sin comprobar", 14, MUTED, false);
+        TextView statusView = text("Sin comprobar", 14, MUTED, false);
         mainContent.addView(button("Comprobar conectividad", () -> {
             String value = origin.getText().toString().trim();
-            result.setText("Comprobando mediante JNI...");
+            statusView.setText("Comprobando mediante JNI...");
             io.execute(() -> {
-                int status = NativeBridge.checkHealth(value);
-                runOnUiThread(() -> result.setText(status == 200 ? "Servidor HTTPS responde 200" :
-                        status > 0 ? "Respuesta HTTP " + status + " (no confirma autenticación)" :
-                                "No disponible / URL inválida / fallo de TLS"));
+                int code;
+                try {
+                    code = NativeBridge.checkHealth(value);
+                } catch (LinkageError error) {
+                    code = -1;
+                }
+                final int httpStatus = code;
+                runOnUiThread(() -> {
+                    if (!isDestroyed() && !isFinishing()) {
+                        statusView.setText(httpStatus == 200
+                            ? "Servidor HTTPS responde 200 (no equivale a login)"
+                            : httpStatus > 0
+                            ? "Respuesta HTTP " + httpStatus
+                            : "Red no disponible, URL inválida o fallo TLS");
+                    }
+                });
             });
         }));
         addSpacing(mainContent, 12);
-        mainContent.addView(result);
+        mainContent.addView(statusView);
+    }
+
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent != null && intent.getBooleanExtra("openProfile", false)) {
+            showScreen("Perfil");
+        }
     }
 
     @Override protected void onDestroy() {
