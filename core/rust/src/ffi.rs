@@ -40,7 +40,10 @@ pub unsafe extern "C" fn smartuni_validate_email_v1(ptr: *const u8, len: usize) 
             Ok(input) => input,
             Err(error) => return error,
         };
-        match str::from_utf8(input).ok().and_then(|text| normalize_email(text).ok()) {
+        match str::from_utf8(input)
+            .ok()
+            .and_then(|text| normalize_email(text).ok())
+        {
             Some(_) => OK,
             None => ERR_INVALID,
         }
@@ -73,16 +76,34 @@ mod tests {
     #[test]
     fn abi_version_and_email() {
         assert_eq!(smartuni_abi_version(), 1);
-        assert_eq!(unsafe { smartuni_validate_email_v1(b"User@UNI.EDU".as_ptr(), 12) }, OK);
-        assert_eq!(unsafe { smartuni_validate_email_v1(b"bad".as_ptr(), 3) }, ERR_INVALID);
-        assert_eq!(unsafe { smartuni_validate_email_v1(std::ptr::null(), 0) }, ERR_POINTER);
+        assert_eq!(
+            unsafe { smartuni_validate_email_v1(b"User@UNI.EDU".as_ptr(), 12) },
+            OK
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_email_v1(b"bad".as_ptr(), 3) },
+            ERR_INVALID
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_email_v1(std::ptr::null(), 0) },
+            ERR_POINTER
+        );
     }
 
     #[test]
     fn abi_operation_and_invalid_pointer() {
         let payload = br#"{"schema_version":"1.0.0","operation":"notes.create","operation_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","actor_ref":"student@example.edu","occurred_at":"2026-11-06T04:00:00Z","payload":{}}"#;
-        assert_eq!(unsafe { smartuni_validate_operation_v1(payload.as_ptr(), payload.len()) }, OK);
-        assert_eq!(unsafe { smartuni_validate_operation_v1(b"{}".as_ptr(), 2) }, ERR_INVALID);
-        assert_eq!(unsafe { smartuni_validate_operation_v1(std::ptr::null(), 1) }, ERR_POINTER);
+        assert_eq!(
+            unsafe { smartuni_validate_operation_v1(payload.as_ptr(), payload.len()) },
+            OK
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_operation_v1(b"{}".as_ptr(), 2) },
+            ERR_INVALID
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_operation_v1(std::ptr::null(), 1) },
+            ERR_POINTER
+        );
     }
 }
