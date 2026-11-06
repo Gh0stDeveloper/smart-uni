@@ -279,10 +279,8 @@ class StudentSpaceService:
         """El modo seguro no genera copias de materiales sin cifrar."""
         from .secure_storage import EncryptedSQLiteRepository
         if isinstance(self.base.repository, EncryptedSQLiteRepository):
-            raise ValidationError(
-                'La importación de archivos cifrados está pendiente. '
-                'No se guardará ninguna copia sin protección.'
-            )
+            from .secure_files import SecureMaterialStore
+            return SecureMaterialStore(self.base.repository, email).add(subject, source)
         if subject not in SUBJECTS:
             raise ValidationError('Selecciona una de las materias disponibles.')
 
@@ -344,7 +342,19 @@ class StudentSpaceService:
 
         return file_path
 
+    def material_bytes(self, email: str, item_id: str) -> bytes:
+        """El modo cifrado descifra solo en memoria, sin crear archivos temporales."""
+        from .secure_storage import EncryptedSQLiteRepository
+        if not isinstance(self.base.repository, EncryptedSQLiteRepository):
+            return self.material_path(email, item_id).read_bytes()
+        from .secure_files import SecureMaterialStore
+        return SecureMaterialStore(self.base.repository, email).read_bytes(item_id)
+
     def delete_material(self, email: str, item_id: str) -> bool:
+        from .secure_storage import EncryptedSQLiteRepository
+        if isinstance(self.base.repository, EncryptedSQLiteRepository):
+            from .secure_files import SecureMaterialStore
+            return SecureMaterialStore(self.base.repository, email).delete(item_id)
         file_path = self.material_path(email, item_id)
         removed = self.remove(email, 'materials', item_id)
 
