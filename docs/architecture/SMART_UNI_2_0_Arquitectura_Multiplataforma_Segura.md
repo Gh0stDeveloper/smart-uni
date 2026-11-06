@@ -157,22 +157,22 @@ smart-uni/
 └── .github/workflows/     # matriz CI: win/linux/android/server
 ```
 
-## 11. Plan revisado por fases y criterios de aceptación
+## 11. Plan por fases y criterios de aceptación
 
-| Fase | Implementación | Comprobación obligatoria |
+La numeración oficial está en [ROADMAP.md](../ROADMAP.md), con 30 subfases y criterios verificables. Este documento conserva decisiones técnicas, pero no establece numeración independiente.
+
+| Fase oficial | Enfoque | Evidencia |
 |---|---|---|
-| **0. Inventario y threat model** | Congelar versión actual, revisar assets, mapear datos y amenazas, clasificar secretos; inventario PII | Reproducir pruebas/capturas existentes; riesgos documentados |
-| **1. Contratos + diseño** | Monorepo o carpetas compatibles, OpenAPI, esquema sync, tokens Figma, diseño adaptativo Android | No cambia diseño ni funciones desktop; contratos versionados |
-| **2. Rust compartido** | Core de datos, FFI Python/C++/Java, tests multiplataforma, decisiones criptográficas | Vectores idénticos Win/Linux/Android; sin regresiones desktop |
-| **3. Offline seguro** | SQLCipher/SQLite, migración JSON con backup, outbox, protección de claves | Abrir sin Internet, reiniciar, verificar dato intacto y cifrado; migración reversible |
-| **4. Backend seguro** | FastAPI, PostgreSQL, Next.js, OIDC+PKCE, SQL parametrizado, autorización por recurso | Dos cuentas aisladas; SQLi, IDOR y controles de acceso probados |
-| **5. Cifrado E2EE** | Prototipo de clave por usuario/dispositivo, recuperación y revocación, E2EE de notas/materiales | Servidor no puede leer contenido privado, recuperación documentada y probada |
-| **6. Sincronización común** | Push/pull, reintentos, conflictos, chunks y pruebas cruzadas | Windows ↔ Android ↔ Linux sin duplicados ni pérdidas |
-| **7. App Android** | Java UI siguiendo Figma + NDK C++ endpoints/API + Rust core | Login, offline, materiales, Android Keystore, MASVS; APK/AAB firmados |
-| **8. Endurecimiento y beta** | CI/CD, fuzz, pentest, firmas, actualizador, backups, observabilidad y despliegues | Pruebas automatizadas y auditoría; revisión de seguridad antes de abrir a usuarios |
-| **9. Lanzamiento gradual** | Política de privacidad, soporte, borrado/exportación, monitoreo, rollback | Checklist go/no-go firmado y recuperación operativa probada |
-
-**Orden imprescindible:** diseñar primero el modelo de claves y recuperación antes de lanzar sincronización E2EE; no comenzar Android con una implementación criptográfica paralela no compatible.
+| **Fase 1: Análisis y línea base** | Conocer los riesgos y fijar el comportamiento actual antes de migrar. | Pruebas, revisión y entregables documentados |
+| **Fase 2: Contratos y sistema de diseño** | Modularizar sin modificar la interfaz aprobada. | Pruebas, revisión y entregables documentados |
+| **Fase 3: Núcleo compartido en Rust** | Concentrar las funciones sensibles e interoperables en componentes mantenibles. | Pruebas, revisión y entregables documentados |
+| **Fase 4: Persistencia local y funcionamiento offline** | Garantizar datos disponibles sin Internet y migraciones recuperables. | Pruebas, revisión y entregables documentados |
+| **Fase 5: Backend, identidad y autorización** | Proporcionar servicios online con separación verificable entre usuarios. | Pruebas, revisión y entregables documentados |
+| **Fase 6: Cifrado y gestión de claves** | Proteger contenidos privados sin perder la capacidad de recuperación legítima. | Pruebas, revisión y entregables documentados |
+| **Fase 7: Sincronización multiplataforma** | Conciliar datos offline entre Windows, Linux y Android sin pérdidas. | Pruebas, revisión y entregables documentados |
+| **Fase 8: Aplicación Android** | Construir un cliente móvil con la identidad SMART UNI y seguridad compartida. | Pruebas, revisión y entregables documentados |
+| **Fase 9: Seguridad, integración continua y beta** | Verificar que los controles prometidos existen y resisten fallos. | Pruebas, revisión y entregables documentados |
+| **Fase 10: Lanzamiento gradual** | Publicar con controles de privacidad, soporte y operación. | Pruebas, revisión y entregables documentados |
 
 ## 12. Matriz mínima de pruebas de seguridad
 
@@ -208,4 +208,4 @@ smart-uni/
 
 ---
 
-**Estado final de este documento:** arquitectura acordable, no código aplicado. El diseño actual y los archivos de la entrega final permanecen intactos. El primer trabajo práctico sería completar Fase 0 + definición de contratos y threat model; después construir el núcleo Rust con pruebas criptográficas cruzadas.
+**Estado final de este documento:** arquitectura acordable, no código aplicado. El diseño actual y los archivos de la entrega final permanecen intactos. El primer trabajo práctico sería completar Fase 1: Análisis y línea base, seguida de Fase 2: Contratos y sistema de diseño; después construir el núcleo Rust con pruebas criptográficas cruzadas.

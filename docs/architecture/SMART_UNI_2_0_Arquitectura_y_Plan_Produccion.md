@@ -113,19 +113,20 @@ Todo acceso a red se hará en un hilo/worker o mecanismo asíncrono que no bloqu
 
 ## 9. Plan de implementación por fases
 
-| Fase | Trabajo | Entregable y criterio de aceptación |
-|---|---|---|
-| **0. Línea base** | Congelar última versión, auditar datos de ejemplo, definir contratos e inventariar pantallas | Pruebas actuales en CI, capturas originales y copia íntegra antes de tocar datos |
-| **1. Separación de capas** | Extraer interfaces de repositorio, servicios de dominio e identidad de la UI | Mismas pantallas y funciones, pruebas actuales sin regresiones |
-| **2. Persistencia local** | SQLite, migraciones, respaldo y traslado JSON; outbox transaccional | Cerrar/reabrir sin pérdida; migración recuperable; sin bloqueo gráfico |
-| **3. Identidad y backend** | FastAPI, PostgreSQL, cuentas, permisos, sesiones, API y despliegue de pruebas | Dos cuentas aisladas; ninguna puede consultar datos ajenos |
-| **4. Sincronización de registros** | Push/pull incremental, cursor, idempotencia, tombstones y conflictos | Crear offline, reconectar y ver datos en segundo equipo; reintentos sin duplicados |
-| **5. Sincronización de materiales** | Carga/descarga, hashes, caché y reanudación | Abrir archivo offline; sincronizar en segundo equipo; falla de carga recuperable |
-| **6. Seguridad y resistencia** | Cifrado, controles de sesión, manejo de errores, monitoreo, restauración | Fallos simulados, caducidad, reconexión y respaldos probados |
-| **7. Distribución y beta** | Instaladores Windows/Linux firmados cuando corresponda, actualizaciones, CI, pruebas en equipos reales | Instalación limpia, actualización sin perder datos, pilotos y corrección de bloqueantes |
-| **8. Lanzamiento** | Políticas, privacidad, soporte, métricas y procedimientos operativos | Go/no-go con validaciones completadas; lanzamiento gradual |
+La secuencia vigente se encuentra en [ROADMAP.md](../ROADMAP.md). Este cuadro sustituye a los códigos y divisiones anteriores; consultar allí las subfases.
 
-No avanzar de fase si falla la migración de datos, una operación pierde información, se rompe la UI o existe acceso entre cuentas sin autorización.
+| Fase oficial | Enfoque | Evidencia |
+|---|---|---|
+| **Fase 1: Análisis y línea base** | Conocer los riesgos y fijar el comportamiento actual antes de migrar. | Pruebas, revisión y entregables documentados |
+| **Fase 2: Contratos y sistema de diseño** | Modularizar sin modificar la interfaz aprobada. | Pruebas, revisión y entregables documentados |
+| **Fase 3: Núcleo compartido en Rust** | Concentrar las funciones sensibles e interoperables en componentes mantenibles. | Pruebas, revisión y entregables documentados |
+| **Fase 4: Persistencia local y funcionamiento offline** | Garantizar datos disponibles sin Internet y migraciones recuperables. | Pruebas, revisión y entregables documentados |
+| **Fase 5: Backend, identidad y autorización** | Proporcionar servicios online con separación verificable entre usuarios. | Pruebas, revisión y entregables documentados |
+| **Fase 6: Cifrado y gestión de claves** | Proteger contenidos privados sin perder la capacidad de recuperación legítima. | Pruebas, revisión y entregables documentados |
+| **Fase 7: Sincronización multiplataforma** | Conciliar datos offline entre Windows, Linux y Android sin pérdidas. | Pruebas, revisión y entregables documentados |
+| **Fase 8: Aplicación Android** | Construir un cliente móvil con la identidad SMART UNI y seguridad compartida. | Pruebas, revisión y entregables documentados |
+| **Fase 9: Seguridad, integración continua y beta** | Verificar que los controles prometidos existen y resisten fallos. | Pruebas, revisión y entregables documentados |
+| **Fase 10: Lanzamiento gradual** | Publicar con controles de privacidad, soporte y operación. | Pruebas, revisión y entregables documentados |
 
 ## 10. Pruebas indispensables
 
@@ -148,4 +149,4 @@ No avanzar de fase si falla la migración de datos, una operación pierde inform
 - **Conservación:** migración reversible, sin modificar ni borrar el JSON anterior antes de confirmar éxito.
 - **UI:** el diseño aprobado es un requisito de compatibilidad, no una parte a rediseñar.
 
-**Próximo paso implementable:** Fase 0 y Fase 1. En esas fases la aplicación debe verse y comportarse exactamente como ahora, mientras dejamos lista la arquitectura de datos para añadir SQLite y la sincronización posteriormente.
+**Próximo paso implementable:** Fase 1: Análisis y línea base, seguida de Fase 2: Contratos y sistema de diseño. En esas fases la aplicación debe verse y comportarse exactamente como ahora, mientras dejamos lista la arquitectura de datos para añadir SQLite y la sincronización posteriormente.
