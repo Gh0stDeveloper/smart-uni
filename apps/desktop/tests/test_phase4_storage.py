@@ -61,7 +61,7 @@ class TestEncryptedSQLite(unittest.TestCase):
         with self.assertRaises(KeyUnavailable):
             EncryptedSQLiteRepository(self.path, INITIAL, key_store=MemoryKeys())
         wrong = MemoryKeys()
-        wrong.put(next(iter(self.keys.keys())), os.urandom(32))
+        wrong.put(next(iter(self.keys.keys)), os.urandom(32))
         with self.assertRaises(StorageError):
             EncryptedSQLiteRepository(self.path, INITIAL, key_store=wrong)
         self.assertEqual(self.path.read_bytes(), before)
