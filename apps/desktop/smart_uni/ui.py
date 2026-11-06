@@ -12,6 +12,7 @@ from tkinter import messagebox
 from pathlib import Path
 
 from .core import SmartUniService, ValidationError
+from .session import SessionState
 
 
 # Son los mismos colores de la guía original. No se modificó el diseño.
@@ -105,7 +106,7 @@ class SmartUniApp(tk.Tk):
     def __init__(self, service: SmartUniService):
         super().__init__()
         self.service = service
-        self.user: dict | None = None
+        self._session = SessionState()
 
         self.title('Smart Uni | Plataforma Académica')
         self.geometry('1260x840')
@@ -113,6 +114,15 @@ class SmartUniApp(tk.Tk):
         self._set_original_icon()
         self.configure(bg=COLORS['page'])
         self.show_login()
+
+    @property
+    def user(self) -> dict | None:
+        """Interfaz de compatibilidad para las pantallas actuales."""
+        return self._session.user
+
+    @user.setter
+    def user(self, account: dict | None) -> None:
+        self._session.set_user(account)
 
     def _set_original_icon(self):
         """Usamos el birrete original, no una letra como icono."""
