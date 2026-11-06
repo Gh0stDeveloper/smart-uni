@@ -7,3 +7,5 @@ pub const CORE_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const CONTRACT_VERSION: &str = "1.0.0";
 pub const LEGACY_STORAGE_VERSION: u32 = 1;
 pub mod envelope;
+pub mod recovery;
+pub mod devices;
