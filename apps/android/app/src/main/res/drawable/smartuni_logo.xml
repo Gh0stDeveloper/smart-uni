@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="90dp" android:height="78dp"
+    android:viewportWidth="60" android:viewportHeight="52">
+    <!-- Misma geometría del isotipo aprobado: 00_isotipo_smart_uni.svg -->
+    <path android:pathData="M2,20 L24,6 L46,20 L24,34 Z" android:fillColor="#2B80EC" />
+    <path android:pathData="M13,29 L13,39 Q24,45 35,39 L35,29 L24,35 Z" android:fillColor="#2BB2C4" />
+    <path android:pathData="M42,21 L42,38" android:strokeColor="#2BB2C4"
+        android:strokeWidth="3" android:strokeLineCap="round" />
+</vector>

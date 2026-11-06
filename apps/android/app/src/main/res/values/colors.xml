@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Identidad canónica: packages/design-system/tokens.json -->
+    <color name="smart_primary">#2B80EC</color>
+    <color name="smart_cta">#2BB2C4</color>
+    <color name="smart_background">#F3F7FC</color>
+    <color name="smart_highlight">#D8EBFD</color>
+    <color name="smart_text">#243448</color>
+    <color name="smart_muted">#65768C</color>
+    <color name="smart_white">#FFFFFF</color>
+    <color name="smart_divider">#E2E8F0</color>
+</resources>

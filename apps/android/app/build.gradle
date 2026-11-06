@@ -1,0 +1,70 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'xyz.smartuni.app'
+    compileSdk 35
+    ndkVersion '27.2.12479018'
+
+    defaultConfig {
+        applicationId 'xyz.smartuni.app'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '2.0.0-dev8'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        ndk {
+            abiFilters 'arm64-v8a', 'x86_64'
+        }
+    }
+
+    signingConfigs {
+        if (System.getenv('SMARTUNI_SIGNING_STORE_FILE') &&
+            System.getenv('SMARTUNI_SIGNING_STORE_PASSWORD') &&
+            System.getenv('SMARTUNI_SIGNING_KEY_ALIAS') &&
+            System.getenv('SMARTUNI_SIGNING_KEY_PASSWORD')) {
+            release {
+                storeFile file(System.getenv('SMARTUNI_SIGNING_STORE_FILE'))
+                storePassword System.getenv('SMARTUNI_SIGNING_STORE_PASSWORD')
+                keyAlias System.getenv('SMARTUNI_SIGNING_KEY_ALIAS')
+                keyPassword System.getenv('SMARTUNI_SIGNING_KEY_PASSWORD')
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            debuggable false
+            if (signingConfigs.findByName('release') != null) {
+                signingConfig signingConfigs.getByName('release')
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    externalNativeBuild {
+        cmake {
+            path 'src/main/cpp/CMakeLists.txt'
+            version '3.22.1'
+        }
+    }
+    testOptions {
+        animationsDisabled true
+    }
+    packaging {
+        jniLibs {
+            useLegacyPackaging false
+        }
+    }
+}
+
+dependencies {
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test:runner:1.6.2'
+}

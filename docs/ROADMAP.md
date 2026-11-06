@@ -186,6 +186,8 @@
 
 **Objetivo:** Construir un cliente móvil con la identidad SMART UNI y seguridad compartida.
 
+**Implementación inicial en curso:** proyecto Gradle Java con las seis secciones adaptativas y birrete original; nota local cifrada con Rust/Android Keystore; adaptador C++/JNI para diagnóstico HTTPS; workflows APK/AAB y pruebas instrumentadas. **Todavía no equivale a 8 completada:** OIDC/PKCE, sincronización entre dispositivos, almacenamiento multi-entidad, firma comercial y pruebas físicas quedan pendientes. [Acta provisional y evidencias](phase-8/8_CIERRE_Y_EVIDENCIAS.md).
+
 ### 8.1 Interfaz nativa Java
 
 - [ ] Pantallas accesibles y adaptativas con el diseño e icono originales.
@@ -249,6 +251,6 @@
 
 ## Control del avance
 
-Las etapas **1–7 están implementadas y validadas dentro de su alcance técnico experimental**. Etapa 7: sync ciphertext-only y conflictos en FastAPI/PostgreSQL, cliente Rust/SQLCipher, cursor CAS y adjuntos reanudables con 22 pruebas API, 6 E2E Linux y 5 pruebas nativas del cliente por SO. **Sin sincronización automática de producto, Android, IdP real ni distribución de claves segura; API plaintext legacy bloqueada por defecto**. Etapas **8–10 pendientes**. [Registro maestro de 52 asuntos](PENDIENTES_SMART_UNI_2_0.md).
+Las etapas **1–7 están implementadas y validadas dentro de su alcance técnico experimental**. Etapa 7: sync ciphertext-only y conflictos en FastAPI/PostgreSQL, cliente Rust/SQLCipher, cursor CAS y adjuntos reanudables con 22 pruebas API, 6 E2E Linux y 5 pruebas nativas del cliente por SO. **Sin sincronización automática de producto, Android, IdP real ni distribución de claves segura; API plaintext legacy bloqueada por defecto**. Etapa **8 iniciada pero sin cierre técnico**; etapas **9–10 pendientes**. [Registro maestro actualizado](PENDIENTES_SMART_UNI_2_0.md).
 
 El detalle técnico se encuentra en [arquitectura multiplataforma](architecture/SMART_UNI_2_0_Arquitectura_Multiplataforma_Segura.md). **Este documento prevalece** cuando otros planes anteriores utilizan números o etapas diferentes.
