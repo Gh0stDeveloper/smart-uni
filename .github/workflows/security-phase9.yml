@@ -6,6 +6,8 @@ on:
       - 'scripts/phase9_*.py'
       - 'scripts/test_phase9_*.py'
       - 'services/api/tests/test_security_phase9.py'
+      - 'services/api/requirements.txt'
+      - 'apps/web/package.json'
       - 'docs/phase-9/**'
       - 'apps/android/app/build.gradle'
       - 'apps/android/app/proguard-rules.pro'
