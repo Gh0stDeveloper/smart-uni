@@ -81,45 +81,6 @@ pub extern "C" fn smartuni_crypto_self_test_v1() -> i32 {
     })
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn abi_version_and_email() {
-        assert_eq!(smartuni_abi_version(), 1);
-        assert_eq!(
-            unsafe { smartuni_validate_email_v1(b"User@UNI.EDU".as_ptr(), 12) },
-            OK
-        );
-        assert_eq!(
-            unsafe { smartuni_validate_email_v1(b"bad".as_ptr(), 3) },
-            ERR_INVALID
-        );
-        assert_eq!(
-            unsafe { smartuni_validate_email_v1(std::ptr::null(), 0) },
-            ERR_POINTER
-        );
-    }
-
-    #[test]
-    fn abi_operation_and_invalid_pointer() {
-        let payload = br#"{"schema_version":"1.0.0","operation":"notes.create","operation_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","actor_ref":"student@example.edu","occurred_at":"2026-11-06T04:00:00Z","payload":{}}"#;
-        assert_eq!(
-            unsafe { smartuni_validate_operation_v1(payload.as_ptr(), payload.len()) },
-            OK
-        );
-        assert_eq!(
-            unsafe { smartuni_validate_operation_v1(b"{}".as_ptr(), 2) },
-            ERR_INVALID
-        );
-        assert_eq!(
-            unsafe { smartuni_validate_operation_v1(std::ptr::null(), 1) },
-            ERR_POINTER
-        );
-    }
-}
-
 /// Interfaz de bytes para contenedores y recuperación. El llamador es dueño de
 /// las entradas/salidas y debe limpiarlas de memoria cuando contengan secretos.
 /// Los buffers de salida NO pueden solaparse con ninguno de entrada.
@@ -249,3 +210,43 @@ pub unsafe extern "C" fn smartuni_restore_recovery_v1(
             .map_err(|_| ERR_INVALID)
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn abi_version_and_email() {
+        assert_eq!(smartuni_abi_version(), 1);
+        assert_eq!(
+            unsafe { smartuni_validate_email_v1(b"User@UNI.EDU".as_ptr(), 12) },
+            OK
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_email_v1(b"bad".as_ptr(), 3) },
+            ERR_INVALID
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_email_v1(std::ptr::null(), 0) },
+            ERR_POINTER
+        );
+    }
+
+    #[test]
+    fn abi_operation_and_invalid_pointer() {
+        let payload = br#"{"schema_version":"1.0.0","operation":"notes.create","operation_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","actor_ref":"student@example.edu","occurred_at":"2026-11-06T04:00:00Z","payload":{}}"#;
+        assert_eq!(
+            unsafe { smartuni_validate_operation_v1(payload.as_ptr(), payload.len()) },
+            OK
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_operation_v1(b"{}".as_ptr(), 2) },
+            ERR_INVALID
+        );
+        assert_eq!(
+            unsafe { smartuni_validate_operation_v1(std::ptr::null(), 1) },
+            ERR_POINTER
+        );
+    }
+}
+

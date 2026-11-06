@@ -279,6 +279,12 @@ class StudentSpaceService:
         """El modo seguro no genera copias de materiales sin cifrar."""
         from .secure_storage import EncryptedSQLiteRepository
         if isinstance(self.base.repository, EncryptedSQLiteRepository):
+            import os
+            if not os.environ.get("SMARTUNI_NATIVE_LIB"):
+                raise ValidationError(
+                    'La importación protegida está pendiente de instalar '
+                    'SMARTUNI_NATIVE_LIB; no se guardará contenido en claro.'
+                )
             from .secure_files import SecureMaterialStore
             return SecureMaterialStore(self.base.repository, email).add(subject, source)
         if subject not in SUBJECTS:
