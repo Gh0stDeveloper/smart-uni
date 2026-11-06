@@ -46,11 +46,20 @@ pub fn export(key: &[u8; 32], passphrase: &[u8]) -> Result<[u8; PACKAGE_LEN], Re
     out[..8].copy_from_slice(MAGIC);
     out[8..24].copy_from_slice(&salt);
     out[24..36].copy_from_slice(&nonce);
-    let cipher = Aes256Gcm::new_from_slice(wrap_key.as_ref())
+    let cipher =
+        Aes256Gcm::new_from_slice(wrap_key.as_ref()).map_err(|_| RecoveryError::Unavailable)?;
+    let sealed = cipher
+        .encrypt(
+            &nonce,
+            Payload {
+                msg: key,
+                aad: &out[..HEADER_LEN],
+            },
+        )
         .map_err(|_| RecoveryError::Unavailable)?;
-    let sealed = cipher.encrypt(&nonce, Payload { msg: key, aad: &out[..HEADER_LEN] })
-        .map_err(|_| RecoveryError::Unavailable)?;
-    if sealed.len() != 48 { return Err(RecoveryError::Unavailable); }
+    if sealed.len() != 48 {
+        return Err(RecoveryError::Unavailable);
+    }
     out[HEADER_LEN..].copy_from_slice(&sealed);
     Ok(out)
 }
@@ -61,12 +70,20 @@ pub fn restore(blob: &[u8], passphrase: &[u8]) -> Result<Zeroizing<[u8; 32]>, Re
         return Err(RecoveryError::InvalidInput);
     }
     let wrap_key = derive(passphrase, &blob[8..24])?;
-    let cipher = Aes256Gcm::new_from_slice(wrap_key.as_ref())
-        .map_err(|_| RecoveryError::Unavailable)?;
-    let plain = cipher.decrypt(Nonce::from_slice(&blob[24..36]),
-        Payload { msg: &blob[HEADER_LEN..], aad: &blob[..HEADER_LEN] })
+    let cipher =
+        Aes256Gcm::new_from_slice(wrap_key.as_ref()).map_err(|_| RecoveryError::Unavailable)?;
+    let plain = cipher
+        .decrypt(
+            Nonce::from_slice(&blob[24..36]),
+            Payload {
+                msg: &blob[HEADER_LEN..],
+                aad: &blob[..HEADER_LEN],
+            },
+        )
         .map_err(|_| RecoveryError::AuthenticationFailed)?;
-    if plain.len() != 32 { return Err(RecoveryError::AuthenticationFailed); }
+    if plain.len() != 32 {
+        return Err(RecoveryError::AuthenticationFailed);
+    }
     let mut key = Zeroizing::new([0u8; 32]);
     key.copy_from_slice(&plain);
     Ok(key)
@@ -82,14 +99,16 @@ mod tests {
         let pkg = export(&secret, pass).unwrap();
         assert_ne!(&pkg[..8], b"SQLite f");
         assert_eq!(&*restore(&pkg, pass).unwrap(), &secret);
-        assert_eq!(restore(&pkg, b"frase totalmente distinta e incorrecta").unwrap_err(),
-            RecoveryError::AuthenticationFailed);
+        assert_eq!(
+            restore(&pkg, b"frase totalmente distinta e incorrecta").unwrap_err(),
+            RecoveryError::AuthenticationFailed
+        );
     }
     #[test]
     fn manipulated_salt_nonce_tag_and_header_fail() {
         let pass = b"frase de prueba generada externamente sin uso real";
         let package = export(&[23u8; 32], pass).unwrap();
-        for index in [0,8,24,35,36,PACKAGE_LEN-1] {
+        for index in [0, 8, 24, 35, 36, PACKAGE_LEN - 1] {
             let mut tampered = package;
             tampered[index] ^= 0x02;
             assert!(restore(&tampered, pass).is_err());
@@ -97,7 +116,7 @@ mod tests {
     }
     #[test]
     fn corrupted_length_and_short_password_rejected() {
-        assert!(export(&[1u8;32], b"short").is_err());
+        assert!(export(&[1u8; 32], b"short").is_err());
         assert!(restore(b"bad", b"passphrase passphrase passphrase").is_err());
     }
 }

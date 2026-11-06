@@ -151,7 +151,9 @@ where
 /// # Safety
 /// ptr debe apuntar a len bytes legibles; len=0 es válido solo si ptr no es NULL.
 unsafe fn bytes_limit<'a>(ptr: *const u8, len: usize, max: usize) -> Result<&'a [u8], i32> {
-    if ptr.is_null() || len > max { return Err(ERR_POINTER); }
+    if ptr.is_null() || len > max {
+        return Err(ERR_POINTER);
+    }
     Ok(slice::from_raw_parts(ptr, len))
 }
 
@@ -161,9 +163,15 @@ unsafe fn bytes_limit<'a>(ptr: *const u8, len: usize, max: usize) -> Result<&'a 
 /// válidos, output válido, escribible, no solapado. El llamador borra su clave.
 #[no_mangle]
 pub unsafe extern "C" fn smartuni_seal_record_v1(
-    key: *const u8, key_len: usize, context: *const u8, context_len: usize,
-    plain: *const u8, plain_len: usize,
-    out: *mut u8, capacity: usize, written: *mut usize,
+    key: *const u8,
+    key_len: usize,
+    context: *const u8,
+    context_len: usize,
+    plain: *const u8,
+    plain_len: usize,
+    out: *mut u8,
+    capacity: usize,
+    written: *mut usize,
 ) -> i32 {
     copy_output(out, capacity, written, || {
         let key_in = bytes_limit(key, key_len, 32)?;
@@ -178,12 +186,20 @@ pub unsafe extern "C" fn smartuni_seal_record_v1(
 /// Reglas de punteros/buffers iguales a seal; bytes de ciphertext <=8MiB+300.
 #[no_mangle]
 pub unsafe extern "C" fn smartuni_open_record_v1(
-    key: *const u8, key_len: usize, context: *const u8, context_len: usize,
-    blob: *const u8, blob_len: usize,
-    out: *mut u8, capacity: usize, written: *mut usize,
+    key: *const u8,
+    key_len: usize,
+    context: *const u8,
+    context_len: usize,
+    blob: *const u8,
+    blob_len: usize,
+    out: *mut u8,
+    capacity: usize,
+    written: *mut usize,
 ) -> i32 {
     copy_output(out, capacity, written, || {
-        let secret: &[u8; 32] = bytes_limit(key, key_len, 32)?.try_into().map_err(|_| ERR_POINTER)?;
+        let secret: &[u8; 32] = bytes_limit(key, key_len, 32)?
+            .try_into()
+            .map_err(|_| ERR_POINTER)?;
         let ctx = bytes_limit(context, context_len, 256)?;
         let input = bytes_limit(blob, blob_len, crate::envelope::MAX_PLAINTEXT + 300)?;
         crate::envelope::open(secret, ctx, input).map_err(|_| ERR_INVALID)
@@ -194,13 +210,22 @@ pub unsafe extern "C" fn smartuni_open_record_v1(
 /// Clave 32 bytes y passphrase de 16..512 bytes, output mínimo 84 bytes.
 #[no_mangle]
 pub unsafe extern "C" fn smartuni_export_recovery_v1(
-    key: *const u8, key_len: usize, passphrase: *const u8, pass_len: usize,
-    out: *mut u8, capacity: usize, written: *mut usize,
+    key: *const u8,
+    key_len: usize,
+    passphrase: *const u8,
+    pass_len: usize,
+    out: *mut u8,
+    capacity: usize,
+    written: *mut usize,
 ) -> i32 {
     copy_output(out, capacity, written, || {
-        let secret: &[u8; 32] = bytes_limit(key, key_len, 32)?.try_into().map_err(|_| ERR_POINTER)?;
+        let secret: &[u8; 32] = bytes_limit(key, key_len, 32)?
+            .try_into()
+            .map_err(|_| ERR_POINTER)?;
         let phrase = bytes_limit(passphrase, pass_len, 512)?;
-        crate::recovery::export(secret, phrase).map(|x| x.to_vec()).map_err(|_| ERR_INVALID)
+        crate::recovery::export(secret, phrase)
+            .map(|x| x.to_vec())
+            .map_err(|_| ERR_INVALID)
     })
 }
 
@@ -208,12 +233,19 @@ pub unsafe extern "C" fn smartuni_export_recovery_v1(
 /// Copia de recuperación de 84 bytes; passphrase 16..512; output 32 bytes.
 #[no_mangle]
 pub unsafe extern "C" fn smartuni_restore_recovery_v1(
-    blob: *const u8, blob_len: usize, passphrase: *const u8, pass_len: usize,
-    out: *mut u8, capacity: usize, written: *mut usize,
+    blob: *const u8,
+    blob_len: usize,
+    passphrase: *const u8,
+    pass_len: usize,
+    out: *mut u8,
+    capacity: usize,
+    written: *mut usize,
 ) -> i32 {
     copy_output(out, capacity, written, || {
         let package = bytes_limit(blob, blob_len, crate::recovery::PACKAGE_LEN)?;
         let phrase = bytes_limit(passphrase, pass_len, 512)?;
-        crate::recovery::restore(package, phrase).map(|x| x.to_vec()).map_err(|_| ERR_INVALID)
+        crate::recovery::restore(package, phrase)
+            .map(|x| x.to_vec())
+            .map_err(|_| ERR_INVALID)
     })
 }
