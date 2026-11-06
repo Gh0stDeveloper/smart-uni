@@ -89,16 +89,7 @@ jobs:
           cores: 2
           ram-size: 2048M
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: |
-            timeout 120s adb wait-for-device
-            mkdir -p apps/android/app/build/diagnostics
-            set +e
-            (cd apps/android && gradle --no-daemon :app:connectedDebugAndroidTest)
-            test_result=$?
-            # Capturar errores mientras el emulador aún vive, no después de teardown.
-            timeout 15s adb logcat -d -t 5000 -v threadtime > apps/android/app/build/diagnostics/emulator.log || true
-            timeout 15s adb shell dumpsys activity processes > apps/android/app/build/diagnostics/processes.txt || true
-            exit "$test_result"
+          script: bash scripts/android_instrumentation.sh
       - name: Capturar diagnóstico limitado del emulador
         if: failure()
         shell: bash
