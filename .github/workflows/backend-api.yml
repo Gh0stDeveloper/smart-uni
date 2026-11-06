@@ -5,6 +5,8 @@ on:
     paths:
       - 'services/api/**'
       - '.github/workflows/backend-api.yml'
+      - 'docs/phase-7/**'
+      - 'docs/PENDIENTES_SMART_UNI_2_0.md'
   pull_request:
     paths:
       - 'services/api/**'

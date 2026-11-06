@@ -50,7 +50,7 @@ jobs:
       - name: Adjuntar capturas y respaldo sintético
         uses: actions/upload-artifact@v4
         with:
-          name: smart-uni-phase6-${{ runner.os }}
+          name: smart-uni-phase7-${{ runner.os }}
           path: apps/desktop/phase1-evidence/
           if-no-files-found: error
           retention-days: 30

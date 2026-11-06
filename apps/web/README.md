@@ -1,6 +1,6 @@
 # SMART UNI 2.0 — Portal Next.js / Auth.js
 
-**Estado:** aplicación Next.js compilada y validada en CI, pero no desplegada ni conectada a un proveedor OIDC real. Los apuntes API siguen en texto claro: solo datos sintéticos. Ver [cierre técnico](../../docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md).
+**Estado:** aplicación Next.js compilada y validada en CI, pero no desplegada ni conectada a un proveedor OIDC real. La API demo de notas en claro responde 410 por defecto y el formulario se oculta. El canal de sync v2 cifrado no cuenta todavía con editor E2EE web. Usar solo datos sintéticos. Ver [cierre técnico](../../docs/phase-5/5_CIERRE_Y_EVIDENCIAS.md).
 
 ## Diseño y seguridad
 
@@ -34,4 +34,8 @@ Para desarrollo, se admite Origin HTTP solo en localhost/127.0.0.1; en producci�
 
 ## Pruebas y pendientes
 
-El [workflow web](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/web-portal.yml) prueba TypeScript, build, seguridad de origen, URL fija del API y rutas HTTP sin sesión. No prueba acceso interactivo con IdP de producción ni cookies detrás de reverse proxy. No hay token refresh operativo ni sincronización entre escritorio y Android; revisar [registro maestro P01–P36](../../docs/PENDIENTES_SMART_UNI_2_0.md).
+El [workflow web](https://github.com/Gh0stDeveloper/smart-uni/actions/workflows/web-portal.yml) prueba TypeScript, build, seguridad de origen, URL fija del API y rutas HTTP sin sesión. No prueba acceso interactivo con IdP de producción ni cookies detrás de reverse proxy. No hay token refresh operativo ni sincronización entre escritorio y Android; revisar [registro maestro P01–P52](../../docs/PENDIENTES_SMART_UNI_2_0.md).
+
+## Estado de sincronización etapa 7
+
+El portal detecta HTTP 410 del antiguo CRUD de notas y no muestra formulario sin habilitación de demo. El backend ciphertext-only existe y se prueba con clientes Rust/SQLCipher, **no** con un editor E2EE en el navegador. Falta provisión de claves, sesión/refresh real de IdP y UI de conflictos. [Acta y limitaciones](../../docs/phase-7/7_CIERRE_Y_EVIDENCIAS.md).

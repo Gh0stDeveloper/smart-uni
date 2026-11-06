@@ -7,6 +7,8 @@ on:
       - 'apps/desktop/smart_uni/encrypted_sync.py'
       - 'apps/desktop/smart_uni/secure_crypto.py'
       - '.github/workflows/sync-e2e.yml'
+      - 'docs/phase-7/**'
+      - 'docs/PENDIENTES_SMART_UNI_2_0.md'
   pull_request:
     paths:
       - 'services/api/**'

@@ -18,6 +18,8 @@ on:
       - 'apps/desktop/tests/test_phase7_sync_client.py'
       - 'scripts/check_crypto_vectors.py'
       - '.github/workflows/rust-core.yml'
+      - 'docs/phase-7/**'
+      - 'docs/PENDIENTES_SMART_UNI_2_0.md'
   pull_request:
     paths:
       - 'core/rust/**'
