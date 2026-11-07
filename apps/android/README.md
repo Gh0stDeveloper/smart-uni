@@ -68,3 +68,7 @@ export SMARTUNI_API_ORIGIN='https://api.example.org'
 Los valores son ilustrativos y no corresponden a servicios reales. El proveedor debe registrar `xyz.smartuni.app:/oauth2redirect` como redirect de cliente público y configurar audience JWT `smartuni-api` para el backend. Sin esos valores el login permanece deshabilitado; no hay credenciales fijas. El access token, cuando existe, se persiste cifrado Rust/Keystore, se caduca localmente y puede comprobarse con GET /me mediante JNI C++.
 
 **Límites:** no hay token refresh, logout global, enlace de dispositivos, App Links verificados ni validación real con proveedor; un callback de esquema personalizado requiere análisis de su superficie de intercepción. Este login no supone sincronización ni E2EE compartido. La cuenta y su servidor deben configurarse fuera del repositorio por el responsable autorizado.
+
+## Verificación Android después del endurecimiento Rust 9.1
+
+El núcleo Rust compilado para Android ahora usa HPKE X25519 únicamente (`default-features = false`), eliminando P-256 y `crypto-bigint` del grafo de dependencias. La actualización está corroborada mediante RustSec y pruebas Linux; **la instrumentación Android de la revisión actual debe ejecutarse por CI**, no inferirse a partir de los builds anteriores. Los artefactos siguen siendo de laboratorio y sin firma comercial. Ver [acta de la etapa 9](../../docs/phase-9/9_CIERRE_Y_EVIDENCIAS.md).
