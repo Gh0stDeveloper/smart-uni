@@ -77,6 +77,10 @@ jobs:
       - name: Denegar CVE npm altas y críticas
         working-directory: apps/web
         run: npm audit --audit-level=high
+      - name: Instalar cargo-audit para control bloqueante
+        uses: taiki-e/install-action@cargo-audit
+      - name: Denegar avisos RustSec del núcleo
+        run: cargo audit --file core/rust/Cargo.lock
   dependency-observation:
     name: SCA de dependencias (advisory; hallazgos bloquean beta)
     runs-on: ubuntu-latest
