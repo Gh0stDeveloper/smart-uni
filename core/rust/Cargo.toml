@@ -17,5 +17,5 @@ chrono = { version = "0.4.38", default-features = false, features = ["std"] }
 aes-gcm = "=0.10.3"
 hex = "=0.4.3"
 argon2 = "=0.5.3"
-hpke = { version = "=0.12.0", features = ["std", "x25519"] }
+hpke = { version = "=0.12.0", default-features = false, features = ["std", "x25519"] }
 zeroize = "=1.8.2"
