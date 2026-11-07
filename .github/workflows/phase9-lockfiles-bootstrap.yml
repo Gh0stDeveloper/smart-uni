@@ -1,0 +1,53 @@
+name: SMART UNI 9 Bootstrap único de lockfiles
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/phase9-lockfiles-bootstrap.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: smartuni-phase9-lockfiles-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  generate-and-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Asegurar que aún no hay lockfiles persistidos
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -f apps/web/package-lock.json
+          test ! -f core/rust/Cargo.lock
+      - name: Resolver dependencias npm sin scripts de instalación
+        working-directory: apps/web
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-fund --no-audit
+          npm audit --audit-level=high
+      - name: Resolver dependencias Rust a Cargo.lock
+        run: cargo generate-lockfile --manifest-path core/rust/Cargo.toml
+      - name: Comprobar que Cargo respeta el lock
+        run: cargo metadata --locked --format-version 1 --manifest-path core/rust/Cargo.toml --no-deps > /dev/null
+      - name: Publicar lockfiles como commit en main, sin reescribir historial
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps/web/package-lock.json core/rust/Cargo.lock
+          git diff --cached --quiet && exit 1
+          git commit -m 'chore(9.2): persistir lockfiles transitivos de npm y Cargo'
+          git push origin HEAD:main
