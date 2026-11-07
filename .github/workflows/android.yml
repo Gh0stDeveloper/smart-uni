@@ -59,72 +59,17 @@ jobs:
       - name: Construir APK y AAB desde Java JNI Rust
         working-directory: apps/android
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease :app:bundleRelease
-      - name: Verificar firma de depuración (sin firma comercial)
+      - name: Validar certificado de debug, sin declarar firma comercial
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p apps/android/app/build/outputs
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs apps/android/app/build/outputs/apk/debug/app-debug.apk > apps/android/app/build/outputs/phase9-debug-signing.txt
           if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify apps/android/app/build/outputs/apk/release/app-release-unsigned.apk >/dev/null 2>&1; then
-            echo "ERROR: APK release inesperadamente firmado" >&2
+            echo "ERROR: APK release con firma inesperada" >&2
             exit 1
           fi
-          if jar tf apps/android/app/build/outputs/bundle/release/app-release.aab | grep -E '^META-INF/[^/]+\\.(RSA|DSA|EC)
-        uses: actions/upload-artifact@v4
-        with:
-          name: smart-uni-android-fase8-sin-firma-produccion
-          path: |
-            apps/android/app/build/outputs/apk/debug/app-debug.apk
-            apps/android/app/build/outputs/apk/release/app-release-unsigned.apk
-            apps/android/app/build/outputs/bundle/release/app-release.aab
-            apps/android/app/build/outputs/phase9-artifacts.json
-            apps/android/app/build/outputs/phase9-debug-signing.txt
-          if-no-files-found: error
-          retention-days: 14
-      - name: Habilitar aceleración KVM de Android
-        shell: bash
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-          ls -l /dev/kvm || true
-      - name: Probar JNI Rust y Android Keystore en emulador real
-        timeout-minutes: 35
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 35
-          target: google_apis
-          arch: x86_64
-          profile: pixel_3a
-          disable-animations: true
-          disable-spellchecker: true
-          emulator-boot-timeout: 900
-          cores: 2
-          ram-size: 2048M
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          script: bash scripts/android_instrumentation.sh
-      - name: Capturar diagnóstico limitado del emulador
-        if: failure()
-        shell: bash
-        run: |
-          mkdir -p apps/android/app/build/diagnostics
-          timeout 15s adb logcat -d -t 3000 -v threadtime > apps/android/app/build/diagnostics/emulator.log || true
-
-      - name: Guardar resultados de instrumentación
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: smart-uni-android-pruebas-fase8
-          path: |
-            apps/android/app/build/outputs/androidTest-results/**
-            apps/android/app/build/reports/androidTests/**
-            apps/android/app/build/diagnostics/**
-          if-no-files-found: warn
-          retention-days: 14
-; then
-            echo "ERROR: AAB release inesperadamente firmado" >&2
-            exit 1
-          fi
-      - name: Crear y verificar recibo SHA256 de paquetes de laboratorio
+      - name: Recibo SHA256 y verificación ZIP de paquetes Android
         shell: bash
         run: |
           set -euo pipefail
@@ -138,6 +83,8 @@ jobs:
             apps/android/app/build/outputs/apk/debug/app-debug.apk
             apps/android/app/build/outputs/apk/release/app-release-unsigned.apk
             apps/android/app/build/outputs/bundle/release/app-release.aab
+            apps/android/app/build/outputs/phase9-artifacts.json
+            apps/android/app/build/outputs/phase9-debug-signing.txt
           if-no-files-found: error
           retention-days: 14
       - name: Habilitar aceleración KVM de Android
