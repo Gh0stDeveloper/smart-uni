@@ -41,3 +41,18 @@ Solo completar casillas en el ROADMAP con commits, logs y pruebas demostradas. M
 **Hallazgo activo:** la configuración de notas demo en claro era habilitable con una sola variable; la guardia posterior exige issuer .invalid y PostgreSQL loopback. Es una mitigación de laboratorio, no sustituye eliminar código demo de producción ni migrar los registros legacy.
 
 Mantener estado NO-GO beta/producción por bloqueos P01, P15, P38, P44, P45, P53, P56, P60–P64 y pruebas físicas.
+
+## Segunda intervención de seguridad y reproducibilidad (6 noviembre 2026)
+
+| Control | Evidencia real | Conclusión limitada |
+|---|---|---|
+| Cargo + npm lockfiles | [Bootstrap #42316985559](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42316985559), [commit acef926](https://github.com/Gh0stDeveloper/smart-uni/commit/acef9262080ba1d06038db2746855933bff728e9) | Archivos persistidos y comandos npm ci/cargo --locked incorporados; no garantiza builds bit a bit idénticos |
+| SBOM de código fuente | [#42317528711](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42317528711) | SBOM CycloneDX JSON, 193 componentes; binarios release pendientes |
+| Auditoría y puerta beta | [#42317528631](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42317528631) | Pruebas negativas de política, lockfiles y evidencia; beta sigue bloqueada |
+| RustSec inicial | [#42317528631](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42317528631) | Identificó RUSTSEC-2026-0387 en crypto-bigint 0.5.5 vía P-256 de HPKE |
+| Corrección X25519 solamente | [#42318060379](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42318060379), [commit c0058a1](https://github.com/Gh0stDeveloper/smart-uni/commit/c0058a195862c2efbc50fddabe461342c77c7ba9) | Rust tests y grafo activo sin P-256, Cargo.lock sin crypto-bigint |
+| Pip, npm y RustSec bloqueantes | [#42318212281](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42318212281) | Tres controles obligatorios en verde, sin advisories conocidos en ese lockfile/fecha |
+| APK/AAB de laboratorio | [#42317689877](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42317689877) | Tres SHA256 de artifact validados, zip correcto, APK debug firmado con Android Debug; releases sin firma comercial |
+| Revisión de fuentes | [#42317689882](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42317689882) | CodeQL SAST ejecutado; revisión manual de las alertas no efectuada |
+
+**Decisión: 9.1 parcial, 9.2 parcial, 9.3 bloqueada.** Los últimos resultados CI son pruebas de laboratorio, no de recuperación ni sincronización E2EE en hardware. No publicar a estudiantes reales. P58–P64 permanecen parcialmente abiertos o pendientes según el registro maestro.

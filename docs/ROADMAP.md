@@ -209,7 +209,7 @@
 
 **Objetivo:** Verificar que los controles prometidos existen y resisten fallos.
 
-**Desarrollo inicial en curso:** tests negativos SQLi/aislamiento, 640 mutaciones de ABI Rust, SAST CodeQL, informes SCA, puerta estática de seguridad, R8 Android, verificador offline de firma Ed25519 y downgrade, y checklist beta que rechaza por defecto. Los requisitos de auditoría real, firma comercial, actualización de clientes y dispositivos físicos NO se han completado. [Acta y limitaciones](phase-9/9_CIERRE_Y_EVIDENCIAS.md). **Las casillas se mantienen sin marcar** hasta cumplir cada criterio íntegramente.
+**Desarrollo ampliado y validado en CI:** tests negativos SQLi/aislamiento y mutaciones ABI, SAST CodeQL, auditorías bloqueantes pip/npm/RustSec, lockfiles npm y Cargo versionados, SBOM CycloneDX de fuente (193 componentes), recibos SHA256/ZIP de APK/AAB de laboratorio y gate beta que coteja runs/commit de GitHub. Se eliminó P-256 de HPKE, manteniendo únicamente X25519; RustSec ya no detecta la dependencia vulnerable en Cargo.lock. R8 Android y el verificador offline Ed25519/anti-downgrade permanecen. Los requisitos de auditoría real, firma comercial, actualización de clientes y dispositivos físicos NO se han completado. [Acta y limitaciones](phase-9/9_CIERRE_Y_EVIDENCIAS.md). **Las casillas se mantienen sin marcar** hasta cumplir cada criterio íntegramente.
 
 ### 9.1 Auditoría de seguridad
 

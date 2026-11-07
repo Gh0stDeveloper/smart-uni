@@ -30,3 +30,7 @@ No hay provisión de clave verificada por dispositivo, IdP real, Android activo,
 ## Etapa 9: control de publicación
 
 La [etapa 9](docs/phase-9/9_CIERRE_Y_EVIDENCIAS.md) agrega negativos de HTTP, mutaciones ABI y puerta beta. La instrumentación Android previa [#42296402993](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42296402993) falló (crash antes de completar tests). Un resultado de build no autoriza beta externa, publicación ni datos reales. Revisión de CodeQL/SCA y auditoría independiente aún requeridas.
+
+## Segunda iteración de seguridad de la etapa 9
+
+Lockfiles npm/Cargo comprometidos y exigidos en workflows; SBOM CycloneDX de fuente, recibos SHA256/ZIP del build Android de laboratorio y RustSec bloqueante. El aviso RUSTSEC-2026-0387 (`crypto-bigint` en P-256 opcional) se retiró del grafo activo y de Cargo.lock al deshabilitar features por defecto de HPKE, conservando exclusivamente X25519; [RustSec CI verde #42318212281](https://github.com/Gh0stDeveloper/smart-uni/actions/runs/42318212281). Bandit mantiene seis hallazgos LOW de apertura de archivos legacy, que necesitan revisión. No confundir builds de laboratorio y debug signed con firma comercial ni con aprobación de beta.
