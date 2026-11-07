@@ -48,7 +48,7 @@ jobs:
           python-version: '3.12'
       - uses: dtolnay/rust-toolchain@stable
       - name: Compilar nucleo Rust para pruebas integrales
-        run: cargo build --manifest-path core/rust/Cargo.toml --release
+        run: cargo build --locked --manifest-path core/rust/Cargo.toml --release
       - name: Instalar dependencias del servidor y SQLCipher
         run: |
           python -m pip install -r services/api/requirements.txt

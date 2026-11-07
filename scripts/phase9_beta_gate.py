@@ -7,6 +7,9 @@ import argparse
 import json
 import re
 import sys
+import os
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 REQUIRED_CHECKS = (
@@ -52,6 +55,58 @@ def validate_beta_report(report: dict) -> list[str]:
     return errors
 
 
+
+def verify_actions_evidence(report: dict, fetch_run=None) -> list[str]:
+    """Confirm run identity, success and exact source revision via GitHub API.
+
+    A real GitHub run still does NOT prove physical testing, ethical review,
+    cryptographic signatures or that a human actually reviewed the evidence.
+    """
+    commit = report.get("release_commit")
+    if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        return ["Falta commit exacto de beta, con 40 dígitos hexadecimales"]
+    if fetch_run is None:
+        def fetch_run(run_id):
+            url = ("https://api.github.com/repos/Gh0stDeveloper/smart-uni/actions/runs/"
+                   + str(run_id))
+            headers = {"Accept": "application/vnd.github+json",
+                       "User-Agent": "smartuni-beta-gate"}
+            token = os.environ.get("GITHUB_TOKEN")
+            if token:
+                headers["Authorization"] = "Bearer " + token
+            request = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(request, timeout=12) as response:
+                if response.status != 200:
+                    raise ValueError("Estado HTTP inesperado")
+                return json.load(response)
+    failures = []
+    seen = {}
+    for check, entry in report.get("checks", {}).items():
+        if not isinstance(entry, dict) or entry.get("status") != "passed":
+            continue
+        match = re.fullmatch(
+            r"https://github\.com/Gh0stDeveloper/smart-uni/actions/runs/([0-9]+)",
+            entry.get("evidence", ""),
+        )
+        if not match:
+            failures.append(f"URL sin estructura de Actions: {check}")
+            continue
+        run_id = int(match.group(1))
+        try:
+            if run_id not in seen:
+                seen[run_id] = fetch_run(run_id)
+            run = seen[run_id]
+        except (ValueError, OSError, urllib.error.URLError, KeyError, TimeoutError) as exc:
+            failures.append(f"No fue posible verificar run {run_id} para {check}: {type(exc).__name__}")
+            continue
+        repo = run.get("repository") or {}
+        if (run.get("id") != run_id or repo.get("full_name") != "Gh0stDeveloper/smart-uni" or
+                run.get("head_branch") != "main" or run.get("head_sha") != commit or
+                run.get("status") != "completed" or run.get("conclusion") != "success"):
+            failures.append(f"Run {run_id} no coincide con commit/main/resultado aprobado: {check}")
+    return failures
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("report", type=Path)
@@ -66,7 +121,12 @@ def main(argv=None):
         print("BLOQUEADO:", error, file=sys.stderr)
     if errors:
         return 1
-    print("Checklist completa (requiere cotejo humano independiente)")
+    live_errors = verify_actions_evidence(report)
+    for error in live_errors:
+        print("BLOQUEADO:", error, file=sys.stderr)
+    if live_errors:
+        return 1
+    print("Evidencia CI cotejada online; la revisión física/humana sigue siendo obligatoria")
     return 0
 
 

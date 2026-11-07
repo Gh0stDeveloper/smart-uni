@@ -1,0 +1,40 @@
+name: SMART UNI 9 SBOM de código y dependencias
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/package-lock.json'
+      - 'apps/web/package.json'
+      - 'core/rust/Cargo.lock'
+      - 'core/rust/Cargo.toml'
+      - 'services/api/requirements.txt'
+      - 'apps/desktop/requirements*.txt'
+      - '.github/workflows/sbom-phase9.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: SBOM CycloneDX JSON a partir del código/lockfiles
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: smartuni-stage9-source-sbom.cdx.json
+          artifact-name: smartuni-stage9-source-sbom
+      - name: Validar que el documento SBOM tiene componentes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          with open("smartuni-stage9-source-sbom.cdx.json", encoding="utf-8") as source:
+              sbom = json.load(source)
+          assert sbom.get("bomFormat") == "CycloneDX", "SBOM no CycloneDX"
+          assert sbom.get("specVersion"), "Versión SBOM ausente"
+          components = sbom.get("components", [])
+          assert len(components) >= 5, "SBOM sin dependencias suficientemente identificadas"
+          print(f"SBOM de código fuente generado, {len(components)} componentes. No cubre artefactos release")
+          PY

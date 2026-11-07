@@ -64,5 +64,6 @@
     }
   },
   "blocking_critical_findings": null,
-  "publication_approval": false
+  "publication_approval": false,
+  "release_commit": ""
 }

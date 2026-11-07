@@ -1,5 +1,5 @@
 import unittest
-from phase9_beta_gate import REQUIRED_CHECKS, validate_beta_report
+from phase9_beta_gate import REQUIRED_CHECKS, validate_beta_report, verify_actions_evidence
 
 
 class BetaGateTests(unittest.TestCase):
@@ -26,6 +26,39 @@ class BetaGateTests(unittest.TestCase):
         fake["checks"]["android_physical"]["status"] = "passed"
         fake["blocking_critical_findings"] = 1
         self.assertTrue(validate_beta_report(fake))
+
+    def test_github_success_is_checked_against_exact_main_commit(self):
+        sha = "b" * 40
+        report = {
+            "release_commit": sha,
+            "checks": {
+                "android_instrumentation": {
+                    "status": "passed",
+                    "evidence": "https://github.com/Gh0stDeveloper/smart-uni/actions/runs/12345",
+                    "reviewed_by": "synthetic",
+                },
+            },
+        }
+
+        def successful(run_id):
+            return {
+                "id": run_id,
+                "repository": {"full_name": "Gh0stDeveloper/smart-uni"},
+                "head_sha": sha,
+                "head_branch": "main",
+                "status": "completed",
+                "conclusion": "success",
+            }
+
+        self.assertEqual(verify_actions_evidence(report, successful), [])
+        self.assertTrue(verify_actions_evidence(report,
+                        lambda run_id: {**successful(run_id), "conclusion": "failure"}))
+        self.assertTrue(verify_actions_evidence(report,
+                        lambda run_id: {**successful(run_id), "head_sha": "a" * 40}))
+        self.assertTrue(verify_actions_evidence(report,
+                        lambda run_id: {**successful(run_id), "head_branch": "dev"}))
+        report["release_commit"] = ""
+        self.assertTrue(verify_actions_evidence(report, successful))
 
 
 if __name__ == "__main__":

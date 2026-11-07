@@ -35,14 +35,14 @@ jobs:
         with:
           node-version: '22'
       - name: Instalar dependencias declaradas
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Ejecutar pruebas de seguridad de rutas
         run: npm run test
       - name: Validar TypeScript
         run: npm run typecheck
       - name: Compilar Next.js
         run: npm run build
-      - name: Conservar lockfile generado como evidencia de resolución
+      - name: Conservar lockfile verificado de la revisión fuente
         uses: actions/upload-artifact@v4
         with:
           name: smartuni-web-dependency-lock-ci

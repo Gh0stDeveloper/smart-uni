@@ -48,11 +48,11 @@ jobs:
       - name: Formato Rust
         run: cargo fmt --manifest-path core/rust/Cargo.toml --all -- --check
       - name: Compilar y probar Rust
-        run: cargo test --manifest-path core/rust/Cargo.toml --all-targets --verbose
+        run: cargo test --locked --manifest-path core/rust/Cargo.toml --all-targets --verbose
       - name: Clippy sin avisos
-        run: cargo clippy --manifest-path core/rust/Cargo.toml --all-targets -- -D warnings
+        run: cargo clippy --locked --manifest-path core/rust/Cargo.toml --all-targets -- -D warnings
       - name: Construir biblioteca C ABI
-        run: cargo build --manifest-path core/rust/Cargo.toml --release
+        run: cargo build --locked --manifest-path core/rust/Cargo.toml --release
       - name: Configurar la ruta FFI para las pruebas Python
         shell: bash
         run: |
@@ -123,7 +123,7 @@ jobs:
           echo "ANDROID_CPP_COMPILER=$TOOLCHAIN/aarch64-linux-android21-clang++" >> "$GITHUB_ENV"
       - name: Compilar biblioteca Rust Android arm64
         run: |
-          cargo build --manifest-path core/rust/Cargo.toml --release --target aarch64-linux-android
+          cargo build --locked --manifest-path core/rust/Cargo.toml --release --target aarch64-linux-android
           test -s core/rust/target/aarch64-linux-android/release/libsmartuni_core.so
       - name: Compilar cabecera C++ contra NDK
         run: |
