@@ -45,6 +45,15 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - name: Rechazar rutas criptográficas P-256 no utilizadas en binarios
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo tree --locked --manifest-path core/rust/Cargo.toml --edges normal,build > "$RUNNER_TEMP/cargo-tree.txt"
+          if grep -E '(^|[[:space:]])(p256|crypto-bigint) v[0-9]' "$RUNNER_TEMP/cargo-tree.txt"; then
+            echo "Se detectó P-256 o crypto-bigint en dependencias activas" >&2
+            exit 1
+          fi
       - name: Formato Rust
         run: cargo fmt --manifest-path core/rust/Cargo.toml --all -- --check
       - name: Compilar y probar Rust
