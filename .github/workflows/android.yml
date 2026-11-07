@@ -59,21 +59,16 @@ jobs:
       - name: Construir APK y AAB desde Java JNI Rust
         working-directory: apps/android
         run: gradle --no-daemon :app:assembleDebug :app:assembleRelease :app:bundleRelease
-      - name: Probar firma debug y rechazo de release sin certificado
+      - name: Verificar firma de depuración (sin firma comercial)
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p apps/android/app/build/outputs
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs \
-            apps/android/app/build/outputs/apk/debug/app-debug.apk \
-            > apps/android/app/build/outputs/phase9-debug-signing.txt
-          if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify \
-            apps/android/app/build/outputs/apk/release/app-release-unsigned.apk >/dev/null 2>&1; then
-            echo "ERROR: el APK release se firmó fuera de la configuración esperada" >&2
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs apps/android/app/build/outputs/apk/debug/app-debug.apk > apps/android/app/build/outputs/phase9-debug-signing.txt
+          if "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify apps/android/app/build/outputs/apk/release/app-release-unsigned.apk >/dev/null 2>&1; then
+            echo "ERROR: APK release inesperadamente firmado" >&2
             exit 1
           fi
-          if jar tf apps/android/app/build/outputs/bundle/release/app-release.aab \
-            | grep -E '^META-INF/[^/]+\\.(RSA|DSA|EC)
+          if jar tf apps/android/app/build/outputs/bundle/release/app-release.aab | grep -E '^META-INF/[^/]+\\.(RSA|DSA|EC)
         uses: actions/upload-artifact@v4
         with:
           name: smart-uni-android-fase8-sin-firma-produccion
@@ -126,17 +121,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 ; then
-            echo "ERROR: AAB release firmado inesperadamente" >&2
+            echo "ERROR: AAB release inesperadamente firmado" >&2
             exit 1
           fi
-      - name: Generar y verificar recibo de laboratorio con SHA256 y ZIP
+      - name: Crear y verificar recibo SHA256 de paquetes de laboratorio
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/phase9_artifact_integrity.py create \
-            --sha "$GITHUB_SHA" --receipt apps/android/app/build/outputs/phase9-artifacts.json
-          python scripts/phase9_artifact_integrity.py verify \
-            --receipt apps/android/app/build/outputs/phase9-artifacts.json
+          python scripts/phase9_artifact_integrity.py create --sha "$GITHUB_SHA" --receipt apps/android/app/build/outputs/phase9-artifacts.json
+          python scripts/phase9_artifact_integrity.py verify --receipt apps/android/app/build/outputs/phase9-artifacts.json
       - name: Guardar artefactos de laboratorio
         uses: actions/upload-artifact@v4
         with:
